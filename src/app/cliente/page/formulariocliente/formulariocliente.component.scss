@@ -1,0 +1,114 @@
+/* Contenedor principal */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 16px;
+    background-color: #ffffff !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    color: #333 !important;
+    position: relative;
+    z-index: 1000;
+  }
+
+/* Forzar fondo blanco en toda la página del formulario */
+:host {
+  display: block;
+  background-color: #ffffff !important;
+  min-height: 100vh;
+}
+  
+  /* Título del formulario */
+  h2 {
+    margin-bottom: 24px;
+    font-size: 1.8rem;
+    font-weight: 500;
+    text-align: center;
+    color: #333 !important;
+  }
+  
+  /* Campos del formulario */
+  .row-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .full-width {
+      width: 100%;
+      
+      .mat-form-field-flex {
+        background-color: #ffffff !important;
+      }
+      
+      .mat-form-field-outline {
+        color: #ccc !important;
+      }
+      
+      input {
+        color: #333 !important;
+      }
+      
+      mat-label {
+        color: #666 !important;
+      }
+    }
+  }
+  
+  /* Botones del formulario */
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    button {
+      min-width: 120px;
+      margin: 0 4px;
+    }
+  }
+  
+  /* Spinner de carga */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 40px;
+  
+    mat-spinner {
+      color: #3f51b5; /* color primario */
+    }
+  
+    p {
+      font-size: 1rem;
+      color: #666;
+    }
+  }
+  
+  /* Estilos para snackbar */
+  ::ng-deep .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  ::ng-deep .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+
+  /* Estilo responsive */
+  @media (max-width: 600px) {
+    .row-fields {
+      gap: 12px;
+    }
+
+    .button-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  

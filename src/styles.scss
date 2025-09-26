@@ -1,0 +1,15 @@
+/* styles.scss */
+
+/* Fondo negro global */
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #242222; /* Fondo negro */
+    color: #fff; /* Opcional, texto blanco */
+  }
+  
+  /* Contenedores principales de Angular Material */
+  .mat-app-background, .mat-sidenav-container, .mat-drawer-container {
+    background-color: rgb(51, 48, 48) !important;
+  }
+  

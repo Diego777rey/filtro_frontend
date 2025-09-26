@@ -1,0 +1,37 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+  
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+  
+    .row-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 16px; // espacio entre campos
+      margin-bottom: 24px;
+    }
+
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+  
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;       // permite que los botones bajen si no hay espacio
+        gap: 12px;             // espacio entre botones
+        justify-content: flex-end; // alineados a la derecha
+        margin-top: 16px;
+  
+        button {
+          min-width: 100px;   // todos los botones del mismo ancho mínimo
+        }
+      }
+    }
+  }
+  

@@ -1,0 +1,42 @@
+<div class="filtros-reporte">
+  <h2>Generar Reporte de Categorías</h2>
+  
+  <form [formGroup]="reporteForm" (ngSubmit)="descargarReporte()">
+    <div class="filtros-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción de la Categoría</mat-label>
+        <input 
+          matInput 
+          placeholder="Ingrese la descripción de la categoría" 
+          formControlName="descripcion">
+        <mat-hint>Deje vacío para incluir todas las categorías</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="botones-accion">
+      <button mat-button color="primary" type="button" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
+      <button 
+        mat-button 
+        color="warn" 
+        type="button"
+        (click)="limpiarFiltros()"
+        [disabled]="isLoading">
+        <mat-icon>clear</mat-icon>
+        Limpiar
+      </button>
+      
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        [disabled]="isLoading">
+        <mat-icon *ngIf="!isLoading">visibility</mat-icon>
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        {{ isLoading ? 'Generando...' : 'Ver Reporte' }}
+      </button>
+    </div>
+  </form>
+</div>

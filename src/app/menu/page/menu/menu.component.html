@@ -1,0 +1,68 @@
+<mat-sidenav-container class="sidenav-container">
+
+  <!-- Sidenav -->
+  <mat-sidenav #drawer mode="side" class="sidenav">
+    <div class="brand">
+      <div class="logo"><img src="assets/img/home.png" alt=""><br>
+      Menu</div>
+    </div>
+
+    <mat-nav-list>
+      <mat-list-item *ngIf="isAdmin()">
+        <img src="assets/img/usuarios.png" alt="Usuarios" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/usuario" routerLinkActive="active">Usuarios</span>
+      </mat-list-item>
+      <mat-list-item *ngIf="isAdmin()">
+        <img src="assets/img/empleado.png" alt="vendedores" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/vendedor" routerLinkActive="active">Vendedores</span>
+      </mat-list-item>
+      <mat-list-item>
+        <img src="assets/img/cliente.png" alt="clientes" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/clientes" routerLinkActive="active">Clientes</span>
+      </mat-list-item>
+      <mat-list-item *ngIf="isAdmin()">
+        <img src="assets/img/categoria.png" alt="categorias" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/categoria" routerLinkActive="active">Categorías</span>
+      </mat-list-item>
+      <mat-list-item>
+        <img src="assets/img/producto.png" alt="productos" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/producto" routerLinkActive="active">Productos</span>
+      </mat-list-item>
+      <mat-list-item>
+        <img src="assets/img/venta.png" alt="ventas" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Ventas</span>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Toolbar -->
+  <mat-sidenav-content>
+    <mat-toolbar class="top-toolbar">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <img src="assets/img/home.png" alt="home" class="icono-nav">
+      <span class="nav-text" routerLink="/dashboard/bienvenido" routerLinkActive="active">Inicio</span>
+
+      <span class="toolbar-separator"></span>
+      
+      <img src="assets/img/horario.png" alt="home" class="icono-nav">
+      <span class="nav-text" routerLink="/dashboard/horario" routerLinkActive="active">Marcar Horario</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-icon-button aria-label="download" (click)="logout()" matTooltip="Descargar">
+        <mat-icon>download</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="logout" (click)="logout()" matTooltip="Cerrar sesión">
+        <mat-icon>logout</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="user" (click)="abrirDialog()" 
+              [matTooltip]="'Usuario: ' + (authService.getUsuario()?.nombre || 'Usuario')"
+              [color]="authService.getAvatarColorByRole()"
+              class="user-avatar">
+        <mat-icon [color]="authService.getAvatarColorByRole()" class="user-avatar">{{ authService.getAvatarByRole() }}</mat-icon>
+      </button>
+    </mat-toolbar>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

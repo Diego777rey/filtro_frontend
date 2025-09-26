@@ -1,0 +1,37 @@
+<div class="acciones-container">
+  <button *ngIf="mostrarEditar" 
+          mat-icon-button 
+          color="primary" 
+          aria-label="Editar" 
+          (click)="ejecutarAccion('editar')"
+          class="action-button">
+    <mat-icon>edit</mat-icon>
+  </button>
+
+  <button *ngIf="mostrarEliminar" 
+          mat-icon-button 
+          color="warn" 
+          aria-label="Eliminar" 
+          (click)="ejecutarAccion('eliminar')"
+          class="action-button">
+    <mat-icon>delete</mat-icon>
+  </button>
+
+  <button *ngIf="mostrarVer" 
+          mat-icon-button 
+          color="accent" 
+          aria-label="Ver" 
+          (click)="ejecutarAccion('ver')"
+          class="action-button">
+    <mat-icon>visibility</mat-icon>
+  </button>
+
+  <button *ngIf="mostrarCustom" 
+          mat-icon-button 
+          color="secondary" 
+          aria-label="Custom" 
+          (click)="ejecutarAccion('custom')"
+          class="action-button">
+    <mat-icon>build</mat-icon>
+  </button>
+</div>

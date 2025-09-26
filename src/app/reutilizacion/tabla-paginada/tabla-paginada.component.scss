@@ -1,0 +1,93 @@
+.tabla-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #333030; // fondo oscuro de toda la tabla
+    color: #fff; // texto blanco por defecto
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #555; // borde suave para filas
+      color: #fff; // texto blanco en celdas
+    }
+
+    th {
+      font-weight: 600;
+      background-color: #3a3737; // encabezado más oscuro
+      color: #fff;
+    }
+
+    td {
+      background-color: #333030; // filas oscuras
+    }
+
+    // Efecto hover para filas activas (verde)
+    tr.fila-activa:hover {
+      background-color: #2e7d32 !important; // verde oscuro al pasar el mouse
+      transition: background-color 0.2s ease; // transición suave
+    }
+
+    tr.fila-activa:hover td:not(.mat-column-acciones) {
+      background-color: #2e7d32 !important; // verde oscuro en las celdas (excepto acciones)
+      color: #fff !important; // texto blanco para contraste
+    }
+
+    // Efecto hover para filas inactivas (rojo)
+    tr.fila-inactiva:hover {
+      background-color: #d32f2f !important; // rojo oscuro al pasar el mouse
+      transition: background-color 0.2s ease; // transición suave
+    }
+
+    tr.fila-inactiva:hover td:not(.mat-column-acciones) {
+      background-color: #d32f2f !important; // rojo oscuro en las celdas (excepto acciones)
+      color: #fff !important; // texto blanco para contraste
+    }
+
+    // Mantener color original en columna de acciones durante hover
+    tr:hover td.mat-column-acciones {
+      background-color: #333030 !important; // mantener color original
+      color: #fff !important; // texto blanco
+    }
+
+    // Columna de acciones con ancho fijo
+    .mat-column-acciones {
+      width: 120px;
+      text-align: center;
+    }
+
+    td.mat-column-acciones {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .acciones-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 48px;
+    }
+  }
+}
+
+mat-spinner {
+  display: block;
+  margin: 1rem auto;
+  color: #fff; // spinner blanco
+}
+
+// Estados de productos
+.status-active {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.status-inactive {
+  color: #f44336;
+  font-weight: 500;
+}

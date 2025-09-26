@@ -1,0 +1,143 @@
+<div class="formulario-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ esEdicion ? 'Editar Venta' : 'Nueva Venta' }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="ventaForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Información básica -->
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fecha" placeholder="Seleccione fecha">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="ventaForm.get('fecha')?.hasError('required')">
+              La fecha es obligatoria
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Pago</mat-label>
+            <mat-select formControlName="tipoPago">
+              <mat-option value="EFECTIVO">Efectivo</mat-option>
+              <mat-option value="CREDITO">Crédito</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Cliente y Vendedor -->
+        <div class="form-row">
+          <div class="buscador-field">
+            <label class="field-label">Cliente *</label>
+            <app-buscador-cliente
+              [clienteSeleccionado]="clienteSeleccionado"
+              [placeholder]="'Seleccionar cliente'"
+              [showEmail]="true"
+              [showTelefono]="true"
+              (clienteSeleccionadoChange)="onClienteSeleccionado($event)">
+            </app-buscador-cliente>
+          </div>
+
+          <div class="buscador-field">
+            <label class="field-label">Vendedor *</label>
+            <app-buscador-vendedor
+              [vendedorSeleccionado]="vendedorSeleccionado"
+              [placeholder]="'Seleccionar vendedor'"
+              [showEmail]="true"
+              (vendedorSeleccionadoChange)="onVendedorSeleccionado($event)">
+            </app-buscador-vendedor>
+          </div>
+        </div>
+
+        <!-- Productos -->
+        <div class="productos-section">
+          <h3>Productos</h3>
+          
+          <div class="form-row">
+            <div class="buscador-field">
+              <app-buscador-producto
+                [productoSeleccionado]="productoSeleccionado"
+                [placeholder]="'Seleccionar producto'"
+                [showPrecio]="true"
+                [showStock]="true"
+                [showCategoria]="true"
+                (productoSeleccionadoChange)="onProductoSeleccionado($event)">
+              </app-buscador-producto>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Cantidad</mat-label>
+              <input matInput type="number" formControlName="cantidad" min="1">
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" type="button" (click)="agregarProducto()">
+              Agregar Producto
+            </button>
+          </div>
+
+          <!-- Lista de productos agregados -->
+          <div class="productos-lista" *ngIf="productosAgregados.length > 0">
+            <table mat-table [dataSource]="productosAgregados" class="mat-elevation-z2">
+              <ng-container matColumnDef="producto">
+                <th mat-header-cell *matHeaderCellDef>Producto</th>
+                <td mat-cell *matCellDef="let producto">{{ producto.descripcion }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef>Precio</th>
+                <td mat-cell *matCellDef="let producto">{{ producto.precio | currency:'USD':'symbol':'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="cantidad">
+                <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+                <td mat-cell *matCellDef="let producto">{{ producto.cantidad }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="subtotal">
+                <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+                <td mat-cell *matCellDef="let producto">{{ producto.subtotal | currency:'USD':'symbol':'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let producto; let i = index">
+                  <button mat-icon-button color="warn" (click)="removerProducto(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columnasProductos"></tr>
+              <tr mat-row *matRowDef="let row; columns: columnasProductos;"></tr>
+            </table>
+
+            <div class="total-section">
+              <h3>Total: {{ totalVenta | currency:'USD':'symbol':'1.2-2' }}</h3>
+              <p>Debug - Total value: {{ totalVenta }}</p>
+              <p>Debug - Productos count: {{ productosAgregados.length }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="acciones">
+          <button mat-stroked-button color="primary" type="button" (click)="nuevo()">
+            Nuevo
+          </button>
+          
+          <button mat-raised-button color="primary" type="submit" [disabled]="ventaForm.invalid || productosAgregados.length === 0">
+            {{ esEdicion ? 'Actualizar' : 'Guardar' }}
+          </button>
+          
+          <button mat-stroked-button type="button" (click)="cancelar()">
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

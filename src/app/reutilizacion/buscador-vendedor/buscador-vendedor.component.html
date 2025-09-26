@@ -1,0 +1,109 @@
+<div class="buscador-vendedor-container">
+  <!-- Barra de búsqueda -->
+  <div class="search-bar-container">
+    <div class="search-input-container">
+      <input 
+        type="text"
+        class="search-input"
+        [value]="getDisplayText()"
+        [placeholder]="placeholder"
+        [disabled]="disabled || loading"
+        (click)="abrirModal()"
+        readonly>
+      <mat-spinner *ngIf="loading" diameter="16" class="loading-spinner"></mat-spinner>
+    </div>
+    
+    <button 
+      mat-raised-button 
+      color="primary"
+      class="search-button"
+      (click)="abrirModal()"
+      [disabled]="disabled || loading"
+      matTooltip="Buscar vendedor">
+      <mat-icon>search</mat-icon>
+    </button>
+    
+    <!-- Botón de limpiar selección -->
+    <button mat-icon-button 
+            *ngIf="vendedorSeleccionado && !disabled"
+            class="clear-button"
+            (click)="limpiarSeleccion()"
+            matTooltip="Limpiar selección">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Modal de búsqueda de vendedores -->
+<ng-template #modalTemplate>
+  <div class="modal-content">
+    <h2 mat-dialog-title>Seleccionar Vendedor</h2>
+    
+    <mat-dialog-content class="modal-body">
+      <!-- Formulario de filtros simplificado -->
+      <div class="filters-section">
+        <div class="filter-input-container">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Buscar por nombre o documento</mat-label>
+            <input matInput 
+                   [formControl]="filtroControl"
+                   placeholder="Escribe para filtrar...">
+            <mat-icon matSuffix *ngIf="filtroBusqueda" (click)="limpiarFiltro()" class="clear-icon">close</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+      
+      <!-- Lista de vendedores filtrados -->
+      <div class="vendedores-list" *ngIf="vendedoresFiltrados.length > 0; else noResults">
+        <button mat-list-item 
+                *ngFor="let vendedor of vendedoresFiltrados; trackBy: trackByVendedor"
+                (click)="seleccionarVendedor(vendedor)"
+                class="vendedor-item"
+                [class.selected]="esVendedorSeleccionado(vendedor)">
+          
+          <mat-icon matListItemIcon>person</mat-icon>
+          
+          <div class="vendedor-info">
+            <div matListItemTitle class="vendedor-name">
+              {{ vendedor.persona.nombre }} {{ vendedor.persona.apellido }}
+            </div>
+            <div matListItemLine class="vendedor-documento">
+              Documento: {{ vendedor.persona.documento || 'No especificado' }}
+            </div>
+            <div matListItemLine *ngIf="showEmail && vendedor.persona.email" class="vendedor-email">
+              {{ vendedor.persona.email }}
+            </div>
+          </div>
+          
+          <div class="vendedor-action">
+            <span class="action-text">Seleccionar</span>
+            <mat-icon *ngIf="esVendedorSeleccionado(vendedor)" 
+                      class="check-icon">check_circle</mat-icon>
+          </div>
+        </button>
+      </div>
+      
+      <!-- Sin resultados -->
+      <ng-template #noResults>
+        <div class="no-results">
+          <mat-icon>person_off</mat-icon>
+          <p>No se encontraron vendedores</p>
+          <small *ngIf="filtroBusqueda">Intenta con otros términos de búsqueda</small>
+        </div>
+      </ng-template>
+      
+      <!-- Estado de carga -->
+      <div class="loading-results" *ngIf="loading">
+        <mat-spinner diameter="24"></mat-spinner>
+        <p>Cargando vendedores...</p>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button (click)="cerrarModal()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

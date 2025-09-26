@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>
+  <mat-icon [color]="getAvatarColor()" style="margin-right: 8px;">{{ getAvatarIcon() }}</mat-icon>
+  Información de Usuario
+</h2>
+<mat-dialog-content>
+  <div class="user-dialog-avatar">
+    <mat-icon [color]="getAvatarColor()" style="font-size: 48px; width: 48px; height: 48px;">{{ getAvatarIcon() }}</mat-icon>
+    <h3 style="margin: 10px 0 5px 0;">{{ data.nombre || 'Usuario' }}</h3>
+    <p style="margin: 0; color: #666;">Rol: <strong>{{ data.rol }}</strong></p>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

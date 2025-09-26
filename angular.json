@@ -1,0 +1,130 @@
+{
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+      "material02": {
+        "projectType": "application",
+        "schematics": {
+          "@schematics/angular:component": {
+            "style": "scss"
+          }
+        },
+        "root": "",
+        "sourceRoot": "src",
+        "prefix": "app",
+        "architect": {
+          "build": {
+            "builder": "@angular-devkit/build-angular:browser",
+            "options": {
+              "outputPath": "dist/material02",
+              "index": "src/index.html",
+              "main": "src/main.ts",
+              "polyfills": [
+                "zone.js"
+              ],
+              "tsConfig": "tsconfig.app.json",
+              "inlineStyleLanguage": "scss",
+              "assets": [
+                "src/favicon.ico",
+                "src/assets"
+              ],
+              "styles": [
+                "@angular/material/prebuilt-themes/indigo-pink.css",
+                "src/styles.scss"
+              ],
+              "scripts": []
+            },
+            "configurations": {
+              "production": {
+                "budgets": [
+                  {
+                    "type": "initial",
+                    "maximumWarning": "20mb",
+                    "maximumError": "30mb"
+                  },
+                  {
+                    "type": "anyComponentStyle",
+                    "maximumWarning": "50kb",
+                    "maximumError": "100kb"
+                  }
+                ],
+                "outputHashing": "all"
+              },
+              "electron": {
+                "baseHref": "./",
+                "deployUrl": "./",
+                "budgets": [
+                  {
+                    "type": "initial",
+                    "maximumWarning": "20mb",
+                    "maximumError": "30mb"
+                  },
+                  {
+                    "type": "anyComponentStyle",
+                    "maximumWarning": "50kb",
+                    "maximumError": "100kb"
+                  }
+                ],
+                "outputHashing": "all"
+              },
+              "development": {
+                "buildOptimizer": false,
+                "optimization": false,
+                "vendorChunk": true,
+                "extractLicenses": false,
+                "sourceMap": true,
+                "namedChunks": true
+              }
+            },
+            "defaultConfiguration": "production"
+          },
+          "serve": {
+            "builder": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+              "production": {
+                "browserTarget": "material02:build:production"
+              },
+              "development": {
+                "browserTarget": "material02:build:development"
+              },
+              "electron": {
+                "browserTarget": "material02:build:electron"
+              }
+            },
+            "defaultConfiguration": "development"
+          },
+          "extract-i18n": {
+            "builder": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+              "browserTarget": "material02:build"
+            }
+          },
+          "test": {
+            "builder": "@angular-devkit/build-angular:karma",
+            "options": {
+              "polyfills": [
+                "zone.js",
+                "zone.js/testing"
+              ],
+              "tsConfig": "tsconfig.spec.json",
+              "inlineStyleLanguage": "scss",
+              "assets": [
+                "src/favicon.ico",
+                "src/assets"
+              ],
+              "styles": [
+                "@angular/material/prebuilt-themes/indigo-pink.css",
+                "src/styles.scss"
+              ],
+              "scripts": []
+            }
+          }
+        }
+      }
+    },
+    "cli": {
+      "analytics": "33cb39ec-1ff8-4342-ac0e-2f09fc73f53c"
+    }
+  }
+  

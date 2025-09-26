@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  height: 100vh;
+  font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 220px;
+  background: linear-gradient(#ef0303, #eb0808);
+  color: white;
+  padding-top: 16px;
+}
+
+.brand {
+  padding: 12px;
+  text-align: center;
+
+  .logo {
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.top-toolbar{
+background-color: red
+}
+
+.top-toolbar .toolbar-title {
+  margin-left: 12px;
+  font-weight: 600;
+}
+span{
+color: aliceblue;
+}
+mat-icon{
+color: aliceblue;}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 0 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+mat-nav-list {
+  mat-list-item {
+    cursor: pointer;
+
+    mat-icon {
+      margin-right: 12px;
+      color: white;
+    }
+
+    .nav-text {
+      font-weight: 500;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+.icono-nav {
+  width: 28px;
+  height: 28px;
+  display: inline-block;   // importante
+  vertical-align: middle;  // alinea con el texto
+  margin-right: 8px;       // opcional, separa del texto
+}
+
+// Estilos para avatares dinámicos
+.user-avatar {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Estilos para el diálogo de usuario
+.user-dialog-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+

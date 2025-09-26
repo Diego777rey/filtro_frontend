@@ -1,0 +1,111 @@
+<div class="tabla-container">
+
+  <!-- Tabla con Angular Material -->
+  <table mat-table [dataSource]="datos" class="mat-elevation-z8">
+
+    <!-- Columnas dinámicas -->
+    <ng-container *ngFor="let columna of columnasVisibles" [matColumnDef]="columna">
+      <th mat-header-cell *matHeaderCellDef>{{ nombresColumnas[columna] }}</th>
+      <td mat-cell *matCellDef="let elemento">
+        <ng-container *ngIf="columna !== 'acciones'; else accionesTemplate">
+          <!-- Mostrar categoría correctamente -->
+          <span *ngIf="columna === 'categoria'">
+            {{ elemento[columna]?.descripcion || 'Sin categoría' }}
+          </span>
+          <!-- Mostrar cliente correctamente -->
+          <span *ngIf="columna === 'cliente'">
+            {{ elemento[columna]?.nombre || 'Sin cliente' }}
+          </span>
+          <!-- Mostrar vendedor correctamente -->
+          <span *ngIf="columna === 'vendedor'">
+            {{ elemento[columna]?.nombre || 'Sin vendedor' }}
+          </span>
+          <!-- Mostrar nombre de persona (para vendedores) -->
+          <span *ngIf="columna === 'nombre'">
+            {{ elemento.persona?.nombre || elemento[columna] || 'Sin nombre' }}
+          </span>
+          <!-- Mostrar apellido de persona (para vendedores) -->
+          <span *ngIf="columna === 'apellido'">
+            {{ elemento.persona?.apellido || elemento[columna] || 'Sin apellido' }}
+          </span>
+          <!-- Mostrar documento de persona (para vendedores) -->
+          <span *ngIf="columna === 'documento'">
+            {{ elemento.persona?.documento || elemento[columna] || 'Sin documento' }}
+          </span>
+          <!-- Mostrar teléfono de persona (para vendedores) -->
+          <span *ngIf="columna === 'telefono'">
+            {{ elemento.persona?.telefono || elemento[columna] || 'Sin teléfono' }}
+          </span>
+          <!-- Mostrar email de persona (para vendedores) -->
+          <span *ngIf="columna === 'email'">
+            {{ elemento.persona?.email || elemento[columna] || 'Sin email' }}
+          </span>
+          <!-- Mostrar rol de usuario -->
+          <span *ngIf="columna === 'rol'">
+            {{ elemento.roles?.[0]?.tipoPersona || elemento[columna] || 'Sin rol' }}
+          </span>
+          <!-- Mostrar fecha formateada -->
+          <span *ngIf="columna === 'fecha'">
+            {{ elemento[columna] | date:'shortDate' }}
+          </span>
+          <!-- Mostrar total formateado -->
+          <span *ngIf="columna === 'total'">
+            {{ elemento[columna] | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+          <!-- Mostrar subtotal formateado -->
+          <span *ngIf="columna === 'subtotal'">
+            {{ elemento[columna] | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+          <!-- Mostrar comisión formateada -->
+          <span *ngIf="columna === 'comision'">
+            {{ elemento[columna] | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+          <!-- Mostrar estado activo/inactivo -->
+          <span *ngIf="columna === 'activo'" [class]="elemento[columna] ? 'status-active' : 'status-inactive'">
+            {{ elemento[columna] ? 'Activo' : 'Inactivo' }}
+          </span>
+          <!-- Mostrar campos normales -->
+          <!-- se va a mostrar solo si la codicion se cumple -->
+          <span *ngIf="columna !== 'categoria' && columna !== 'cliente' && columna !== 'vendedor' && columna !== 'fecha' && columna !== 'total' && columna !== 'subtotal' && columna !== 'activo' && columna !== 'nombre' && columna !== 'apellido' && columna !== 'documento' && columna !== 'telefono' && columna !== 'email' && columna !== 'comision' && columna !== 'rol'">
+            {{ elemento[columna] }}
+          </span>
+        </ng-container>
+        <ng-template #accionesTemplate>
+          <div class="acciones-cell">
+            <app-acciones 
+              [fila]="elemento" 
+              [mostrarEditar]="true" 
+              [mostrarEliminar]="true"
+              [mostrarVer]="false"
+              [mostrarCustom]="false"
+              (accion)="accionFila($event)">
+            </app-acciones>
+          </div>
+        </ng-template>
+      </td>
+    </ng-container>
+
+
+    <!-- Filas de encabezado y datos -->
+    <tr mat-header-row *matHeaderRowDef="columnasVisibles"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnasVisibles;" 
+        [class]="row.activo === false ? 'fila-inactiva' : 'fila-activa'"></tr>
+
+  </table>
+
+  <!-- Paginador -->
+  <mat-paginator
+    [length]="totalRegistros"
+    [pageSize]="tamanioPagina"
+    [pageIndex]="paginaActual"
+    [pageSizeOptions]="[5,10,20,50]"
+    showFirstLastButtons
+    (page)="paginaCambiada($event)">
+  </mat-paginator>
+
+  <!-- Spinner de carga -->
+  <div class="spinner-container" *ngIf="cargando">
+    <mat-spinner></mat-spinner>
+  </div>
+
+</div>

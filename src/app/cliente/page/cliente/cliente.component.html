@@ -1,0 +1,47 @@
+<div class="cliente-layout">
+
+  <!-- Header con botones -->
+  <div class="header">
+    <div class="botones">
+      <button mat-raised-button color="primary" (click)="agregarCliente()">
+        <mat-icon>add</mat-icon> Agregar Cliente
+      </button>
+      <button mat-raised-button color="primary" (click)="generarReporte()">
+        <mat-icon>file_download</mat-icon> Generar Reporte
+      </button>
+    </div>
+
+    <div class="search-field">
+      <mat-form-field appearance="outline">
+        <mat-label>Buscar clientes...</mat-label>
+        <input matInput [(ngModel)]="textoBusqueda" (input)="onSearchChange(textoBusqueda)"
+          placeholder="Escriba para filtrar automáticamente">
+        <button mat-icon-button matSuffix *ngIf="textoBusqueda" (click)="limpiarBusqueda()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay clientes -->
+  <div *ngIf="!cargando && totalRegistros === 0" class="no-data-message">
+    <mat-icon>info</mat-icon>
+    <h3>No hay clientes registrados</h3>
+    <p>Para comenzar, agrega tu primer cliente usando el botón "Agregar Cliente"</p>
+  </div>
+
+  <!-- Tabla paginada -->
+  <app-tabla-paginada
+    *ngIf="totalRegistros > 0"
+    [datos]="clientes"
+    [columnasVisibles]="columnas"
+    [nombresColumnas]="nombresColumnas"
+    [totalRegistros]="totalRegistros"
+    [tamanioPagina]="tamanioPagina"
+    [paginaActual]="paginaActual"
+    [cargando]="cargando"
+    (cambiarPagina)="cambiarPagina($event)"
+    (ejecutarAccion)="manejarAccion($event)">
+  </app-tabla-paginada>
+
+</div>

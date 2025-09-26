@@ -1,0 +1,115 @@
+<div class="horario-container">
+  <mat-card class="horario-card">
+    <mat-card-header>
+      <mat-card-title class="card-title">
+        <mat-icon>schedule</mat-icon>
+        {{ isEdit ? 'Editar Horario' : 'Registrar Horario' }}
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="formGroup" class="horario-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha y Hora</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fechaHora" 
+                   [value]="getDisplayDateTime()"
+                   (dateChange)="onDateChange($event)"
+                   [class.mat-input-invalid]="formGroup.get('fechaHora')?.invalid && formGroup.get('fechaHora')?.touched">
+            <mat-datepicker-toggle matSuffix [for]="picker">
+              <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>Selecciona la fecha y hora del horario</mat-hint>
+            <mat-error *ngIf="formGroup.get('fechaHora')?.invalid && formGroup.get('fechaHora')?.touched">
+              La fecha y hora son obligatorias
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Hora</mat-label>
+            <input matInput type="time" formControlName="hora" 
+                   (change)="onTimeChange($event)"
+                   [class.mat-input-invalid]="formGroup.get('fechaHora')?.invalid && formGroup.get('fechaHora')?.touched">
+            <mat-error *ngIf="formGroup.get('fechaHora')?.invalid && formGroup.get('fechaHora')?.touched">
+              La hora es obligatoria
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Tipo de Horario</mat-label>
+            <mat-select formControlName="horarios">
+              <mat-option value="ENTRADA">
+                <mat-icon>login</mat-icon>
+                Entrada
+              </mat-option>
+              <mat-option value="SALIDA">
+                <mat-icon>logout</mat-icon>
+                Salida
+              </mat-option>
+              <mat-option value="EXTRA">
+                <mat-icon>schedule</mat-icon>
+                Extra
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="formGroup.get('horarios')?.invalid && formGroup.get('horarios')?.touched">
+              Debe seleccionar un tipo de horario
+            </mat-error>
+          </mat-form-field>
+
+          <div class="half-width">
+            <app-buscador-vendedor
+              [vendedorSeleccionado]="vendedorSeleccionado"
+              [disabled]="!formEnabled"
+              [placeholder]="'Seleccionar vendedor'"
+              [showEmail]="true"
+              (vendedorSeleccionadoChange)="onVendedorSeleccionado($event)">
+            </app-buscador-vendedor>
+            <mat-error *ngIf="formGroup.get('vendedorId')?.invalid && formGroup.get('vendedorId')?.touched">
+              Debe seleccionar un vendedor
+            </mat-error>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-actions class="card-actions">
+      <button mat-raised-button 
+              color="accent" 
+              (click)="nuevo()" 
+              [disabled]="loading"
+              class="action-button"
+              aria-label="Crear nuevo horario">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="guardar()" 
+              [disabled]="formGroup.invalid || loading || !formEnabled"
+              class="action-button"
+              aria-label="Guardar horario">
+        <mat-icon>save</mat-icon>
+        <span *ngIf="loading">Guardando...</span>
+        <span *ngIf="!loading">{{ isEdit ? 'Actualizar' : 'Guardar' }}</span>
+        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+      </button>
+      
+      <button mat-stroked-button 
+              color="warn" 
+              (click)="cancelar()" 
+              [disabled]="!formEnabled"
+              class="action-button"
+              aria-label="Cancelar y limpiar formulario">
+        <mat-icon>cancel</mat-icon>
+        Cancelar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+  

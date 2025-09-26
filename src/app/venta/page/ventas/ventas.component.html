@@ -1,0 +1,36 @@
+<div class="venta-layout">
+
+  <!-- Header con botones -->
+  <div class="header">
+    <button mat-raised-button color="primary" (click)="agregarVenta()">
+      <mat-icon>add</mat-icon> Agregar Venta
+    </button>
+
+    <div class="search-field">
+      <mat-form-field appearance="outline">
+        <mat-label>Buscar ventas...</mat-label>
+        <input matInput 
+               [(ngModel)]="textoBusqueda" 
+               (input)="onSearchChange(textoBusqueda)"
+               placeholder="Escriba para filtrar automáticamente">
+        <button mat-icon-button matSuffix *ngIf="textoBusqueda" (click)="limpiarBusqueda()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Tabla paginada -->
+  <app-tabla-paginada
+    [datos]="ventas"
+    [columnasVisibles]="columnas"
+    [nombresColumnas]="nombresColumnas"
+    [totalRegistros]="totalRegistros"
+    [tamanioPagina]="tamanioPagina"
+    [paginaActual]="paginaActual"
+    [cargando]="cargando"
+    (cambiarPagina)="cambiarPagina($event)"
+    (ejecutarAccion)="manejarAccion($event)">
+  </app-tabla-paginada>
+  
+</div>

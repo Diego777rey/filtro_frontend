@@ -1,0 +1,11 @@
+<div class="buscador">
+  <mat-form-field> <!-- sin appearance -->
+    <mat-label>Buscar...</mat-label>
+    <input matInput [(ngModel)]="textoBusqueda" (keyup.enter)="onBuscar()" />
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="onBuscar()">
+    <mat-icon>search</mat-icon>
+  </button>
+  <button mat-button color="warn" *ngIf="textoBusqueda" (click)="onLimpiar()">Limpiar</button>
+</div>

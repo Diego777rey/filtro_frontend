@@ -1,0 +1,112 @@
+<div class="buscador-producto-container">
+  <!-- Barra de búsqueda -->
+  <div class="search-bar-container">
+    <div class="search-input-container">
+      <input 
+        type="text"
+        class="search-input"
+        [value]="getDisplayText()"
+        [placeholder]="placeholder"
+        [disabled]="disabled || loading"
+        (click)="abrirModal()"
+        readonly>
+      <mat-spinner *ngIf="loading" diameter="16" class="loading-spinner"></mat-spinner>
+    </div>
+    
+    <button 
+      mat-raised-button 
+      color="primary"
+      class="search-button"
+      (click)="abrirModal()"
+      [disabled]="disabled || loading"
+      matTooltip="Buscar producto">
+      <mat-icon>search</mat-icon>
+    </button>
+    
+    <!-- Botón de limpiar selección -->
+    <button mat-icon-button 
+            *ngIf="productoSeleccionado && !disabled"
+            class="clear-button"
+            (click)="limpiarSeleccion()"
+            matTooltip="Limpiar selección">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Modal de búsqueda de productos -->
+<ng-template #modalTemplate>
+  <div class="modal-content">
+    <h2 mat-dialog-title>Seleccionar Producto</h2>
+    
+    <mat-dialog-content class="modal-body">
+      <!-- Formulario de filtros simplificado -->
+      <div class="filters-section">
+        <div class="filter-input-container">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Buscar por descripción, categoría, código o precio</mat-label>
+            <input matInput 
+                   [formControl]="filtroControl"
+                   placeholder="Escribe para filtrar...">
+            <mat-icon matSuffix *ngIf="filtroBusqueda" (click)="limpiarFiltro()" class="clear-icon">close</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+      
+      <!-- Lista de productos filtrados -->
+      <div class="productos-list" *ngIf="productosFiltrados.length > 0; else noResults">
+        <button mat-list-item 
+                *ngFor="let producto of productosFiltrados; trackBy: trackByProducto"
+                (click)="seleccionarProducto(producto)"
+                class="producto-item"
+                [class.selected]="esProductoSeleccionado(producto)">
+          
+          <mat-icon matListItemIcon>inventory</mat-icon>
+          
+          <div class="producto-info">
+            <div matListItemTitle class="producto-descripcion">
+              {{ producto.descripcion }}
+            </div>
+            <div matListItemLine *ngIf="showPrecio" class="producto-precio">
+              Precio: {{ formatearPrecio(producto.precio) }}
+            </div>
+            <div matListItemLine *ngIf="showStock" class="producto-stock">
+              Stock: {{ producto.stock }} unidades
+            </div>
+            <div matListItemLine *ngIf="showCategoria && producto.categoria" class="producto-categoria">
+              Categoría: {{ producto.categoria.nombre }}
+            </div>
+          </div>
+          
+          <div class="producto-action">
+            <span class="action-text">Seleccionar</span>
+            <mat-icon *ngIf="esProductoSeleccionado(producto)" 
+                      class="check-icon">check_circle</mat-icon>
+          </div>
+        </button>
+      </div>
+      
+      <!-- Sin resultados -->
+      <ng-template #noResults>
+        <div class="no-results">
+          <mat-icon>inventory_2</mat-icon>
+          <p>No se encontraron productos</p>
+          <small *ngIf="filtroBusqueda">Intenta con otros términos de búsqueda</small>
+        </div>
+      </ng-template>
+      
+      <!-- Estado de carga -->
+      <div class="loading-results" *ngIf="loading">
+        <mat-spinner diameter="24"></mat-spinner>
+        <p>Cargando productos...</p>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button (click)="cerrarModal()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

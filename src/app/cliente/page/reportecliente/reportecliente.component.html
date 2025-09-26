@@ -1,0 +1,73 @@
+<div class="filtros-reporte">
+  <h2>Generar Reporte de Clientes</h2>
+  
+  <div class="filtros-grid" [formGroup]="reporteForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre del Cliente</mat-label>
+      <input 
+        matInput 
+        placeholder="Ingrese el nombre del cliente" 
+        formControlName="nombre">
+      <mat-hint>Deje vacío para incluir todos los clientes</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Fecha de Inicio</mat-label>
+      <input 
+        matInput 
+        [matDatepicker]="fechaInicioPicker"
+        formControlName="fechaInicio"
+        readonly
+        placeholder="Seleccione una fecha">
+      <mat-datepicker-toggle matSuffix [for]="fechaInicioPicker">
+        <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+      </mat-datepicker-toggle>
+      <mat-datepicker #fechaInicioPicker></mat-datepicker>
+      <mat-hint>Fecha desde la cual generar el reporte</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Fecha de Fin</mat-label>
+      <input 
+        matInput 
+        [matDatepicker]="fechaFinPicker"
+        formControlName="fechaFin"
+        readonly
+        placeholder="Seleccione una fecha">
+      <mat-datepicker-toggle matSuffix [for]="fechaFinPicker">
+        <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+      </mat-datepicker-toggle>
+      <mat-datepicker #fechaFinPicker></mat-datepicker>
+      <mat-hint>Fecha hasta la cual generar el reporte</mat-hint>
+      <mat-error *ngIf="getErrorMessage('fechaFin')">
+        {{ getErrorMessage('fechaFin') }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="botones-accion">
+    <button mat-button color="primary" (click)="volver()">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+    <button 
+      mat-button 
+      color="warn" 
+      (click)="limpiarFiltros()"
+      [disabled]="isLoading">
+      <mat-icon>clear</mat-icon>
+      Limpiar
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="descargarReporte()"
+      [disabled]="isLoading">
+      <mat-icon *ngIf="!isLoading">visibility</mat-icon>
+      <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+      {{ isLoading ? 'Generando...' : 'Ver Reporte' }}
+    </button>
+  </div>
+</div>
+  
