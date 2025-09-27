@@ -20,6 +20,10 @@
           <span *ngIf="columna === 'vendedor'">
             {{ elemento[columna]?.nombre || 'Sin vendedor' }}
           </span>
+          <!-- Mostrar proveedor correctamente -->
+          <span *ngIf="columna === 'proveedor'">
+            {{ elemento[columna]?.razonSocial || 'Sin proveedor' }}
+          </span>
           <!-- Mostrar nombre de persona (para vendedores) -->
           <span *ngIf="columna === 'nombre'">
             {{ elemento.persona?.nombre || elemento[columna] || 'Sin nombre' }}
@@ -44,6 +48,10 @@
           <span *ngIf="columna === 'rol'">
             {{ elemento.roles?.[0]?.tipoPersona || elemento[columna] || 'Sin rol' }}
           </span>
+          <!-- Mostrar persona (para depositeros) -->
+          <span *ngIf="columna === 'persona'">
+            {{ elemento.persona?.nombre + ' ' + elemento.persona?.apellido || 'Sin persona' }}
+          </span>
           <!-- Mostrar fecha formateada -->
           <span *ngIf="columna === 'fecha'">
             {{ elemento[columna] | date:'shortDate' }}
@@ -66,7 +74,7 @@
           </span>
           <!-- Mostrar campos normales -->
           <!-- se va a mostrar solo si la codicion se cumple -->
-          <span *ngIf="columna !== 'categoria' && columna !== 'cliente' && columna !== 'vendedor' && columna !== 'fecha' && columna !== 'total' && columna !== 'subtotal' && columna !== 'activo' && columna !== 'nombre' && columna !== 'apellido' && columna !== 'documento' && columna !== 'telefono' && columna !== 'email' && columna !== 'comision' && columna !== 'rol'">
+          <span *ngIf="columna !== 'categoria' && columna !== 'cliente' && columna !== 'vendedor' && columna !== 'proveedor' && columna !== 'fecha' && columna !== 'total' && columna !== 'subtotal' && columna !== 'activo' && columna !== 'nombre' && columna !== 'apellido' && columna !== 'documento' && columna !== 'telefono' && columna !== 'email' && columna !== 'comision' && columna !== 'rol' && columna !== 'persona'">
             {{ elemento[columna] }}
           </span>
         </ng-container>

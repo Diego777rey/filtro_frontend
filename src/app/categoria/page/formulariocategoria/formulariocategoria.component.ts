@@ -43,7 +43,11 @@ export class FormulariocategoriaComponent implements OnInit, OnDestroy {
 
   initCampos(): void {
     this.campos = [
-      { control: 'descripcion', label: 'Descripción', tipo: 'text', placeholder: 'Ingrese descripción', requerido: true }
+      { control: 'nombre', label: 'Nombre', tipo: 'text', placeholder: 'Ingrese nombre de la categoría', requerido: true },
+      { control: 'categoriaEstado', label: 'Estado', tipo: 'select', placeholder: 'Seleccione estado', requerido: true, opciones: [
+        { value: 'ACTIVO', label: 'Activo' },
+        { value: 'INACTIVO', label: 'Inactivo' }
+      ]}
     ];
 
     // Crear los FormControls
@@ -70,7 +74,8 @@ export class FormulariocategoriaComponent implements OnInit, OnDestroy {
       .subscribe((data: Categoria | null) => {
         if (data) {
           this.formGroup.patchValue({
-            descripcion: data.descripcion
+            nombre: data.nombre,
+            categoriaEstado: data.categoriaEstado
           });
         }
         this.loading = false;
@@ -99,7 +104,8 @@ export class FormulariocategoriaComponent implements OnInit, OnDestroy {
 
     const formValue = this.formGroup.value;
     const categoria = new Categoria({
-      descripcion: formValue.descripcion
+      nombre: formValue.nombre,
+      categoriaEstado: formValue.categoriaEstado
     });
 
     const obs$ = this.isEdit && this.categoriaId

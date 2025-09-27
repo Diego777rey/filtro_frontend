@@ -4,7 +4,8 @@ export const GET_CATEGORIAS = gql`
   query GetAllCategorias {
     findAllCategorias {
       id
-      descripcion
+      nombre
+      categoriaEstado
     }
   }
 `;
@@ -12,7 +13,8 @@ export const GET_CATEGORIA_BY_ID = gql`
   query GetCategoriaById($id: ID!) {
     findCategoriaById(CategoriaId: $id) {
       id
-      descripcion
+      nombre
+      categoriaEstado
     }
   }
 `;
@@ -21,7 +23,8 @@ export const SAVE_CATEGORIA = gql`
   mutation SaveCategoria($input: InputCategoria!) {
     saveCategoria(inputCategoria: $input) {
       id
-      descripcion
+      nombre
+      categoriaEstado
     }
   }
 `;
@@ -29,7 +32,8 @@ export const UPDATE_CATEGORIA = gql`
   mutation UpdateCategoria($id: ID!, $input: InputCategoria!) {
     updateCategoria(id: $id, inputCategoria: $input) {
       id
-      descripcion
+      nombre
+      categoriaEstado
     }
   }
 `;
@@ -45,7 +49,8 @@ export const GET_CATEGORIAS_PAGINADOS = gql`
     findCategoriasPaginated(page: $page, size: $size, search: $search) {
       items {
           id
-          descripcion
+          nombre
+          categoriaEstado
         }
       totalItems
       totalPages

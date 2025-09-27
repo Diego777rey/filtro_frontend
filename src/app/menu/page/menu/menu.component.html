@@ -8,19 +8,62 @@
     </div>
 
     <mat-nav-list>
-      <mat-list-item *ngIf="isAdmin()">
+      <mat-list-item *ngIf="isAdmin">
         <img src="assets/img/usuarios.png" alt="Usuarios" class="icono-nav">
         <span class="nav-text" routerLink="/dashboard/usuario" routerLinkActive="active">Usuarios</span>
       </mat-list-item>
-      <mat-list-item *ngIf="isAdmin()">
-        <img src="assets/img/empleado.png" alt="vendedores" class="icono-nav">
-        <span class="nav-text" routerLink="/dashboard/vendedor" routerLinkActive="active">Vendedores</span>
+
+      <!-- Menú desplegable de Funcionarios -->
+      <mat-list-item 
+        *ngIf="isAdmin" 
+        (click)="toggleFuncionarios($event)" 
+        class="expandable-item"
+        role="button"
+        [attr.aria-expanded]="isFuncionariosExpanded"
+        [attr.aria-controls]="'funcionarios-submenu'"
+        tabindex="0"
+        [attr.aria-label]="'Funcionarios - ' + (isFuncionariosExpanded ? 'Contraer menú' : 'Expandir menú')"
+        (keydown.enter)="toggleFuncionarios($event)"
+        (keydown.space)="toggleFuncionarios($event)">
+        <img src="assets/img/funcionarios.png" alt="Ícono de funcionarios" class="icono-nav">
+        <span class="nav-text">Funcionarios</span>
+        <mat-icon 
+          class="expand-icon" 
+          [class.rotated]="isFuncionariosExpanded"
+          [attr.aria-hidden]="true">expand_more</mat-icon>
       </mat-list-item>
+
+      <!-- Sub-items del menú Funcionarios -->
+      <nav 
+        *ngIf="isFuncionariosExpanded && isAdmin" 
+        id="funcionarios-submenu"
+        class="sub-menu"
+        role="menu"
+        [attr.aria-label]="'Submenú de funcionarios'">
+        <mat-list-item 
+          *ngFor="let item of funcionariosSubMenu"
+          class="sub-item"
+          role="menuitem"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [attr.aria-label]="'Ir a ' + item.label">
+          <img [src]="item.icon" [alt]="'Ícono de ' + item.label" class="icono-nav">
+          <span class="nav-text">
+            {{ item.label }}
+          </span>
+        </mat-list-item>
+      </nav>
       <mat-list-item>
         <img src="assets/img/cliente.png" alt="clientes" class="icono-nav">
         <span class="nav-text" routerLink="/dashboard/clientes" routerLinkActive="active">Clientes</span>
       </mat-list-item>
-      <mat-list-item *ngIf="isAdmin()">
+
+      <mat-list-item>
+        <img src="assets/img/cliente.png" alt="clientes" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/clientes" routerLinkActive="active">Proveedores</span>
+      </mat-list-item>
+
+      <mat-list-item *ngIf="isAdmin">
         <img src="assets/img/categoria.png" alt="categorias" class="icono-nav">
         <span class="nav-text" routerLink="/dashboard/categoria" routerLinkActive="active">Categorías</span>
       </mat-list-item>
@@ -32,6 +75,22 @@
         <img src="assets/img/venta.png" alt="ventas" class="icono-nav">
         <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Ventas</span>
       </mat-list-item>
+
+      <mat-list-item>
+        <img src="assets/img/factura.png" alt="factura" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Factura</span>
+      </mat-list-item>
+
+      <mat-list-item>
+        <img src="assets/img/inventario.png" alt="inventario" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Inventario</span>
+      </mat-list-item>
+
+      <mat-list-item>
+        <img src="assets/img/horarios.png" alt="horarios" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Horarios</span>
+      </mat-list-item>
+
     </mat-nav-list>
   </mat-sidenav>
 
@@ -46,20 +105,30 @@
 
       <span class="toolbar-separator"></span>
       
-      <img src="assets/img/horario.png" alt="home" class="icono-nav">
+      <img src="assets/img/horario.png" alt="horario" class="icono-nav">
       <span class="nav-text" routerLink="/dashboard/horario" routerLinkActive="active">Marcar Horario</span>
+      <span class="toolbar-separator"></span>
+      
+      <img src="assets/img/caja.png" alt="caja" class="icono-nav">
+      <span class="nav-text" routerLink="/dashboard/caja" routerLinkActive="active">Caja</span>
+      <span class="toolbar-separator"></span>
+
+      <img src="assets/img/movimientocaja.png" alt="movimientocaja" class="icono-nav">
+      <span class="nav-text" routerLink="/dashboard/movimientos-caja" routerLinkActive="active">Movimientos de Caja</span>
+      <span class="toolbar-separator"></span>
       <span class="toolbar-spacer"></span>
-      <button mat-icon-button aria-label="download" (click)="logout()" matTooltip="Descargar">
+
+      <button mat-icon-button aria-label="download" matTooltip="Descargar">
         <mat-icon>download</mat-icon>
       </button>
       <button mat-icon-button aria-label="logout" (click)="logout()" matTooltip="Cerrar sesión">
         <mat-icon>logout</mat-icon>
       </button>
       <button mat-icon-button aria-label="user" (click)="abrirDialog()" 
-              [matTooltip]="'Usuario: ' + (authService.getUsuario()?.nombre || 'Usuario')"
-              [color]="authService.getAvatarColorByRole()"
+              [matTooltip]="userTooltip"
+              [color]="userAvatarColor"
               class="user-avatar">
-        <mat-icon [color]="authService.getAvatarColorByRole()" class="user-avatar">{{ authService.getAvatarByRole() }}</mat-icon>
+        <mat-icon [color]="userAvatarColor" class="user-avatar">{{ userAvatarIcon }}</mat-icon>
       </button>
     </mat-toolbar>
     <router-outlet></router-outlet>

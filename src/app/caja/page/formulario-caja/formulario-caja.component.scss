@@ -1,0 +1,82 @@
+/* Contenedor principal */
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Título del formulario */
+h2 {
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Fila de botones */
+.button-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  button {
+    min-width: 100px;
+  }
+}
+
+/* Campos del formulario */
+.row-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+/* Botón de guardar centrado abajo */
+.button-row:last-of-type {
+  justify-content: center;
+  margin-top: 20px;
+
+  button {
+    min-width: 140px;
+  }
+}
+
+/* Spinner de carga */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 40px;
+
+  mat-spinner {
+    color: #3f51b5; /* color primario */
+  }
+
+  p {
+    font-size: 1rem;
+    color: #666;
+  }
+}
+
+/* Estilo responsive */
+@media (max-width: 600px) {
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row-fields {
+    gap: 12px;
+  }
+}

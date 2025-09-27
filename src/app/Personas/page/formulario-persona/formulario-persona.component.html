@@ -1,0 +1,92 @@
+<div class="container">
+  <h2>{{ isEdit ? 'Editar' : 'Nuevo' }} Persona</h2>
+
+  <!-- Formulario -->
+  <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading">
+
+    <div class="row-fields" *ngFor="let campo of campos">
+      <!-- Campos text y number -->
+      <mat-form-field *ngIf="campo.tipo === 'text' || campo.tipo === 'number'" appearance="outline" class="full-width">
+        <mat-label>{{ campo.label }}</mat-label>
+        <input matInput
+               [type]="campo.tipo"
+               [formControlName]="campo.control"
+               [placeholder]="campo.placeholder ?? ''">
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
+          {{ campo.label }} es obligatorio
+        </mat-error>
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('email')">
+          Email inválido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo select -->
+      <mat-form-field *ngIf="campo.tipo === 'select'" appearance="outline" class="full-width">
+        <mat-label>{{ campo.label }}</mat-label>
+        <mat-select [formControlName]="campo.control">
+          <mat-option *ngFor="let option of campo.opciones" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
+          {{ campo.label }} es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo multiselect -->
+      <mat-form-field *ngIf="campo.tipo === 'multiselect'" appearance="outline" class="full-width">
+        <mat-label>{{ campo.label }}</mat-label>
+        <mat-select [formControlName]="campo.control" multiple>
+          <mat-option *ngFor="let option of campo.opciones" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
+          {{ campo.label }} es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo de fecha -->
+      <mat-form-field *ngIf="campo.tipo === 'date'" appearance="outline" class="full-width">
+        <mat-label>{{ campo.label }}</mat-label>
+        <input matInput [matDatepicker]="picker" [formControlName]="campo.control" placeholder="Seleccione fecha">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
+          {{ campo.label }} es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo checkbox -->
+      <mat-checkbox *ngIf="campo.tipo === 'checkbox'" [formControlName]="campo.control">
+        {{ campo.label }}
+      </mat-checkbox>
+    </div>
+
+    <!-- Botones -->
+    <div class="button-row">
+      <button mat-stroked-button color="primary" (click)="nuevo()" [disabled]="formEnabled || loading">
+        Nuevo
+      </button>
+      
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="!formEnabled || formGroup.invalid || loading">
+        {{ loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Guardar') }}
+      </button>
+      
+      <button mat-stroked-button (click)="cancelar()" [disabled]="!formEnabled || loading">
+        Cancelar
+      </button>
+      
+      <button mat-stroked-button color="accent" (click)="volver()">
+        Volver
+      </button>
+    </div>
+  </form>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando...</p>
+  </div>
+</div>

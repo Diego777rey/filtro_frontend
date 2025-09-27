@@ -18,7 +18,10 @@ export class ProductoService {
     return this.apollo.watchQuery({
       query: GET_PRODUCTOS
     }).valueChanges.pipe(
-      map((result: any) => result.data.findAllProductos || [])
+      map((result: any) => {
+        const productos = result.data?.findAllProductos || [];
+        return productos.map((producto: any) => this.mapGraphQLToInputProducto(producto));
+      })
     );
   }
 
@@ -27,7 +30,7 @@ export class ProductoService {
       query: GET_PRODUCTOS_BY_ID,
       variables: { productoId: id }
     }).valueChanges.pipe(
-      map((result: any) => result.data.findProductoById)
+      map((result: any) => this.mapGraphQLToInputProducto(result.data?.findProductoById))
     );
   }
 
@@ -40,7 +43,11 @@ export class ProductoService {
     }).valueChanges.pipe(
       map((result: any) => {
         if (result.errors) console.error('GraphQL errors:', result.errors);
-        return result.data?.findProductosPaginated || { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
+        const data = result.data?.findProductosPaginated || { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
+        return {
+          ...data,
+          items: data.items?.map((producto: any) => this.mapGraphQLToInputProducto(producto)) || []
+        };
       }),
       catchError((err: any) => throwError(() => err))
     );
@@ -56,7 +63,7 @@ export class ProductoService {
           console.error('GraphQL errors:', result.errors);
           throw new Error(result.errors[0]?.message || 'Error al crear producto');
         }
-        return result.data.createProducto;
+        return this.mapGraphQLToInputProducto(result.data.createProducto);
       }),
       catchError((err: any) => {
         console.error('Error creating producto:', err);
@@ -75,7 +82,7 @@ export class ProductoService {
           console.error('GraphQL errors:', result.errors);
           throw new Error(result.errors[0]?.message || 'Error al actualizar producto');
         }
-        return result.data.updateProducto;
+        return this.mapGraphQLToInputProducto(result.data.updateProducto);
       }),
       catchError((err: any) => {
         console.error('Error updating producto:', err);
@@ -91,5 +98,36 @@ export class ProductoService {
     }).pipe(
       map((result: any) => result.data.deleteProducto)
     );
+  }
+
+  // Método para mapear la respuesta de GraphQL a InputProducto
+  private mapGraphQLToInputProducto(graphqlProducto: any): InputProducto {
+    if (!graphqlProducto) return new InputProducto();
+
+    return new InputProducto({
+      id: graphqlProducto.id,
+      codigoProducto: graphqlProducto.codigoProducto,
+      nombre: graphqlProducto.nombre,
+      descripcion: graphqlProducto.descripcion,
+      precioCompra: graphqlProducto.precioCompra,
+      precioVenta: graphqlProducto.precioVenta,
+      stock: graphqlProducto.stock,
+      productoEstado: graphqlProducto.productoEstado,
+      categoria: graphqlProducto.categoria ? {
+        id: graphqlProducto.categoria.id,
+        nombre: graphqlProducto.categoria.nombre,
+        categoriaEstado: graphqlProducto.categoria.categoriaEstado
+      } : undefined,
+      proveedor: graphqlProducto.proveedor ? {
+        id: graphqlProducto.proveedor.id,
+        ruc: graphqlProducto.proveedor.ruc,
+        razonSocial: graphqlProducto.proveedor.razonSocial,
+        rubro: graphqlProducto.proveedor.rubro,
+        telefono: graphqlProducto.proveedor.telefono,
+        email: graphqlProducto.proveedor.email,
+        persona: graphqlProducto.proveedor.persona,
+        observaciones: graphqlProducto.proveedor.observaciones
+      } : undefined
+    });
   }
 }

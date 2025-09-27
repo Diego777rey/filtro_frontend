@@ -29,6 +29,26 @@ const routes: Routes = [
         loadChildren: () => import('./bienvenido/bienvenido.module').then(m => m.BienvenidoModule)
       },
       {
+        path: 'movimientos-caja',
+        loadChildren: () => import('./MovimientosCaja/movimientos-caja.module').then(m => m.MovimientosCajaModule)
+      },
+      {
+        path: 'personas',
+        loadChildren: () => import('./Personas/personas.module').then(m => m.PersonasModule)
+      },
+      {
+        path: 'caja',
+        loadChildren: () => import('./caja/caja.module').then(m => m.CajaModule)
+      },
+      {
+        path: 'cajero',
+        loadChildren: () => import('./cajero/cajero.module').then(m => m.CajeroModule)
+      },
+      {
+        path: 'deposito',
+        loadChildren: () => import('./deposito/deposito.module').then(m => m.DepositoModule)
+      },
+      {
         path: 'clientes',
         loadChildren: () => import('./cliente/cliente.module').then(m => m.ClienteModule)
       },

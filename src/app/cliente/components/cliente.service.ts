@@ -12,18 +12,20 @@ export class ClienteService {
 
   getClientes(): Observable<Cliente[]> {
     return this.apollo.watchQuery<{ findAllClientes: Cliente[] }>({
-      query: GET_CLIENTES
+      query: GET_CLIENTES,
+      errorPolicy: 'all'
     }).valueChanges.pipe(
-      map(result => result.data.findAllClientes)
+      map(result => result.data?.findAllClientes || [])
     );
   }
 
   getById(id: number): Observable<Cliente> {
     return this.apollo.watchQuery<{ findClienteById: Cliente }>({
       query: GET_CLIENTE_BY_ID,
-      variables: { id }
+      variables: { id },
+      errorPolicy: 'all'
     }).valueChanges.pipe(
-      map(result => result.data.findClienteById)
+      map(result => result.data?.findClienteById)
     );
   }
 
@@ -49,21 +51,19 @@ export class ClienteService {
   }
 
   getPaginated(page: number, size: number, search: string = ''): Observable<any> {
-    console.log('🔍 ClienteService.getPaginated - Parámetros:', { page, size, search });
-    
     return this.apollo.watchQuery({
       query: GET_CLIENTES_PAGINADOS,
       variables: { page, size, search },
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all'
     }).valueChanges.pipe(
       map((result: any) => {
-        console.log('📡 ClienteService - Respuesta GraphQL completa:', result);
-        console.log('📡 ClienteService - Datos extraídos:', result.data?.findClientesPaginated);
-        
-        const response = result.data?.findClientesPaginated || { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
-        console.log('📡 ClienteService - Respuesta final:', response);
-        
-        return response;
+        return result.data?.findClientesPaginated || { 
+          items: [], 
+          totalItems: 0, 
+          totalPages: 0, 
+          currentPage: 0 
+        };
       })
     );
   }

@@ -295,10 +295,10 @@ export class AuthService {
     return requiredRoles.some(role => tokenRoles.includes(role));
   }
 
-  // Obtiene el avatar según el rol del usuario
+  // Obtiene el avatar según el rol del usuario (optimizado)
   getAvatarByRole(): string {
     const usuario = this.getUsuario();
-    if (!usuario || !usuario.rol) {
+    if (!usuario?.rol) {
       return 'person'; // Avatar por defecto
     }
 
@@ -324,10 +324,10 @@ export class AuthService {
     }
   }
 
-  // Obtiene el color del avatar según el rol
+  // Obtiene el color del avatar según el rol (optimizado)
   getAvatarColorByRole(): string {
     const usuario = this.getUsuario();
-    if (!usuario || !usuario.rol) {
+    if (!usuario?.rol) {
       return 'primary';
     }
 

@@ -121,9 +121,9 @@ export class BuscadorCategoriaComponent implements OnInit, OnDestroy {
   }
 
   private coincideFiltro(categoria: Categoria, filtro: string): boolean {
-    const descripcionMatch = categoria.descripcion?.toLowerCase().includes(filtro) || false;
+    const nombreMatch = categoria.nombre?.toLowerCase().includes(filtro) || false;
     
-    return descripcionMatch;
+    return nombreMatch;
   }
 
   limpiarFiltro(): void {
@@ -134,7 +134,7 @@ export class BuscadorCategoriaComponent implements OnInit, OnDestroy {
 
   seleccionarCategoria(categoria: Categoria): void {
     console.log('Categoría seleccionada:', categoria);
-    console.log('Descripción:', categoria.descripcion);
+    console.log('Nombre:', categoria.nombre);
     
     this.categoriaSeleccionada = categoria;
     this.categoriaSeleccionadaChange.emit(categoria);
@@ -152,12 +152,12 @@ export class BuscadorCategoriaComponent implements OnInit, OnDestroy {
     }
     
     // Verificar que la categoría tenga propiedades válidas
-    const descripcion = this.categoriaSeleccionada.descripcion?.trim();
+    const nombre = this.categoriaSeleccionada.nombre?.trim();
     
-    if (descripcion && descripcion !== '') {
-      return descripcion;
+    if (nombre && nombre !== '') {
+      return nombre;
     } else {
-      return 'Categoría sin descripción';
+      return 'Categoría sin nombre';
     }
   }
 

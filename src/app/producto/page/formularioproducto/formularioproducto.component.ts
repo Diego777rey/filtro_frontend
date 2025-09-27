@@ -24,6 +24,8 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   productoId: number | null = null;
   categorias: Categoria[] = [];
   categoriaSeleccionada: Categoria | null = null;
+  proveedores: any[] = [];
+  proveedorSeleccionado: any | null = null;
   loading = false;
   formEnabled = false; // controla habilitación de inputs
 
@@ -40,6 +42,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadProveedores();
     this.checkEditMode();
     this.initCampos();
   }
@@ -51,12 +54,15 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
 
   initCampos(): void {
     this.campos = [
+      { control: 'codigoProducto', label: 'Código Producto', tipo: 'text', placeholder: 'Ingrese código', requerido: false },
+      { control: 'nombre', label: 'Nombre', tipo: 'text', placeholder: 'Ingrese nombre', requerido: true },
       { control: 'descripcion', label: 'Descripción', tipo: 'text', placeholder: 'Ingrese descripción', requerido: true },
       { control: 'precioCompra', label: 'Precio Compra', tipo: 'number', placeholder: '0.00', requerido: true },
       { control: 'precioVenta', label: 'Precio Venta', tipo: 'number', placeholder: '0.00', requerido: true },
       { control: 'stock', label: 'Stock', tipo: 'number', placeholder: '0', requerido: true },
       { control: 'categoriaId', label: 'Categoría', tipo: 'select', opciones: [], requerido: true },
-      { control: 'activo', label: 'Activo', tipo: 'checkbox' }
+      { control: 'proveedorId', label: 'Proveedor', tipo: 'select', opciones: [], requerido: true },
+      { control: 'productoEstado', label: 'Estado Activo', tipo: 'checkbox' }
     ];
 
     // Crear los FormControls - habilitados si estamos en modo edición
@@ -93,11 +99,30 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
         if (categoriaCampo) {
           categoriaCampo.opciones = this.categorias.map(c => ({ 
             value: c.id, 
-            label: c.descripcion 
+            label: c.nombre 
           }));
         }
         this.loading = false;
       });
+  }
+
+  loadProveedores(): void {
+    // Por ahora, crear algunos proveedores de ejemplo
+    // En un proyecto real, esto vendría de un servicio
+    this.proveedores = [
+      { id: 1, razonSocial: 'Proveedor 1', ruc: '123456789' },
+      { id: 2, razonSocial: 'Proveedor 2', ruc: '987654321' },
+      { id: 3, razonSocial: 'Proveedor 3', ruc: '456789123' }
+    ];
+
+    // Actualizar opciones del select
+    const proveedorCampo = this.campos.find(c => c.control === 'proveedorId');
+    if (proveedorCampo) {
+      proveedorCampo.opciones = this.proveedores.map(p => ({ 
+        value: p.id, 
+        label: `${p.razonSocial} (${p.ruc})` 
+      }));
+    }
   }
 
   loadProduct(id: number): void {
@@ -107,17 +132,25 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       .subscribe((data: InputProducto | null) => {
         if (data) {
           this.formGroup.patchValue({
+            codigoProducto: data.codigoProducto,
+            nombre: data.nombre,
             descripcion: data.descripcion,
             precioCompra: data.precioCompra,
             precioVenta: data.precioVenta,
             stock: data.stock,
-            activo: data.activo,
-            categoriaId: data.categoria?.id || ''
+            productoEstado: data.productoEstado,
+            categoriaId: data.categoria?.id || '',
+            proveedorId: data.proveedor?.id || ''
           });
           
           // Establecer la categoría seleccionada para el buscador
           if (data.categoria) {
             this.categoriaSeleccionada = data.categoria;
+          }
+          
+          // Establecer el proveedor seleccionado
+          if (data.proveedor) {
+            this.proveedorSeleccionado = data.proveedor;
           }
         }
         this.loading = false;
@@ -139,16 +172,35 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Método para manejar la selección de proveedor
+  onProveedorSeleccionado(proveedor: any | null): void {
+    this.proveedorSeleccionado = proveedor;
+    
+    if (proveedor) {
+      this.formGroup.patchValue({
+        proveedorId: proveedor.id
+      });
+    } else {
+      this.formGroup.patchValue({
+        proveedorId: null
+      });
+    }
+  }
+
   // -------------------
   // Eventos botones
   // -------------------
   nuevo(): void {
-    // Asegurar que las categorías estén cargadas antes de habilitar el formulario
+    // Asegurar que las categorías y proveedores estén cargados antes de habilitar el formulario
     if (this.categorias.length === 0) {
       this.loadCategories();
     }
-    this.formGroup.reset({ activo: true });
+    if (this.proveedores.length === 0) {
+      this.loadProveedores();
+    }
+    this.formGroup.reset({ productoEstado: true });
     this.categoriaSeleccionada = null; // Limpiar categoría seleccionada
+    this.proveedorSeleccionado = null; // Limpiar proveedor seleccionado
     this.formEnabled = true;
     this.formGroup.enable();
   }
@@ -156,6 +208,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   cancelar(): void {
     this.formGroup.reset();
     this.categoriaSeleccionada = null; // Limpiar categoría seleccionada
+    this.proveedorSeleccionado = null; // Limpiar proveedor seleccionado
     this.formEnabled = false;
     this.formGroup.disable();
   }
@@ -202,6 +255,15 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       return;
     }
     
+    // Verificar que se haya seleccionado un proveedor
+    if (!formValue.proveedorId) {
+      this.snackBar.open('Error: Debe seleccionar un proveedor', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+    
     // Usar la categoría seleccionada del buscador
     if (!this.categoriaSeleccionada) {
       this.snackBar.open('Error: Debe seleccionar una categoría', 'Cerrar', {
@@ -211,14 +273,26 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Usar el proveedor seleccionado
+    if (!this.proveedorSeleccionado) {
+      this.snackBar.open('Error: Debe seleccionar un proveedor', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     try {
       const producto = new InputProducto({
+        codigoProducto: formValue.codigoProducto,
+        nombre: formValue.nombre,
         descripcion: formValue.descripcion,
         precioCompra: Number(formValue.precioCompra),
         precioVenta: Number(formValue.precioVenta),
         stock: Number(formValue.stock),
-        activo: formValue.activo,
-        categoria: this.categoriaSeleccionada
+        productoEstado: formValue.productoEstado,
+        categoria: this.categoriaSeleccionada,
+        proveedor: this.proveedorSeleccionado
       });
 
       const productoDto = producto.toDto();

@@ -25,12 +25,13 @@ export class CategoriaComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columnas: string[] = [
-    'id', 'descripcion', 'acciones'
+    'id', 'nombre', 'categoriaEstado', 'acciones'
   ];
 
   nombresColumnas: { [key: string]: string } = {
     id: 'Código',
-    descripcion: 'Descripción',
+    nombre: 'Nombre',
+    categoriaEstado: 'Estado',
     acciones: 'Acciones'
   };
 
@@ -125,7 +126,7 @@ export class CategoriaComponent implements OnInit, OnDestroy {
   // 🔹 Eliminar categoría
   eliminarCategoria(categoria: Categoria){
     if(!categoria.id) return;
-    if(confirm(`¿Desea eliminar "${categoria.descripcion}"?`)){
+    if(confirm(`¿Desea eliminar "${categoria.nombre}"?`)){
       this.servicioCategoria.delete(categoria.id).subscribe(()=> this.cargarCategorias());
     }
   }

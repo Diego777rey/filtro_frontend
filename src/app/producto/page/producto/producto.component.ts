@@ -25,17 +25,20 @@ export class ProductoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columnas: string[] = [
-    'id','descripcion','precioCompra','precioVenta','stock','activo','categoria','acciones'
+    'id','codigoProducto','nombre','descripcion','precioCompra','precioVenta','stock','productoEstado','categoria','proveedor','acciones'
   ];
 
   nombresColumnas: { [key: string]: string } = {
-    id: 'Código',
+    id: 'ID',
+    codigoProducto: 'Código',
+    nombre: 'Nombre',
     descripcion: 'Descripción',
     precioCompra: 'Precio Compra',
     precioVenta: 'Precio Venta',
     stock: 'Stock',
-    activo: 'Estado',
+    productoEstado: 'Estado',
     categoria: 'Categoría',
+    proveedor: 'Proveedor',
     acciones: 'Acciones'
   };
 
@@ -124,7 +127,8 @@ export class ProductoComponent implements OnInit, OnDestroy {
   // 🔹 Eliminar producto
   eliminarProducto(producto: InputProducto){
     if(!producto.id) return;
-    if(confirm(`¿Desea eliminar "${producto.descripcion}"?`)){
+    const nombreProducto = producto.nombre || producto.descripcion || 'este producto';
+    if(confirm(`¿Desea eliminar "${nombreProducto}"?`)){
       this.servicioProducto.delete(producto.id).subscribe(()=> this.cargarProductos());
     }
   }

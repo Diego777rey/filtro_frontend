@@ -4,11 +4,11 @@
   <form [formGroup]="reporteForm" (ngSubmit)="descargarReporte()">
     <div class="filtros-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Descripción de la Categoría</mat-label>
+        <mat-label>Nombre de la Categoría</mat-label>
         <input 
           matInput 
-          placeholder="Ingrese la descripción de la categoría" 
-          formControlName="descripcion">
+          placeholder="Ingrese el nombre de la categoría" 
+          formControlName="nombre">
         <mat-hint>Deje vacío para incluir todas las categorías</mat-hint>
       </mat-form-field>
     </div>

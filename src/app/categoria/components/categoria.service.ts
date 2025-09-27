@@ -36,25 +36,43 @@ export class CategoriaService {
     );
   }
 
-  create(Categoria: Categoria) {
+  create(categoria: Categoria) {
     return this.apollo.mutate({
       mutation: SAVE_CATEGORIA,
-      variables: { input: Categoria }
-    });
+      variables: { input: categoria }
+    }).pipe(
+      map((result: any) => result.data?.saveCategoria),
+      catchError((error) => {
+        console.error('Error al crear categoría:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
-  update(id: number, Categoria: Categoria) {
+  update(id: number, categoria: Categoria) {
     return this.apollo.mutate({
       mutation: UPDATE_CATEGORIA,
-      variables: { id, input: Categoria }
-    });
+      variables: { id, input: categoria }
+    }).pipe(
+      map((result: any) => result.data?.updateCategoria),
+      catchError((error) => {
+        console.error('Error al actualizar categoría:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   delete(id: number) {
     return this.apollo.mutate({
       mutation: DELETE_CATEGORIA,
       variables: { id }
-    });
+    }).pipe(
+      map((result: any) => result.data?.deleteCategoria),
+      catchError((error) => {
+        console.error('Error al eliminar categoría:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getPaginated(page: number, size: number, search: string = '') {

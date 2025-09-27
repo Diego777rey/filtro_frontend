@@ -5,6 +5,7 @@ import { CategoriaRoutingModule } from './categoria-routing.module';
 import { CategoriaComponent } from './page/categoria/categoria.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReutilizacionModule } from 'src/app/reutilizacion/reutilizacion.module';
+import { GraphQLModule } from 'src/app/graphql.module';
 //apartir de aca es de angular material
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,6 +34,7 @@ import { ReporteCategoriaComponent } from './page/reportecategoria/reportecatego
     FormsModule,
     ReactiveFormsModule,
     ReutilizacionModule,
+    GraphQLModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,

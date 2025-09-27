@@ -1,13 +1,29 @@
 import { Categoria } from "src/app/categoria/components/categoria";
 
+export interface Proveedor {
+  id: number;
+  ruc: string;
+  razonSocial: string;
+  rubro: string;
+  telefono: string;
+  email: string;
+  persona: {
+    id: number;
+  };
+  observaciones?: string;
+}
+
 export class InputProducto {
   id?: number;
+  codigoProducto?: string;
+  nombre: string = '';
   descripcion: string = '';
   precioCompra: number = 0;
   precioVenta: number = 0;
   stock: number = 0;
-  activo: boolean = true;
+  productoEstado: boolean = true;
   categoria?: Categoria;
+  proveedor?: Proveedor;
 
   constructor(init?: Partial<InputProducto>) {
     Object.assign(this, init);
@@ -25,14 +41,23 @@ export class InputProducto {
       throw new Error('Categoría no válida');
     }
 
+    // Validar que el proveedor tenga un ID válido
+    const proveedorId = this.proveedor?.id;
+    if (!proveedorId || proveedorId === 0) {
+      throw new Error('Proveedor no válido');
+    }
+
     return {
       id: this.id,
+      codigoProducto: this.codigoProducto,
+      nombre: this.nombre,
       descripcion: this.descripcion,
       precioCompra: this.precioCompra,
       precioVenta: this.precioVenta,
       stock: this.stock,
-      activo: this.activo,
-      categoriaId: Number(categoriaId)
+      productoEstado: this.productoEstado,
+      categoriaId: Number(categoriaId),
+      proveedorId: Number(proveedorId)
     }
   }
 }

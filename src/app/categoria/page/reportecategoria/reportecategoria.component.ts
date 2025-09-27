@@ -23,7 +23,7 @@ export class ReporteCategoriaComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.reporteForm = this.fb.group({
-      descripcion: ['']
+      nombre: ['']
     });
   }
 
@@ -48,7 +48,7 @@ export class ReporteCategoriaComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const formValue = this.reporteForm.value;
     
-    this.categoriaReporteService.descargar(formValue.descripcion)
+    this.categoriaReporteService.descargar(formValue.nombre)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
