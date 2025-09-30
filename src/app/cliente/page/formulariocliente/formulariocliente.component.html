@@ -4,6 +4,22 @@
   <!-- Formulario -->
   <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading">
 
+    <!-- Buscador de persona -->
+    <div class="row-fields">
+      <div class="persona-selection-container">
+        <label class="persona-label">Persona *</label>
+        <app-buscador-persona
+          [personaSeleccionada]="personaSeleccionada"
+          [disabled]="!formEnabled"
+          placeholder="Seleccionar persona"
+          (personaSeleccionadaChange)="onPersonaSeleccionada($event)">
+        </app-buscador-persona>
+        <mat-error *ngIf="!personaSeleccionada && formGroup.touched" class="persona-error">
+          Debe seleccionar una persona
+        </mat-error>
+      </div>
+    </div>
+
     <div class="row-fields" *ngFor="let campo of campos">
       <!-- Campos text y number -->
       <mat-form-field *ngIf="campo.tipo === 'text' || campo.tipo === 'number'" appearance="outline" class="full-width">

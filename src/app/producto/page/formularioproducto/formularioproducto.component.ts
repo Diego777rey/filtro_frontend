@@ -27,7 +27,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   proveedores: any[] = [];
   proveedorSeleccionado: any | null = null;
   loading = false;
-  formEnabled = false; // controla habilitación de inputs
+  formEnabled = false;
 
   constructor(
     private fb: FormBuilder,

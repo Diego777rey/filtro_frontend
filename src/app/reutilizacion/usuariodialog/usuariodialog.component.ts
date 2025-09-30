@@ -15,7 +15,7 @@ export class UsuariodialogComponent {
     switch (rol) {
       case 'ADMINISTRADOR':
         return 'admin_panel_settings';
-      case 'USER':
+      case 'Depositero':
         return 'person';
       case 'VENDEDOR':
         return 'storefront';

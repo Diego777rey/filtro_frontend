@@ -100,6 +100,27 @@
     color: white !important;
   }
 
+  /* Estilos para el buscador de persona */
+  .persona-selection-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .persona-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .persona-error {
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
   /* Estilo responsive */
   @media (max-width: 600px) {
     .row-fields {

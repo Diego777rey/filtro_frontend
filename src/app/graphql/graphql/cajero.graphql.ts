@@ -10,20 +10,22 @@ export const GET_CAJEROS = gql`
       estado
       caja {
         id
-        descripcion
-        estado
+        codigoCaja
       }
       persona {
         id
         nombre
         apellido
+        documento
+        telefono
+        email
       }
     }
   }
 `;
 export const GET_CAJERO_BY_ID = gql`
-  query GetCajeroById($cajeroId: ID!) {
-    findCajeroById(CajeroId: $cajeroId) {
+  query GetCajeroById($id: ID!) {
+    findCajeroById(cajeroId: $id) {
       id
       codigoCajero
       turno
@@ -31,13 +33,15 @@ export const GET_CAJERO_BY_ID = gql`
       estado
       caja {
         id
-        descripcion
-        estado
+        codigoCaja
       }
       persona {
         id
         nombre
         apellido
+        documento
+        telefono
+        email
       }
     }
   }
@@ -54,13 +58,15 @@ export const GET_CAJEROS_PAGINADOS = gql`
         estado
         caja {
           id
-          descripcion
-          estado
+          codigoCaja
         }
         persona {
           id
           nombre
           apellido
+          documento
+          telefono
+          email
         }
       }
       totalItems
@@ -81,13 +87,15 @@ export const CREATE_CAJERO = gql`
       estado
       caja {
         id
-        descripcion
-        estado
+        codigoCaja
       }
       persona {
         id
         nombre
         apellido
+        documento
+        telefono
+        email
       }
     }
   }
@@ -102,13 +110,15 @@ export const UPDATE_CAJERO = gql`
       estado
       caja {
         id
-        descripcion
-        estado
+        codigoCaja
       }
       persona {
         id
         nombre
         apellido
+        documento
+        telefono
+        email
       }
     }
   }

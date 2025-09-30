@@ -62,17 +62,7 @@ export class VendedorService {
       codigoVendedor: vendedorData.codigoVendedor,
       comision: vendedorData.comision,
       sucursal: vendedorData.sucursal,
-      persona: {
-        nombre: vendedorData.nombre,
-        apellido: vendedorData.apellido,
-        documento: vendedorData.documento,
-        telefono: vendedorData.telefono,
-        email: vendedorData.email,
-        direccion: vendedorData.direccion,
-        estadoPersona: vendedorData.estadoPersona || 'ACTIVO',
-        fechaNacimiento: vendedorData.fechaNacimiento,
-        roles: vendedorData.roles || [{ tipoPersona: 'VENDEDOR' }]
-      }
+      personaId: vendedorData.persona.id
     };
     
     return this.apollo.mutate({
@@ -87,18 +77,7 @@ export class VendedorService {
       codigoVendedor: vendedorData.codigoVendedor,
       comision: vendedorData.comision,
       sucursal: vendedorData.sucursal,
-      persona: {
-        id: vendedorData.persona?.id,
-        nombre: vendedorData.nombre,
-        apellido: vendedorData.apellido,
-        documento: vendedorData.documento,
-        telefono: vendedorData.telefono,
-        email: vendedorData.email,
-        direccion: vendedorData.direccion,
-        estadoPersona: vendedorData.estadoPersona,
-        fechaNacimiento: vendedorData.fechaNacimiento,
-        roles: vendedorData.roles
-      }
+      personaId: vendedorData.persona.id
     };
     
     return this.apollo.mutate({

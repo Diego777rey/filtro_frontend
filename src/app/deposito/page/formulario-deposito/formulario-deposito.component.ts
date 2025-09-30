@@ -7,6 +7,23 @@ import { Depositero } from '../../components/depositero';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { CampoDepositoFormulario } from './campo-deposito.formulario';
 
+// Definir la interfaz Persona local para evitar conflictos
+export interface Persona {
+  id?: number;
+  nombre: string;
+  apellido: string;
+  documento: string;
+  telefono: string;
+  email: string;
+  direccion?: string;
+  estadoPersona?: string;
+  fechaNacimiento?: string;
+  roles?: Array<{
+    id?: number;
+    tipoPersona: string;
+  }>;
+}
+
 @Component({
   selector: 'app-formulario-deposito',
   templateUrl: './formulario-deposito.component.html',
@@ -22,6 +39,7 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
   depositeroId: string | null = null;
   loading = false;
   formEnabled = false; // controla habilitación de inputs
+  personaSeleccionada: Persona | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -62,14 +80,7 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
           { value: 'INACTIVO', label: 'Inactivo' }
         ]
       },
-      { 
-        control: 'personaId', 
-        label: 'Persona', 
-        tipo: 'select', 
-        placeholder: 'Seleccione persona', 
-        requerido: true,
-        opciones: [] // Se llenará dinámicamente
-      }
+      // Campo personaId removido - ahora se usa el buscador de persona
     ];
 
     // Crear los FormControls - habilitados si estamos en modo edición
@@ -116,25 +127,37 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
             almacenAsignado: data.almacenAsignado,
             supervisor: data.supervisor,
             horario: data.horario,
-            estado: data.estado,
-            personaId: data.persona?.id || ''
+            estado: data.estado
           });
+          // Establecer la persona seleccionada con conversión de tipos
+          this.personaSeleccionada = this.convertirPersona(data.persona);
         }
         this.loading = false;
       });
   }
 
   loadPersonas(): void {
-    // Aquí deberías cargar las personas disponibles para el select
-    // Por ahora usamos opciones estáticas, pero puedes implementar un servicio de personas
-    const personaField = this.campos.find(c => c.control === 'personaId');
-    if (personaField) {
-      personaField.opciones = [
-        { value: '1', label: 'Persona 1' },
-        { value: '2', label: 'Persona 2' },
-        { value: '3', label: 'Persona 3' }
-      ];
-    }
+    // Ya no se necesita cargar personas para el select
+    // Ahora se usa el buscador de persona
+  }
+
+  // Método para convertir persona del servicio a la interfaz local
+  private convertirPersona(personaFromService: any): Persona {
+    return {
+      id: personaFromService.id ? parseInt(personaFromService.id) : undefined,
+      nombre: personaFromService.nombre,
+      apellido: personaFromService.apellido,
+      documento: personaFromService.documento,
+      telefono: personaFromService.telefono,
+      email: personaFromService.email,
+      direccion: personaFromService.direccion,
+      estadoPersona: personaFromService.estadoPersona,
+      fechaNacimiento: personaFromService.fechaNacimiento,
+      roles: personaFromService.roles?.map((role: any) => ({
+        id: role.id ? parseInt(role.id) : undefined,
+        tipoPersona: role.tipoPersona
+      }))
+    };
   }
 
   // -------------------
@@ -145,12 +168,14 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
       estado: 'ACTIVO',
       fechaIngreso: new Date() // Establecer fecha actual por defecto
     });
+    this.personaSeleccionada = null;
     this.formEnabled = true;
     this.formGroup.enable();
   }
 
   cancelar(): void {
     this.formGroup.reset();
+    this.personaSeleccionada = null;
     this.formEnabled = false;
     this.formGroup.disable();
   }
@@ -159,11 +184,25 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/deposito']);
   }
 
+  // Método para manejar la selección de persona
+  onPersonaSeleccionada(persona: Persona | null): void {
+    this.personaSeleccionada = persona;
+  }
+
   guardar(): void {
     if (this.formGroup.invalid) {
       console.error('Formulario inválido:', this.formGroup.errors);
       this.formGroup.markAllAsTouched();
       this.snackBar.open('Por favor, complete todos los campos obligatorios correctamente', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    // Validación de persona seleccionada
+    if (!this.personaSeleccionada) {
+      this.snackBar.open('Error: Debe seleccionar una persona', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -189,12 +228,12 @@ export class FormularioDepositoComponent implements OnInit, OnDestroy {
         supervisor: formValue.supervisor,
         horario: formValue.horario,
         estado: formValue.estado,
-        personaId: formValue.personaId
+        personaId: this.personaSeleccionada.id
       };
 
       const obs$ = this.isEdit && this.depositeroId
-        ? this.depositeroService.update(this.depositeroId, depositeroData)
-        : this.depositeroService.create(depositeroData);
+        ? this.depositeroService.updateDepositeroWithPersona(this.depositeroId, depositeroData)
+        : this.depositeroService.createDepositeroWithPersona(depositeroData);
 
       this.loading = true;
       obs$.pipe(

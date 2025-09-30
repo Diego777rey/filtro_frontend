@@ -7,6 +7,23 @@ import { Cliente } from '../../components/cliente';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { CampoClienteFormulario } from './campo-cliente.formulario';
 
+// Definir la interfaz Persona local para evitar conflictos
+export interface Persona {
+  id?: number;
+  nombre: string;
+  apellido: string;
+  documento: string;
+  telefono: string;
+  email: string;
+  direccion?: string;
+  estadoPersona?: string;
+  fechaNacimiento?: string;
+  roles?: Array<{
+    id?: number;
+    tipoPersona: string;
+  }>;
+}
+
 @Component({
   selector: 'app-formulariocliente',
   templateUrl: './formulariocliente.component.html',
@@ -22,6 +39,7 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
   clienteId: number | null = null;
   loading = false;
   formEnabled = false; // controla habilitación de inputs
+  personaSeleccionada: Persona | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -43,16 +61,9 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  initCampos(): void {//aca inicializamos los campos del formulario
+  initCampos(): void {//aca inicializamos los campos del formulario según el esquema GraphQL
     this.campos = [
       { control: 'codigoCliente', label: 'Código Cliente', tipo: 'text', placeholder: 'Ingrese código cliente', requerido: true },
-      { control: 'nombre', label: 'Nombre', tipo: 'text', placeholder: 'Ingrese nombre', requerido: true },
-      { control: 'apellido', label: 'Apellido', tipo: 'text', placeholder: 'Ingrese apellido', requerido: true },
-      { control: 'documento', label: 'Documento', tipo: 'text', placeholder: 'Ingrese documento', requerido: true },
-      { control: 'telefono', label: 'Teléfono', tipo: 'text', placeholder: 'Ingrese teléfono', requerido: true },
-      { control: 'email', label: 'Email', tipo: 'text', placeholder: 'ejemplo@correo.com', requerido: true },
-      { control: 'direccion', label: 'Dirección', tipo: 'text', placeholder: 'Ingrese dirección', requerido: false },
-      { control: 'fechaNacimiento', label: 'Fecha de Nacimiento', tipo: 'date', placeholder: 'Seleccione fecha', requerido: false },
       { control: 'fechaRegistro', label: 'Fecha de Registro', tipo: 'date', placeholder: 'Seleccione fecha', requerido: true }
     ];
 
@@ -93,15 +104,10 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
         if (data) {
           this.formGroup.patchValue({
             codigoCliente: data.codigoCliente,
-            nombre: data.persona.nombre,
-            apellido: data.persona.apellido,
-            documento: data.persona.documento,
-            telefono: data.persona.telefono,
-            email: data.persona.email,
-            direccion: data.persona.direccion,
-            fechaNacimiento: data.persona.fechaNacimiento,
             fechaRegistro: data.fechaRegistro
           });
+          // Establecer la persona seleccionada con conversión de tipos
+          this.personaSeleccionada = this.convertirPersona(data.persona);
         }
         this.loading = false;
       });
@@ -115,18 +121,43 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
       activo: true,
       fechaRegistro: new Date() // Establecer fecha actual por defecto
     });
+    this.personaSeleccionada = null;
     this.formEnabled = true;
     this.formGroup.enable();
   }
 
   cancelar(): void {
     this.formGroup.reset();
+    this.personaSeleccionada = null;
     this.formEnabled = false;
     this.formGroup.disable();
   }
 
   volver(): void {
     this.router.navigate(['dashboard/clientes']);
+  }
+
+  onPersonaSeleccionada(persona: Persona | null): void {
+    this.personaSeleccionada = persona;
+  }
+
+  // Método para convertir persona del servicio a la interfaz local
+  private convertirPersona(personaFromService: any): Persona {
+    return {
+      id: personaFromService.id ? parseInt(personaFromService.id) : undefined,
+      nombre: personaFromService.nombre,
+      apellido: personaFromService.apellido,
+      documento: personaFromService.documento,
+      telefono: personaFromService.telefono,
+      email: personaFromService.email,
+      direccion: personaFromService.direccion,
+      estadoPersona: personaFromService.estadoPersona,
+      fechaNacimiento: personaFromService.fechaNacimiento,
+      roles: personaFromService.roles?.map((role: any) => ({
+        id: role.id ? parseInt(role.id) : undefined,
+        tipoPersona: role.tipoPersona
+      }))
+    };
   }
 
   guardar(): void {
@@ -140,26 +171,8 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validación básica de campos obligatorios
-    const formValue = this.formGroup.value;
-    if (!formValue.nombre || formValue.nombre.trim().length === 0) {
-      this.snackBar.open('Error: El nombre es obligatorio', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    if (!formValue.apellido || formValue.apellido.trim().length === 0) {
-      this.snackBar.open('Error: El apellido es obligatorio', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    if (!formValue.email || formValue.email.trim().length === 0) {
-      this.snackBar.open('Error: El email es obligatorio', 'Cerrar', {
+    if (!this.personaSeleccionada) {
+      this.snackBar.open('Error: Debe seleccionar una persona', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -167,17 +180,11 @@ export class FormularioclienteComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const formValue = this.formGroup.value;
       const clienteData = {
         codigoCliente: formValue.codigoCliente,
-        nombre: formValue.nombre,
-        apellido: formValue.apellido,
-        documento: formValue.documento,
-        telefono: formValue.telefono,
-        email: formValue.email,
-        direccion: formValue.direccion,
-        fechaNacimiento: formValue.fechaNacimiento,
         fechaRegistro: formValue.fechaRegistro,
-        estadoPersona: 'ACTIVO'
+        personaId: this.personaSeleccionada.id
       };
 
       const obs$ = this.isEdit && this.clienteId

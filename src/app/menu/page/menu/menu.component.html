@@ -30,7 +30,7 @@
         <mat-icon 
           class="expand-icon" 
           [class.rotated]="isFuncionariosExpanded"
-          [attr.aria-hidden]="true">expand_more</mat-icon>
+          aria-hidden="true">expand_more</mat-icon>
       </mat-list-item>
 
       <!-- Sub-items del menú Funcionarios -->
@@ -59,8 +59,8 @@
       </mat-list-item>
 
       <mat-list-item>
-        <img src="assets/img/cliente.png" alt="clientes" class="icono-nav">
-        <span class="nav-text" routerLink="/dashboard/clientes" routerLinkActive="active">Proveedores</span>
+        <img src="assets/img/proveedor.png" alt="clientes" class="icono-nav">
+        <span class="nav-text" routerLink="/dashboard/proveedor" routerLinkActive="active">Proveedores</span>
       </mat-list-item>
 
       <mat-list-item *ngIf="isAdmin">

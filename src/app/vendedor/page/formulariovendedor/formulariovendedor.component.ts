@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { VendedorService } from '../../components/vendedor.service';
 import { Vendedor } from '../../components/vendedor';
+import { Persona } from '../../components/vendedor';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
-import { CampoVendedorFormulario } from './campo-vendedor.formulario';
 
 @Component({
   selector: 'app-formulariovendedor',
@@ -17,11 +17,11 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   formGroup: FormGroup;
-  campos: CampoVendedorFormulario[] = [];
   isEdit = false;
   vendedorId: number | null = null;
   loading = false;
   formEnabled = false; // controla habilitación de inputs
+  personaSeleccionada: Persona | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -35,7 +35,7 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkEditMode();
-    this.initCampos();
+    this.initForm();
   }
 
   ngOnDestroy(): void {
@@ -43,35 +43,12 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  initCampos(): void {
-    this.campos = [
-      { control: 'codigoVendedor', label: 'Código Vendedor', tipo: 'text', placeholder: 'Ingrese código vendedor', requerido: true },
-      { control: 'comision', label: 'Comisión', tipo: 'number', placeholder: 'Ingrese comisión', requerido: true },
-      { control: 'sucursal', label: 'Sucursal', tipo: 'text', placeholder: 'Ingrese sucursal', requerido: true },
-      { control: 'nombre', label: 'Nombre', tipo: 'text', placeholder: 'Ingrese nombre', requerido: true },
-      { control: 'apellido', label: 'Apellido', tipo: 'text', placeholder: 'Ingrese apellido', requerido: true },
-      { control: 'documento', label: 'Documento', tipo: 'text', placeholder: 'Ingrese documento', requerido: true },
-      { control: 'telefono', label: 'Teléfono', tipo: 'text', placeholder: 'Ingrese teléfono', requerido: true },
-      { control: 'email', label: 'Email', tipo: 'text', placeholder: 'ejemplo@correo.com', requerido: true },
-      { control: 'direccion', label: 'Dirección', tipo: 'text', placeholder: 'Ingrese dirección', requerido: false },
-      { control: 'fechaNacimiento', label: 'Fecha de Nacimiento', tipo: 'date', placeholder: 'Seleccione fecha', requerido: false }
-    ];
-
-    // Crear los FormControls - habilitados si estamos en modo edición
-    this.campos.forEach(campo => {
-      const validators = campo.requerido ? [Validators.required] : [];
-      if (campo.control === 'email') {
-        validators.push(Validators.email);
-      }
-      const disabled = !this.isEdit; // Habilitar si estamos editando
-      
-      // Establecer valor por defecto para fechaNacimiento
-      let defaultValue: any = '';
-      if (campo.control === 'fechaNacimiento') {
-        defaultValue = new Date(); // Fecha actual
-      }
-      
-      this.formGroup.addControl(campo.control, this.fb.control({value: defaultValue, disabled: disabled}, validators));
+  initForm(): void {
+    // Solo campos específicos de vendedor según el esquema GraphQL
+    this.formGroup = this.fb.group({
+      codigoVendedor: [{value: '', disabled: !this.isEdit}, [Validators.required]],
+      comision: [{value: '', disabled: !this.isEdit}, [Validators.required]],
+      sucursal: [{value: '', disabled: !this.isEdit}, [Validators.required]]
     });
   }
 
@@ -95,15 +72,10 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
           this.formGroup.patchValue({
             codigoVendedor: data.codigoVendedor,
             comision: data.comision,
-            sucursal: data.sucursal,
-            nombre: data.persona.nombre,
-            apellido: data.persona.apellido,
-            documento: data.persona.documento,
-            telefono: data.persona.telefono,
-            email: data.persona.email,
-            direccion: data.persona.direccion,
-            fechaNacimiento: data.persona.fechaNacimiento
+            sucursal: data.sucursal
           });
+          // Establecer la persona seleccionada
+          this.personaSeleccionada = data.persona;
         }
         this.loading = false;
       });
@@ -113,22 +85,26 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
   // Eventos botones
   // -------------------
   nuevo(): void {
-    this.formGroup.reset({ 
-      activo: true,
-      fechaNacimiento: new Date() // Establecer fecha actual por defecto
-    });
+    this.formGroup.reset();
+    this.personaSeleccionada = null;
     this.formEnabled = true;
     this.formGroup.enable();
   }
 
   cancelar(): void {
     this.formGroup.reset();
+    this.personaSeleccionada = null;
     this.formEnabled = false;
     this.formGroup.disable();
   }
 
   volver(): void {
     this.router.navigate(['dashboard/vendedor']);
+  }
+
+  // Método para manejar la selección de persona
+  onPersonaSeleccionada(persona: Persona | null): void {
+    this.personaSeleccionada = persona;
   }
 
   guardar(): void {
@@ -142,26 +118,9 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validación básica de campos obligatorios
-    const formValue = this.formGroup.value;
-    if (!formValue.nombre || formValue.nombre.trim().length === 0) {
-      this.snackBar.open('Error: El nombre es obligatorio', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    if (!formValue.apellido || formValue.apellido.trim().length === 0) {
-      this.snackBar.open('Error: El apellido es obligatorio', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    if (!formValue.email || formValue.email.trim().length === 0) {
-      this.snackBar.open('Error: El email es obligatorio', 'Cerrar', {
+    // Validación de persona seleccionada
+    if (!this.personaSeleccionada) {
+      this.snackBar.open('Error: Debe seleccionar una persona', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -169,18 +128,12 @@ export class FormulariovendedorComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const formValue = this.formGroup.value;
       const vendedorData = {
         codigoVendedor: formValue.codigoVendedor,
         comision: formValue.comision,
         sucursal: formValue.sucursal,
-        nombre: formValue.nombre,
-        apellido: formValue.apellido,
-        documento: formValue.documento,
-        telefono: formValue.telefono,
-        email: formValue.email,
-        direccion: formValue.direccion,
-        fechaNacimiento: formValue.fechaNacimiento,
-        estadoPersona: 'ACTIVO'
+        persona: this.personaSeleccionada
       };
 
       const obs$ = this.isEdit && this.vendedorId

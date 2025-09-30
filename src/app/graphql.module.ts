@@ -30,32 +30,37 @@ export function createApollo(httpLink: HttpLink, authService: AuthService): Apol
 
     // Para operaciones protegidas, enviar token JWT
     const token = authService.getToken();
-    if (token) {
+    if (token && !authService.isTokenExpired()) {
       headers.Authorization = `Bearer ${token}`;
     }
 
     return { headers };
   });
 
-  // Link de manejo de errores mejorado
+  // Link de manejo de errores optimizado
   const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
     if (networkError) {
       const status = (networkError as any).status;
       
       if (status === 401) {
-        // Solo cerrar sesión si no es una operación pública
+        // Solo manejar error 401 si no es una operación pública
         const operationName = operation.operationName;
         const publicOperations = ['LoginUsuario', 'RegisterUsuario', 'ForgotPassword'];
         
         if (!publicOperations.includes(operationName)) {
-          authService.logout();
+          // Intentar regenerar token automáticamente
+          const tokenRegenerated = authService.handle401Error();
+          
+          if (!tokenRegenerated) {
+            authService.logout();
+          }
         }
       }
     }
     
     if (graphQLErrors) {
-      graphQLErrors.forEach(({ message, locations, path, extensions }) => {
-        // Solo mostrar errores críticos en producción
+      graphQLErrors.forEach(({ message }) => {
+        // Solo manejar errores críticos
         if (message === 'Access Denied') {
           console.error('Error de acceso denegado');
         }

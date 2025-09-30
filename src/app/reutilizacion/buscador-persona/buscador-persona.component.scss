@@ -1,0 +1,352 @@
+.buscador-persona-container {
+  position: relative;
+  width: 100%;
+
+  .search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+
+    .search-input-container {
+      flex: 1;
+      position: relative;
+
+      .search-input {
+        width: 100%;
+        height: 56px;
+        padding: 0 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 28px 0 0 28px;
+        background: white;
+        font-size: 16px;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover:not(:disabled) {
+          border-color: #667eea;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        &:disabled {
+          background: #f5f5f5;
+          color: #999;
+          cursor: not-allowed;
+        }
+
+        &::placeholder {
+          color: #999;
+        }
+      }
+
+      .loading-spinner {
+        position: absolute;
+        right: 60px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+
+    .search-button {
+      height: 56px;
+      min-width: 56px;
+      border-radius: 0 28px 28px 0;
+      background: #667eea;
+      color: white;
+      border: 1px solid #667eea;
+      border-left: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        background: #5a6fd8;
+        border-color: #5a6fd8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      &:disabled {
+        background: #ccc;
+        border-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .clear-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: #666;
+      background: #f0f0f0;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #e74c3c;
+        color: white;
+        transform: scale(1.1);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Estilos para el modal
+.modal-content {
+  .modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .filters-section {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+
+      .filter-input-container {
+        .filter-field {
+          width: 100%;
+
+          .clear-icon {
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: #e74c3c;
+            }
+          }
+        }
+      }
+    }
+
+    .personas-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+
+      .persona-item {
+        width: 100%;
+        text-align: left;
+        padding: 16px;
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        background: white;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+
+        &:hover {
+          background: #f8f9fa;
+        }
+
+        &.selected {
+          background: #e3f2fd;
+          border-left: 4px solid #667eea;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        mat-icon {
+          color: #667eea;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          flex-shrink: 0;
+
+          &.check-icon {
+            color: #4caf50;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .persona-info {
+          flex: 1;
+          min-width: 0;
+
+          .persona-name {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 4px;
+          }
+
+          .persona-documento {
+            font-size: 14px;
+            color: #666;
+            margin: 2px 0;
+            font-weight: 500;
+          }
+
+          .persona-email {
+            font-size: 13px;
+            color: #888;
+            margin: 2px 0;
+          }
+        }
+
+        .persona-action {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+
+          .action-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #667eea;
+          }
+
+          .check-icon {
+            color: #4caf50;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #ccc;
+        margin-bottom: 12px;
+      }
+
+      p {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      small {
+        font-size: 12px;
+        color: #999;
+      }
+    }
+
+    .loading-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      p {
+        margin: 12px 0 0 0;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .buscador-persona-container {
+    .search-bar-container {
+      .search-input-container .search-input {
+        height: 48px;
+        font-size: 14px;
+      }
+
+      .search-button {
+        height: 48px;
+        min-width: 48px;
+      }
+
+      .clear-button {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  }
+
+  .modal-content .modal-body {
+    padding: 16px;
+
+    .filters-section {
+      padding: 16px;
+    }
+  }
+}
+
+// Estados especiales
+.buscador-persona-container.error {
+  .search-input {
+    border-color: #e74c3c;
+    
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+    }
+  }
+}
+
+// Mejoras de accesibilidad
+.search-input:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.search-button:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+// Estilos para las acciones del modal
+.mat-dialog-actions {
+  padding: 16px 24px;
+  margin: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}

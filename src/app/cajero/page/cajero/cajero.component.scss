@@ -1,0 +1,110 @@
+.cajero-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; // Espacio entre header y tabla
+  padding: 20px;
+  background-color: #333030; // Mismo color que la tabla
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    .botones {
+      display: flex;
+      gap: 10px; // espacio entre los botones
+    }
+
+    button {
+      height: 40px;
+    }
+    .search-field {
+      flex: 1 1 320px; // Reducir ancho mínimo (antes 350px)
+      max-width: 450px; // Reducir ancho máximo (antes 500px)
+      background-color: #ffffff;
+      border-radius: 4px;
+      padding: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+
+      mat-form-field {
+        width: 100%;
+        height: 50px; // Aumentar altura (antes 45px)
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+
+        ::ng-deep .mat-form-field-wrapper {
+          padding: 0 !important;
+          margin: 0 !important;
+          height: 100% !important;
+          line-height: 0 !important;
+        }
+
+        ::ng-deep .mat-form-field-flex {
+          background: transparent !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          height: 100% !important;
+          line-height: 0 !important;
+          align-items: center;
+        }
+
+        ::ng-deep .mat-form-field-infix {
+          padding: 0 !important;
+          margin: 0 !important;
+          height: 100% !important;
+          line-height: 0 !important;
+          border: none !important;
+        }
+
+        ::ng-deep .mat-form-field-subscript-wrapper {
+          display: none !important;
+          height: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        ::ng-deep .mat-form-field-outline {
+          color: #ddd !important;
+          height: 100% !important;
+          top: 0 !important;
+          bottom: 0 !important;
+        }
+
+        ::ng-deep .mat-form-field-outline-start,
+        ::ng-deep .mat-form-field-outline-end {
+          height: 100% !important;
+          top: 0 !important;
+          bottom: 0 !important;
+        }
+
+        input.mat-input-element {
+          height: 100% !important;
+          padding: 10px 15px !important; // Padding más grande
+          color: #333 !important;
+          line-height: normal !important;
+          border: none !important;
+          background: transparent !important;
+        }
+
+        mat-label {
+          color: #666 !important;
+        }
+
+        button {
+          mat-icon {
+            color: #555;
+          }
+        }
+      }
+    }
+  }
+
+  app-tabla-paginada {
+    // La tabla mantiene su propio fondo desde tabla-paginada.component.scss
+  }
+}

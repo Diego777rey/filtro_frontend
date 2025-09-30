@@ -4,63 +4,56 @@
   <!-- Formulario -->
   <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading">
 
-    <div class="row-fields" *ngFor="let campo of campos">
-      <!-- Campos text y number -->
-      <mat-form-field *ngIf="campo.tipo === 'text' || campo.tipo === 'number'" appearance="outline" class="full-width">
-        <mat-label>{{ campo.label }}</mat-label>
+    <!-- Campos específicos de vendedor -->
+    <div class="row-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Código Vendedor</mat-label>
         <input matInput
-               [type]="campo.tipo"
-               [formControlName]="campo.control"
-               [placeholder]="campo.placeholder ?? ''">
-        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
-          {{ campo.label }} es obligatorio
-        </mat-error>
-        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('email')">
-          Email inválido
+               type="text"
+               formControlName="codigoVendedor"
+               placeholder="Ingrese código vendedor">
+        <mat-error *ngIf="formGroup.get('codigoVendedor')?.hasError('required')">
+          Código Vendedor es obligatorio
         </mat-error>
       </mat-form-field>
 
-      <!-- Campo select -->
-      <mat-form-field *ngIf="campo.tipo === 'select'" appearance="outline" class="full-width">
-        <mat-label>{{ campo.label }}</mat-label>
-        <mat-select [formControlName]="campo.control">
-          <mat-option *ngFor="let option of campo.opciones" [value]="option.value">
-            {{ option.label }}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
-          {{ campo.label }} es obligatorio
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Comisión</mat-label>
+        <input matInput
+               type="number"
+               formControlName="comision"
+               placeholder="Ingrese comisión">
+        <mat-error *ngIf="formGroup.get('comision')?.hasError('required')">
+          Comisión es obligatorio
         </mat-error>
       </mat-form-field>
 
-      <!-- Campo multiselect -->
-      <mat-form-field *ngIf="campo.tipo === 'multiselect'" appearance="outline" class="full-width">
-        <mat-label>{{ campo.label }}</mat-label>
-        <mat-select [formControlName]="campo.control" multiple>
-          <mat-option *ngFor="let option of campo.opciones" [value]="option.value">
-            {{ option.label }}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
-          {{ campo.label }} es obligatorio
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sucursal</mat-label>
+        <input matInput
+               type="text"
+               formControlName="sucursal"
+               placeholder="Ingrese sucursal">
+        <mat-error *ngIf="formGroup.get('sucursal')?.hasError('required')">
+          Sucursal es obligatorio
         </mat-error>
       </mat-form-field>
+    </div>
 
-      <!-- Campo de fecha -->
-      <mat-form-field *ngIf="campo.tipo === 'date'" appearance="outline" class="full-width">
-        <mat-label>{{ campo.label }}</mat-label>
-        <input matInput [matDatepicker]="picker" [formControlName]="campo.control" placeholder="Seleccione fecha">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
-          {{ campo.label }} es obligatorio
+    <!-- Buscador de persona -->
+    <div class="row-fields">
+      <div class="persona-selection-container">
+        <label class="persona-label">Persona *</label>
+        <app-buscador-persona
+          [personaSeleccionada]="personaSeleccionada"
+          [disabled]="!formEnabled"
+          placeholder="Seleccionar persona"
+          (personaSeleccionadaChange)="onPersonaSeleccionada($event)">
+        </app-buscador-persona>
+        <mat-error *ngIf="!personaSeleccionada && formGroup.touched" class="persona-error">
+          Debe seleccionar una persona
         </mat-error>
-      </mat-form-field>
-
-      <!-- Campo checkbox -->
-      <mat-checkbox *ngIf="campo.tipo === 'checkbox'" [formControlName]="campo.control">
-        {{ campo.label }}
-      </mat-checkbox>
+      </div>
     </div>
 
     <!-- Botones -->

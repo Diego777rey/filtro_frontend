@@ -9,16 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatOptionModule } from '@angular/material/core';
-import { BuscadorComponent } from './buscador/buscador.component';
-import { TablaPaginadaComponent } from './tabla-paginada/tabla-paginada.component';
-import { AccionesComponent } from './acciones/acciones.component';
-import { FormularioGenericoComponent } from './formulario-generico/formulario-generico.component';
 import { MatSelectModule } from '@angular/material/select';
-import { UsuariodialogComponent } from './usuariodialog/usuariodialog.component';
-import { BuscadorVendedorComponent } from './buscador-vendedor/buscador-vendedor.component';
-import { BuscadorClienteComponent } from './buscador-cliente/buscador-cliente.component';
-import { BuscadorCategoriaComponent } from './buscador-categoria/buscador-categoria.component';
-import { BuscadorProductoComponent } from './buscador-producto/buscador-producto.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -27,7 +18,20 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DatePipe, CurrencyPipe } from '@angular/common';
+
+// Importar componentes
+import { BuscadorComponent } from './buscador/buscador.component';
+import { TablaPaginadaComponent } from './tabla-paginada/tabla-paginada.component';
+import { AccionesComponent } from './acciones/acciones.component';
+import { FormularioGenericoComponent } from './formulario-generico/formulario-generico.component';
+import { UsuariodialogComponent } from './usuariodialog/usuariodialog.component';
+import { BuscadorVendedorComponent } from './buscador-vendedor/buscador-vendedor.component';
+import { BuscadorClienteComponent } from './buscador-cliente/buscador-cliente.component';
+import { BuscadorCategoriaComponent } from './buscador-categoria/buscador-categoria.component';
+import { BuscadorProductoComponent } from './buscador-producto/buscador-producto.component';
+import { BuscadorPersonaComponent } from './buscador-persona/buscador-persona.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +43,8 @@ import { DatePipe, CurrencyPipe } from '@angular/common';
     BuscadorVendedorComponent,
     BuscadorClienteComponent,
     BuscadorCategoriaComponent,
-    BuscadorProductoComponent
+    BuscadorProductoComponent,
+    BuscadorPersonaComponent
   ],
   imports: [
     CommonModule,
@@ -62,6 +67,7 @@ import { DatePipe, CurrencyPipe } from '@angular/common';
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatCheckboxModule,
   ],
   providers: [
     DatePipe,
@@ -75,7 +81,8 @@ import { DatePipe, CurrencyPipe } from '@angular/common';
     BuscadorVendedorComponent,
     BuscadorClienteComponent,
     BuscadorCategoriaComponent,
-    BuscadorProductoComponent
+    BuscadorProductoComponent,
+    BuscadorPersonaComponent
   ]
 })
 export class ReutilizacionModule { }

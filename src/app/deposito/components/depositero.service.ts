@@ -74,6 +74,44 @@ export class DepositeroService {
     );
   }
 
+  // Método auxiliar para crear un depositero con estructura anidada
+  createDepositeroWithPersona(depositeroData: any): Observable<any> {
+    const input = {
+      codigoDepositero: depositeroData.codigoDepositero,
+      fechaIngreso: depositeroData.fechaIngreso,
+      turno: depositeroData.turno,
+      almacenAsignado: depositeroData.almacenAsignado,
+      supervisor: depositeroData.supervisor,
+      horario: depositeroData.horario,
+      estado: depositeroData.estado,
+      personaId: depositeroData.personaId
+    };
+    
+    return this.apollo.mutate({
+      mutation: CREATE_DEPOSITERO,
+      variables: { input }
+    });
+  }
+
+  // Método auxiliar para actualizar un depositero con estructura anidada
+  updateDepositeroWithPersona(id: string, depositeroData: any): Observable<any> {
+    const input = {
+      codigoDepositero: depositeroData.codigoDepositero,
+      fechaIngreso: depositeroData.fechaIngreso,
+      turno: depositeroData.turno,
+      almacenAsignado: depositeroData.almacenAsignado,
+      supervisor: depositeroData.supervisor,
+      horario: depositeroData.horario,
+      estado: depositeroData.estado,
+      personaId: depositeroData.personaId
+    };
+    
+    return this.apollo.mutate({
+      mutation: UPDATE_DEPOSITERO,
+      variables: { id, input }
+    });
+  }
+
   // Eliminar depositero
   delete(id: string): Observable<{ id: string }> {
     return this.apollo.mutate<{ deleteDepositero: { id: string } }>({

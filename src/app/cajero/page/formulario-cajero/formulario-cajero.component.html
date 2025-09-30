@@ -1,0 +1,117 @@
+<div class="container">
+  <h2>{{ isEdit ? 'Editar' : 'Nuevo' }} Cajero</h2>
+
+  <!-- Formulario -->
+  <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading">
+
+    <!-- Campos específicos de cajero -->
+    <div class="row-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Código Cajero</mat-label>
+        <input matInput
+               type="text"
+               formControlName="codigoCajero"
+               placeholder="Ingrese código cajero">
+        <mat-error *ngIf="formGroup.get('codigoCajero')?.hasError('required')">
+          Código Cajero es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Turno</mat-label>
+        <input matInput
+               type="text"
+               formControlName="turno"
+               placeholder="Ingrese turno">
+        <mat-error *ngIf="formGroup.get('turno')?.hasError('required')">
+          Turno es obligatorio
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha de Ingreso</mat-label>
+        <input matInput
+               type="date"
+               formControlName="fechaIngreso"
+               placeholder="Seleccione fecha de ingreso">
+        <mat-error *ngIf="formGroup.get('fechaIngreso')?.hasError('required')">
+          Fecha de Ingreso es obligatoria
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="estado" placeholder="Seleccione estado">
+          <mat-option value="ACTIVO">Activo</mat-option>
+          <mat-option value="INACTIVO">Inactivo</mat-option>
+        </mat-select>
+        <mat-error *ngIf="formGroup.get('estado')?.hasError('required')">
+          Estado es obligatorio
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Buscador de persona -->
+    <div class="row-fields">
+      <div class="persona-selection-container">
+        <label class="persona-label">Persona *</label>
+        <app-buscador-persona
+          [personaSeleccionada]="personaSeleccionada"
+          [disabled]="!formEnabled"
+          placeholder="Seleccionar persona"
+          (personaSeleccionadaChange)="onPersonaSeleccionada($event)">
+        </app-buscador-persona>
+        <mat-error *ngIf="!personaSeleccionada && formGroup.touched" class="persona-error">
+          Debe seleccionar una persona
+        </mat-error>
+      </div>
+    </div>
+
+    <!-- Selección de caja -->
+    <div class="row-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Caja *</mat-label>
+        <mat-select 
+          [value]="cajaSeleccionada" 
+          (selectionChange)="onCajaSeleccionada($event.value)"
+          [disabled]="!formEnabled"
+          placeholder="Seleccionar caja">
+          <mat-option *ngFor="let caja of cajas" [value]="caja">
+            {{ caja.codigoCaja }} - {{ caja.descripcion }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="!cajaSeleccionada && formGroup.touched">
+          Debe seleccionar una caja
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Botones -->
+    <div class="button-row">
+      <button mat-stroked-button color="primary" (click)="nuevo()" [disabled]="formEnabled || loading">
+        Nuevo
+      </button>
+      
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="!formEnabled || formGroup.invalid || loading">
+        {{ loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Guardar') }}
+      </button>
+      
+      <button mat-stroked-button (click)="cancelar()" [disabled]="!formEnabled || loading">
+        Cancelar
+      </button>
+      
+      <button mat-stroked-button color="accent" (click)="volver()">
+        Volver
+      </button>
+    </div>
+  </form>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando...</p>
+  </div>
+</div>

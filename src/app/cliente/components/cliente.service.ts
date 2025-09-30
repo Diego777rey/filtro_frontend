@@ -73,17 +73,7 @@ export class ClienteService {
     const input = {
       codigoCliente: clienteData.codigoCliente,
       fechaRegistro: clienteData.fechaRegistro || new Date().toISOString(),
-      persona: {
-        nombre: clienteData.nombre,
-        apellido: clienteData.apellido,
-        documento: clienteData.documento,
-        telefono: clienteData.telefono,
-        email: clienteData.email,
-        direccion: clienteData.direccion,
-        estadoPersona: clienteData.estadoPersona || 'ACTIVO',
-        fechaNacimiento: clienteData.fechaNacimiento,
-        roles: clienteData.roles || [{ tipoPersona: 'CLIENTE' }]
-      }
+      personaId: clienteData.personaId
     };
     
     return this.apollo.mutate({
@@ -97,18 +87,7 @@ export class ClienteService {
     const input = {
       codigoCliente: clienteData.codigoCliente,
       fechaRegistro: clienteData.fechaRegistro,
-      persona: {
-        id: clienteData.persona?.id,
-        nombre: clienteData.nombre,
-        apellido: clienteData.apellido,
-        documento: clienteData.documento,
-        telefono: clienteData.telefono,
-        email: clienteData.email,
-        direccion: clienteData.direccion,
-        estadoPersona: clienteData.estadoPersona,
-        fechaNacimiento: clienteData.fechaNacimiento,
-        roles: clienteData.roles
-      }
+      personaId: clienteData.personaId
     };
     
     return this.apollo.mutate({

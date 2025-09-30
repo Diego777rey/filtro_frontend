@@ -195,6 +195,40 @@ export class AuthService {
     }
   }
 
+  // Método para verificar y regenerar token si es necesario
+  ensureValidToken(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const token = this.getToken();
+      
+      if (!token) {
+        resolve(false);
+        return;
+      }
+
+      // Verificar si el token está expirado
+      if (this.isTokenExpired()) {
+        const tokenRegenerated = this.handle401Error();
+        resolve(tokenRegenerated);
+        return;
+      }
+
+      // Verificar estructura del token
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1] || ''));
+        
+        if (!payload.authorities || payload.authorities.length === 0) {
+          const tokenRegenerated = this.handle401Error();
+          resolve(tokenRegenerated);
+          return;
+        }
+        
+        resolve(true);
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  }
+
   // Obtiene token JWT
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
@@ -227,23 +261,27 @@ export class AuthService {
   regenerateTokenForSpringSecurity() {
     const userData = this.getUsuario();
     if (userData) {
-      console.log('Regenerando token para Spring Security...');
-      this.loginWithUserData(userData).then(() => {
-        console.log('Token regenerado exitosamente');
-        // Mostrar información del nuevo token
-        const newToken = this.getToken();
-        if (newToken) {
-          try {
-            const payload = JSON.parse(atob(newToken.split('.')[1] || ''));
-            console.log('🔑 Nuevo token generado con authorities:', payload.authorities);
-            console.log('🔑 Nuevo token generado con roles:', payload.roles);
-          } catch (e) {
-            console.error('Error al decodificar nuevo token:', e);
-          }
-        }
-      }).catch((error) => {
+      this.loginWithUserData(userData).catch((error) => {
         console.error('Error al regenerar token:', error);
       });
+    }
+  }
+
+  // Método para manejar errores 401 y regenerar token automáticamente
+  handle401Error(): boolean {
+    const userData = this.getUsuario();
+    if (userData) {
+      try {
+        // Regenerar token con datos del usuario actual (síncrono para evitar stack overflow)
+        this.loginWithUserData(userData);
+        return true;
+      } catch (error) {
+        this.logout();
+        return false;
+      }
+    } else {
+      this.logout();
+      return false;
     }
   }
 
