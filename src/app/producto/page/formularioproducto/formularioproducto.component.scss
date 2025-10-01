@@ -100,6 +100,25 @@ h2 {
   }
 }
 
+/* Contenedor del buscador de proveedor */
+.proveedor-buscador-container {
+  width: 100%;
+  margin-bottom: 16px;
+
+  .proveedor-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 8px;
+  }
+
+  app-buscador-proveedor {
+    width: 100%;
+    display: block;
+  }
+}
+
 /* Estilos para las notificaciones */
 ::ng-deep .success-snackbar {
   background-color: #4caf50 !important;

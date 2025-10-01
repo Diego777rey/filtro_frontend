@@ -7,9 +7,6 @@ export interface Proveedor {
   rubro: string;
   telefono: string;
   email: string;
-  persona: {
-    id: number;
-  };
   observaciones?: string;
 }
 
@@ -21,7 +18,7 @@ export class InputProducto {
   precioCompra: number = 0;
   precioVenta: number = 0;
   stock: number = 0;
-  productoEstado: boolean = true;
+  productoEstado: string | boolean = 'ACTIVO';
   categoria?: Categoria;
   proveedor?: Proveedor;
 
@@ -47,6 +44,14 @@ export class InputProducto {
       throw new Error('Proveedor no válido');
     }
 
+    // Convertir productoEstado a string si es boolean
+    let estadoString: string;
+    if (typeof this.productoEstado === 'boolean') {
+      estadoString = this.productoEstado ? 'ACTIVO' : 'INACTIVO';
+    } else {
+      estadoString = this.productoEstado;
+    }
+
     return {
       id: this.id,
       codigoProducto: this.codigoProducto,
@@ -55,7 +60,7 @@ export class InputProducto {
       precioCompra: this.precioCompra,
       precioVenta: this.precioVenta,
       stock: this.stock,
-      productoEstado: this.productoEstado,
+      productoEstado: estadoString,
       categoriaId: Number(categoriaId),
       proveedorId: Number(proveedorId)
     }

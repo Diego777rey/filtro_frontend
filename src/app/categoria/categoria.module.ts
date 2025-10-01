@@ -18,6 +18,7 @@ import { FormulariocategoriaComponent } from './page/formulariocategoria/formula
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReporteCategoriaComponent } from './page/reportecategoria/reportecategoria.component';
 
 
@@ -44,7 +45,8 @@ import { ReporteCategoriaComponent } from './page/reportecategoria/reportecatego
     MatPaginatorModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatCheckboxModule
   ]
 })
 export class CategoriaModule { }

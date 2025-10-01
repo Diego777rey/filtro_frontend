@@ -4,8 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductoService } from '../../components/producto.service';
 import { CategoriaService } from '../../../categoria/components/categoria.service';
+import { ProveedorService } from '../../../proveedor/components/proveedor.service';
 import { InputProducto } from '../../components/input.producto';
 import { Categoria } from '../../../categoria/components/categoria';
+import { InputProveedor } from '../../../proveedor/components/input.proveedor';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { CampoFormulario } from 'src/app/reutilizacion/formulario-generico/campo.formulario';
 
@@ -24,8 +26,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   productoId: number | null = null;
   categorias: Categoria[] = [];
   categoriaSeleccionada: Categoria | null = null;
-  proveedores: any[] = [];
-  proveedorSeleccionado: any | null = null;
+  proveedorSeleccionado: InputProveedor | null = null;
   loading = false;
   formEnabled = false;
 
@@ -35,6 +36,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
+    private proveedorService: ProveedorService,
     private snackBar: MatSnackBar
   ) {
     this.formGroup = this.fb.group({});
@@ -42,7 +44,6 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadProveedores();
     this.checkEditMode();
     this.initCampos();
   }
@@ -61,7 +62,6 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       { control: 'precioVenta', label: 'Precio Venta', tipo: 'number', placeholder: '0.00', requerido: true },
       { control: 'stock', label: 'Stock', tipo: 'number', placeholder: '0', requerido: true },
       { control: 'categoriaId', label: 'Categoría', tipo: 'select', opciones: [], requerido: true },
-      { control: 'proveedorId', label: 'Proveedor', tipo: 'select', opciones: [], requerido: true },
       { control: 'productoEstado', label: 'Estado Activo', tipo: 'checkbox' }
     ];
 
@@ -71,6 +71,9 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       const disabled = !this.isEdit; // Habilitar si estamos editando
       this.formGroup.addControl(campo.control, this.fb.control({value: '', disabled: disabled}, validators));
     });
+    
+    // Agregar control de proveedorId manualmente (usado por el buscador)
+    this.formGroup.addControl('proveedorId', this.fb.control({value: '', disabled: !this.isEdit}, [Validators.required]));
   }
 
   private checkEditMode(): void {
@@ -106,24 +109,6 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadProveedores(): void {
-    // Por ahora, crear algunos proveedores de ejemplo
-    // En un proyecto real, esto vendría de un servicio
-    this.proveedores = [
-      { id: 1, razonSocial: 'Proveedor 1', ruc: '123456789' },
-      { id: 2, razonSocial: 'Proveedor 2', ruc: '987654321' },
-      { id: 3, razonSocial: 'Proveedor 3', ruc: '456789123' }
-    ];
-
-    // Actualizar opciones del select
-    const proveedorCampo = this.campos.find(c => c.control === 'proveedorId');
-    if (proveedorCampo) {
-      proveedorCampo.opciones = this.proveedores.map(p => ({ 
-        value: p.id, 
-        label: `${p.razonSocial} (${p.ruc})` 
-      }));
-    }
-  }
 
   loadProduct(id: number): void {
     this.loading = true;
@@ -138,7 +123,9 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
             precioCompra: data.precioCompra,
             precioVenta: data.precioVenta,
             stock: data.stock,
-            productoEstado: data.productoEstado,
+            productoEstado: typeof data.productoEstado === 'string' 
+              ? data.productoEstado === 'ACTIVO' 
+              : data.productoEstado,
             categoriaId: data.categoria?.id || '',
             proveedorId: data.proveedor?.id || ''
           });
@@ -148,9 +135,17 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
             this.categoriaSeleccionada = data.categoria;
           }
           
-          // Establecer el proveedor seleccionado
+          // Establecer el proveedor seleccionado - convertir a InputProveedor
           if (data.proveedor) {
-            this.proveedorSeleccionado = data.proveedor;
+            this.proveedorSeleccionado = new InputProveedor({
+              id: data.proveedor.id,
+              ruc: data.proveedor.ruc,
+              razonSocial: data.proveedor.razonSocial,
+              rubro: data.proveedor.rubro,
+              telefono: data.proveedor.telefono,
+              email: data.proveedor.email,
+              observaciones: data.proveedor.observaciones
+            });
           }
         }
         this.loading = false;
@@ -173,7 +168,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   }
 
   // Método para manejar la selección de proveedor
-  onProveedorSeleccionado(proveedor: any | null): void {
+  onProveedorSeleccionado(proveedor: InputProveedor | null): void {
     this.proveedorSeleccionado = proveedor;
     
     if (proveedor) {
@@ -191,12 +186,9 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   // Eventos botones
   // -------------------
   nuevo(): void {
-    // Asegurar que las categorías y proveedores estén cargados antes de habilitar el formulario
+    // Asegurar que las categorías estén cargadas antes de habilitar el formulario
     if (this.categorias.length === 0) {
       this.loadCategories();
-    }
-    if (this.proveedores.length === 0) {
-      this.loadProveedores();
     }
     this.formGroup.reset({ productoEstado: true });
     this.categoriaSeleccionada = null; // Limpiar categoría seleccionada
@@ -283,6 +275,17 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     }
 
     try {
+      // Convertir InputProveedor al formato Proveedor esperado por InputProducto
+      const proveedorParaProducto = this.proveedorSeleccionado ? {
+        id: this.proveedorSeleccionado.id!,
+        ruc: this.proveedorSeleccionado.ruc,
+        razonSocial: this.proveedorSeleccionado.razonSocial,
+        rubro: this.proveedorSeleccionado.rubro,
+        telefono: this.proveedorSeleccionado.telefono,
+        email: this.proveedorSeleccionado.email,
+        observaciones: this.proveedorSeleccionado.observaciones
+      } : undefined;
+
       const producto = new InputProducto({
         codigoProducto: formValue.codigoProducto,
         nombre: formValue.nombre,
@@ -292,7 +295,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
         stock: Number(formValue.stock),
         productoEstado: formValue.productoEstado,
         categoria: this.categoriaSeleccionada,
-        proveedor: this.proveedorSeleccionado
+        proveedor: proveedorParaProducto
       });
 
       const productoDto = producto.toDto();

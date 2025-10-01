@@ -10,7 +10,7 @@
         <ng-container *ngIf="columna !== 'acciones'; else accionesTemplate">
           <!-- Mostrar categoría correctamente -->
           <span *ngIf="columna === 'categoria'">
-            {{ elemento[columna]?.descripcion || 'Sin categoría' }}
+            {{ elemento[columna]?.nombre || 'Sin categoría' }}
           </span>
           <!-- Mostrar cliente correctamente -->
           <span *ngIf="columna === 'cliente'">
@@ -68,13 +68,21 @@
           <span *ngIf="columna === 'comision'">
             {{ elemento[columna] | currency:'USD':'symbol':'1.2-2' }}
           </span>
+          <!-- Mostrar precio de compra formateado -->
+          <span *ngIf="columna === 'precioCompra'">
+            {{ elemento[columna] | currency:'PYG':'symbol':'1.2-2' }}
+          </span>
+          <!-- Mostrar precio de venta formateado -->
+          <span *ngIf="columna === 'precioVenta'">
+            {{ elemento[columna] | currency:'PYG':'symbol':'1.2-2' }}
+          </span>
           <!-- Mostrar estado activo/inactivo -->
           <span *ngIf="columna === 'activo'" [class]="elemento[columna] ? 'status-active' : 'status-inactive'">
             {{ elemento[columna] ? 'Activo' : 'Inactivo' }}
           </span>
           <!-- Mostrar campos normales -->
           <!-- se va a mostrar solo si la codicion se cumple -->
-          <span *ngIf="columna !== 'categoria' && columna !== 'cliente' && columna !== 'vendedor' && columna !== 'proveedor' && columna !== 'fecha' && columna !== 'total' && columna !== 'subtotal' && columna !== 'activo' && columna !== 'nombre' && columna !== 'apellido' && columna !== 'documento' && columna !== 'telefono' && columna !== 'email' && columna !== 'comision' && columna !== 'rol' && columna !== 'persona'">
+          <span *ngIf="columna !== 'categoria' && columna !== 'cliente' && columna !== 'vendedor' && columna !== 'proveedor' && columna !== 'fecha' && columna !== 'total' && columna !== 'subtotal' && columna !== 'activo' && columna !== 'nombre' && columna !== 'apellido' && columna !== 'documento' && columna !== 'telefono' && columna !== 'email' && columna !== 'comision' && columna !== 'rol' && columna !== 'persona' && columna !== 'precioCompra' && columna !== 'precioVenta'">
             {{ elemento[columna] }}
           </span>
         </ng-container>

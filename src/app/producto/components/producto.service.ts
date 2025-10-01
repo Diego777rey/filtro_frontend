@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { InputProducto } from './input.producto';
 import { 
-  CREATE_PRODUCTO, DELETE_PRODUCTO, GET_PRODUCTOS, GET_PRODUCTOS_BY_ID, GET_PRODUCTOS_PAGINADOS, UPDATE_PRODUCTO 
+  CREATE_PRODUCTO, DELETE_PRODUCTO, GET_PRODUCTOS, GET_PRODUCTOS_BY_ID, GET_PRODUCTOS_PAGINADOS, GET_PRODUCTOS_SIMPLES, UPDATE_PRODUCTO 
 } from 'src/app/graphql/graphql/producto.graphql';
 
 @Injectable({
@@ -35,6 +35,9 @@ export class ProductoService {
   }
 
   getPaginated(page: number, size: number, search: string = ''): Observable<any> {
+    console.log('Consultando productos con:', { page, size, search });
+    
+    // Usar consulta completa que incluye categoria y proveedor
     return this.apollo.watchQuery({
       query: GET_PRODUCTOS_PAGINADOS,
       variables: { page, size, search },
@@ -42,14 +45,32 @@ export class ProductoService {
       errorPolicy: 'all'
     }).valueChanges.pipe(
       map((result: any) => {
-        if (result.errors) console.error('GraphQL errors:', result.errors);
+        console.log('Resultado completo de GraphQL:', result);
+        
+        if (result.errors) {
+          console.error('GraphQL errors:', result.errors);
+          result.errors.forEach((error: any, index: number) => {
+            console.error(`Error ${index + 1}:`, error.message, error.locations, error.path);
+          });
+        }
+        
         const data = result.data?.findProductosPaginated || { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
+        console.log('Datos procesados:', data);
+        
+        // Mapear los datos completos a InputProducto
+        const mappedItems = data.items?.map((producto: any) => {
+          return this.mapGraphQLToInputProducto(producto);
+        }) || [];
+        
         return {
           ...data,
-          items: data.items?.map((producto: any) => this.mapGraphQLToInputProducto(producto)) || []
+          items: mappedItems
         };
       }),
-      catchError((err: any) => throwError(() => err))
+      catchError((err: any) => {
+        console.error('Error en la consulta GraphQL:', err);
+        return throwError(() => err);
+      })
     );
   }
 
@@ -125,7 +146,6 @@ export class ProductoService {
         rubro: graphqlProducto.proveedor.rubro,
         telefono: graphqlProducto.proveedor.telefono,
         email: graphqlProducto.proveedor.email,
-        persona: graphqlProducto.proveedor.persona,
         observaciones: graphqlProducto.proveedor.observaciones
       } : undefined
     });

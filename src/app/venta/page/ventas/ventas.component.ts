@@ -1,22 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
-import { VentaService } from '../../components/venta.service';
+import { VentaService, Venta, PaginatedResponse } from '../../components/venta.service';
 import { AccionTabla } from 'src/app/reutilizacion/tabla-paginada/accion.tabla';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
-
-type Cliente = { id?: number; nombre: string; apellido: string };
-type Vendedor = { id?: number; nombre: string; apellido: string };
-type Producto = { id?: number; descripcion: string; precio: number };
-type ProductoVenta = { productoId?: number; descripcion: string; cantidad: number; precio: number; subtotal: number };
-type Venta = {
-  id?: number;
-  cliente: Cliente;
-  vendedor: Vendedor;
-  fecha: string | Date; 
-  items: ProductoVenta[];
-  total?: number;
-};
 
 @Component({
   selector: 'app-ventas',
@@ -37,15 +24,17 @@ export class VentasComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columnas: string[] = [
-    'id', 'fecha', 'cliente', 'vendedor', 'total', 'acciones'
+    'id', 'codigoVenta', 'fechaVenta', 'cliente', 'vendedor', 'total', 'estadoVenta', 'acciones'
   ];
 
   nombresColumnas: { [key: string]: string } = {
-    id: 'Código',
-    fecha: 'Fecha',
+    id: 'ID',
+    codigoVenta: 'Código',
+    fechaVenta: 'Fecha',
     cliente: 'Cliente',
     vendedor: 'Vendedor',
     total: 'Total',
+    estadoVenta: 'Estado',
     acciones: 'Acciones'
   };
 
@@ -85,42 +74,31 @@ export class VentasComponent implements OnInit, OnDestroy {
     this.searchSubject.next(searchText);
   }
 
-  //Cargar ventas con backend
+  //Cargar ventas con backend usando paginación
   cargarVentas(): void {
     this.cargando = true;
+    const paginaEnviar = this.paginaActual + 1;
 
-    this.servicioVenta.obtenerVentas().subscribe({
-      next: data => {
-        //Simular paginación del lado del cliente por ahora
-        let ventasFiltradas = data;
-        
-        //Aplicar filtro de búsqueda
-        if (this.textoBusqueda) {
-          const searchLower = this.textoBusqueda.toLowerCase();
-          ventasFiltradas = data.filter((v: any) =>
-            v.cliente?.nombre?.toLowerCase().includes(searchLower) ||
-            v.vendedor?.nombre?.toLowerCase().includes(searchLower) ||
-            v.fecha?.toString().includes(searchLower)
-          );
+    this.servicioVenta.getPaginated(paginaEnviar, this.tamanioPagina, this.textoBusqueda)
+      .subscribe({
+        next: data => {
+          const items = data?.items || [];
+          this.totalRegistros = data?.totalItems || 0;
+
+          if(items.length === 0 && this.totalRegistros > 0 && this.paginaActual > 0){
+            this.paginaActual = 0;
+            setTimeout(()=> this.cargarVentas(), 0);
+            return;
+          }
+
+          this.ventas = items;
+          this.cargando = false;
+        },
+        error: err => {
+          console.error('Error al cargar ventas:', err);
+          this.cargando = false;
         }
-
-        this.totalRegistros = ventasFiltradas.length;
-        
-        // Aplicar paginación y calcular totales
-        const startIndex = this.paginaActual * this.tamanioPagina;
-        const endIndex = startIndex + this.tamanioPagina;
-        this.ventas = ventasFiltradas.slice(startIndex, endIndex).map(venta => ({
-          ...venta,
-          total: this.calcularTotalVenta(venta)
-        }));
-        
-        this.cargando = false;
-      },
-      error: err => {
-        console.error('Error al cargar ventas:', err);
-        this.cargando = false;
-      }
-    });
+      });
   }
 
   cambiarPagina(evento: PageEvent) {
@@ -147,8 +125,8 @@ export class VentasComponent implements OnInit, OnDestroy {
   //Eliminar venta
   eliminarVenta(venta: Venta) {
     if (!venta.id) return;
-    if (confirm(`¿Desea eliminar la venta del cliente "${venta.cliente?.nombre}"?`)) {
-      this.servicioVenta.eliminarVenta(venta.id).subscribe(() => this.cargarVentas());
+    if (confirm(`¿Desea eliminar la venta "${venta.codigoVenta}"?`)) {
+      this.servicioVenta.delete(venta.id).subscribe(() => this.cargarVentas());
     }
   }
 
@@ -162,22 +140,26 @@ export class VentasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔹 Calcular el total de una venta sumando los subtotales de los items
-  calcularTotalVenta(venta: any): number {
-    if (!venta.items || venta.items.length === 0) {
-      // Venta sin items - mostrar $0.00
-      return 0;
-    }
-    
-    const total = venta.items.reduce((total: number, item: any) => {
-      return total + (item.subtotal || 0);
-    }, 0);
-    
-    return total;
-  }
-
   // 🔹 Formatear precio en USD
   formatearPrecio(precio: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(precio);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(precio || 0);
+  }
+
+  // 🔹 Formatear fecha
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-ES');
+  }
+
+  // 🔹 Obtener nombre completo del cliente
+  obtenerNombreCliente(venta: Venta): string {
+    if (!venta.cliente?.persona) return 'Sin cliente';
+    const persona = venta.cliente.persona;
+    return `${persona.nombre || ''} ${persona.apellido || ''}`.trim() || 'Sin nombre';
+  }
+
+  // 🔹 Obtener nombre del vendedor
+  obtenerNombreVendedor(venta: Venta): string {
+    return venta.vendedor?.nombre || 'Sin vendedor';
   }
 }

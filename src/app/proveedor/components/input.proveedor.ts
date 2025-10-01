@@ -1,9 +1,3 @@
-export interface Persona {
-  id: number;
-  nombre?: string;
-  apellido?: string;
-}
-
 export class InputProveedor {
   id?: number;
   ruc: string = '';
@@ -11,7 +5,6 @@ export class InputProveedor {
   rubro: string = '';
   telefono: string = '';
   email: string = '';
-  persona?: Persona;
   observaciones?: string;
 
   constructor(init?: Partial<InputProveedor>) {
@@ -48,7 +41,6 @@ export class InputProveedor {
       rubro: this.rubro?.trim() || '',
       telefono: this.telefono?.trim() || '',
       email: this.email?.trim() || '',
-      personaId: this.persona?.id,
       observaciones: this.observaciones?.trim() || ''
     }
   }

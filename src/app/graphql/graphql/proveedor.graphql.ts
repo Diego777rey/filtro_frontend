@@ -8,9 +8,6 @@ export const GET_PROVEEDORES = gql`
       rubro
       telefono
       email
-      persona {
-        id
-      }
       observaciones
     }
   }
@@ -24,9 +21,6 @@ export const GET_PROVEEDOR_BY_ID = gql`
       rubro
       telefono
       email
-      persona {
-        id
-      }
       observaciones
     }
   }
@@ -41,9 +35,6 @@ export const GET_PROVEEDORES_PAGINADOS = gql`
         rubro
         telefono
         email
-        persona {
-          id
-        }
         observaciones
       }
       totalItems
@@ -63,9 +54,6 @@ export const CREATE_PROVEEDOR = gql`
       rubro
       telefono
       email
-      persona {
-        id
-      }
       observaciones
     }
   }
@@ -79,9 +67,6 @@ export const UPDATE_PROVEEDOR = gql`
       rubro
       telefono
       email
-      persona {
-        id
-      }
       observaciones
     }
   }

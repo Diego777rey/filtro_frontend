@@ -118,10 +118,6 @@ export class CajaComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/caja/crear']);
   }
 
-  generarReporte(){
-    this.router.navigate(['dashboard/caja/generar']);
-  }
-
   editarCaja(caja: Caja){
     if(!caja.id) return;
     this.router.navigate(['dashboard/caja/editar', caja.id]);
@@ -143,5 +139,10 @@ export class CajaComponent implements OnInit, OnDestroy {
       case 'ver': break;
       case 'custom': break;
     }
+  }
+
+  // 🔹 Formatear saldo en PYG
+  formatearSaldo(saldo: number): string{
+    return new Intl.NumberFormat('es-PY',{style:'currency', currency:'PYG'}).format(saldo);
   }
 }

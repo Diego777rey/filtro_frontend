@@ -45,10 +45,28 @@
           {{ campo.label }} es obligatorio
         </mat-error>
       </div>
+    </div>
 
-      <!-- Campo checkbox -->
-      <mat-checkbox *ngIf="campo.tipo === 'checkbox'" [formControlName]="campo.control">
-        {{ campo.label }}
+    <!-- Buscador de Proveedor (arriba del estado) -->
+    <div class="row-fields proveedor-buscador-container">
+      <label class="proveedor-label">Proveedor</label>
+      <app-buscador-proveedor
+        [proveedorSeleccionado]="proveedorSeleccionado"
+        [placeholder]="'Seleccionar proveedor'"
+        [disabled]="!formEnabled"
+        [label]="'Proveedor'"
+        [showEmail]="true"
+        (proveedorSeleccionadoChange)="onProveedorSeleccionado($event)">
+      </app-buscador-proveedor>
+      <mat-error *ngIf="formGroup.get('proveedorId')?.hasError('required') && formGroup.get('proveedorId')?.touched">
+        Proveedor es obligatorio
+      </mat-error>
+    </div>
+
+    <!-- Campo Estado (después del buscador de proveedor) -->
+    <div class="row-fields">
+      <mat-checkbox formControlName="productoEstado">
+        Estado Activo
       </mat-checkbox>
     </div>
 

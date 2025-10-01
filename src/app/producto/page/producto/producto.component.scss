@@ -12,9 +12,10 @@
     flex-wrap: wrap;
     gap: 15px;
 
-    .botones {
+    .header-buttons {
       display: flex;
       gap: 10px; // espacio entre los botones
+      align-items: center;
     }
 
     button {

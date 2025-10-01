@@ -26,9 +26,6 @@ export const GET_PRODUCTOS = gql`
         rubro
         telefono
         email
-        persona {
-          id
-        }
         observaciones
       }
     }
@@ -59,9 +56,6 @@ export const GET_PRODUCTOS_BY_ID = gql`
         rubro
         telefono
         email
-        persona {
-          id
-        }
         observaciones
       }
     }
@@ -93,11 +87,28 @@ export const GET_PRODUCTOS_PAGINADOS = gql`
           rubro
           telefono
           email
-          persona {
-            id
-          }
           observaciones
         }
+      }
+      totalItems
+      totalPages
+      currentPage
+      itemsCount
+    }
+  }
+`;
+
+// Consulta simple para probar
+export const GET_PRODUCTOS_SIMPLES = gql`
+  query GetProductosSimples($page: Int!, $size: Int!, $search: String) {
+    findProductosPaginated(page: $page, size: $size, search: $search) {
+      items {
+        id
+        nombre
+        descripcion
+        precioVenta
+        stock
+        productoEstado
       }
       totalItems
       totalPages
@@ -133,9 +144,6 @@ export const CREATE_PRODUCTO = gql`
         rubro
         telefono
         email
-        persona {
-          id
-        }
         observaciones
       }
     }
@@ -166,9 +174,6 @@ export const UPDATE_PRODUCTO = gql`
         rubro
         telefono
         email
-        persona {
-          id
-        }
         observaciones
       }
     }

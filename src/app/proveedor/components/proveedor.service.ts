@@ -15,12 +15,19 @@ export class ProveedorService {
   constructor(private apollo: Apollo) { }
 
   getAll(): Observable<InputProveedor[]> {
+    // Usar la query paginada con un tamaño grande para obtener todos los proveedores
     return this.apollo.watchQuery({
-      query: GET_PROVEEDORES
+      query: GET_PROVEEDORES_PAGINADOS,
+      variables: { page: 0, size: 1000, search: '' },
+      fetchPolicy: 'network-only'
     }).valueChanges.pipe(
       map((result: any) => {
-        const proveedores = result.data?.findAllProveedores || [];
+        const proveedores = result.data?.findProveedoresPaginated?.items || [];
         return proveedores.map((proveedor: any) => this.mapGraphQLToInputProveedor(proveedor));
+      }),
+      catchError((err: any) => {
+        console.error('Error en getAll proveedores:', err);
+        return throwError(() => err);
       })
     );
   }
@@ -111,11 +118,6 @@ export class ProveedorService {
       rubro: graphqlProveedor.rubro,
       telefono: graphqlProveedor.telefono,
       email: graphqlProveedor.email,
-      persona: graphqlProveedor.persona ? {
-        id: graphqlProveedor.persona.id,
-        nombre: graphqlProveedor.persona.nombre,
-        apellido: graphqlProveedor.persona.apellido
-      } : undefined,
       observaciones: graphqlProveedor.observaciones
     });
   }

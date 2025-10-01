@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { ProductoService } from '../../components/producto.service';
 import { InputProducto } from '../../components/input.producto';
 import { AccionTabla } from 'src/app/reutilizacion/tabla-paginada/accion.tabla';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, filter } from 'rxjs';
 
 @Component({
   selector: 'app-producto',
@@ -44,12 +44,26 @@ export class ProductoComponent implements OnInit, OnDestroy {
 
   constructor(
     private servicioProducto: ProductoService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
     this.cargarProductos();
     this.setupSearchSubscription();
+    
+    // Escuchar navegación para refrescar cuando regrese de crear/editar
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        // Solo refrescar si regresamos a la ruta de productos y no hay búsqueda activa
+        if (event instanceof NavigationEnd && event.url.includes('/producto') && !event.url.includes('/crear') && !event.url.includes('/editar') && !this.textoBusqueda) {
+          this.cargarProductos();
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -103,6 +117,13 @@ export class ProductoComponent implements OnInit, OnDestroy {
           this.cargando = false;
         }
       });
+  }
+
+  // 🔹 Refrescar datos manualmente
+  refrescar(): void {
+    this.paginaActual = 0;
+    this.textoBusqueda = '';
+    this.cargarProductos();
   }
   cambiarPagina(evento: PageEvent){
     this.paginaActual = evento.pageIndex;

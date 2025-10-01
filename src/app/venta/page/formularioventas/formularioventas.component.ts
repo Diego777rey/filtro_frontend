@@ -71,41 +71,17 @@ export class FormularioventasComponent implements OnInit {
   }
 
   private cargarDatos(): void {
-    this.clienteService.getClientes().subscribe({
-      next: data => this.clientes = data,
-      error: err => console.error('Error cargando clientes', err)
-    });
-
-    this.vendedorService.getAll().subscribe({
-      next: data => this.vendedores = data,
-      error: err => console.error('Error cargando vendedores', err)
-    });
-
-    this.productoService.getAll().subscribe({
-      next: (data: any[]) => {
-        this.productos = data.map(p => ({
-          id: p.id,
-          descripcion: p.descripcion,
-          precio: p.precioVenta || p.precio || 0,
-          stock: p.stock || 0,
-          categoriaId: p.categoriaId || 0,
-          categoria: p.categoria ? { id: p.categoria.id, nombre: p.categoria.nombre } : undefined,
-          codigo: p.codigo || '',
-          activo: p.activo !== false,
-          fechaCreacion: new Date()
-        }));
-      },
-      error: err => console.error('Error cargando productos', err)
-    });
+    // Los datos se cargan dinámicamente a través de los buscadores
+    // No necesitamos cargar todos los datos al inicio para mejor rendimiento
   }
 
   private cargarVentaParaEdicion(): void {
     if (this.ventaId) {
-      this.ventaService.obtenerVentaPorId(this.ventaId).subscribe({
+      this.ventaService.getById(this.ventaId).subscribe({
         next: venta => {
           this.ventaForm.patchValue({
-            fecha: venta.fecha,
-            tipoPago: venta.tipoPago,
+            fecha: venta.fechaVenta ? new Date(venta.fechaVenta) : new Date(),
+            tipoPago: venta.tipoVenta || 'EFECTIVO',
             clienteId: venta.cliente?.id,
             vendedorId: venta.vendedor?.id
           });
@@ -118,13 +94,13 @@ export class FormularioventasComponent implements OnInit {
             this.vendedorSeleccionado = venta.vendedor;
           }
 
-          // Convert items to productosAgregados format
-          this.productosAgregados = (venta.items || []).map((item: any) => ({
-            productoId: item.producto?.id,
-            descripcion: item.producto?.descripcion || '',
-            cantidad: item.cantidad,
-            precio: item.precio,
-            subtotal: item.subtotal || (item.cantidad * item.precio)
+          // Convert detalles to productosAgregados format
+          this.productosAgregados = (venta.detalles || []).map((detalle: any) => ({
+            productoId: detalle.producto?.id,
+            descripcion: detalle.producto?.nombre || detalle.producto?.descripcion || '',
+            cantidad: detalle.cantidad,
+            precio: detalle.precioUnitario,
+            subtotal: detalle.subtotal || (detalle.cantidad * detalle.precioUnitario)
           }));
           
           // Actualizar el total de la venta
@@ -224,18 +200,25 @@ export class FormularioventasComponent implements OnInit {
       const { productoId, cantidad, ...ventaFormData } = this.ventaForm.value;
       
       const ventaData = {
-        ...ventaFormData,
-        items: this.productosAgregados.map(producto => ({
+        fechaVenta: ventaFormData.fecha,
+        tipoVenta: ventaFormData.tipoPago,
+        clienteId: this.clienteSeleccionado?.id,
+        vendedorId: this.vendedorSeleccionado?.id,
+        cajeroId: 1, // TODO: Obtener del contexto de sesión
+        cajaId: 1, // TODO: Obtener del contexto de sesión
+        total: this.totalVenta,
+        detalles: this.productosAgregados.map(producto => ({
           productoId: producto.productoId,
-          cantidad: producto.cantidad,
-          precio: producto.precio,
-          subtotal: producto.subtotal // Incluir el subtotal de cada item
+          cantidad: Number(producto.cantidad),
+          precioUnitario: Number(producto.precio),
+          descuento: 0,
+          subtotal: Number(producto.subtotal)
         }))
       };
 
       const request$ = this.esEdicion && this.ventaId
-        ? this.ventaService.actualizarVenta(this.ventaId, ventaData)
-        : this.ventaService.crearVenta(ventaData);
+        ? this.ventaService.update(this.ventaId, ventaData)
+        : this.ventaService.create(ventaData);
 
       request$.subscribe({
         next: () => {
