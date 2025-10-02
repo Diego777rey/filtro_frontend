@@ -50,6 +50,15 @@
                    placeholder="Escribe para filtrar...">
             <mat-icon matSuffix *ngIf="filtroBusqueda" (click)="limpiarFiltro()" class="clear-icon">close</mat-icon>
           </mat-form-field>
+          
+          <!-- Botón de recarga -->
+          <button mat-icon-button 
+                  (click)="cargarClientes()" 
+                  [disabled]="loading"
+                  matTooltip="Recargar clientes"
+                  class="reload-button">
+            <mat-icon>refresh</mat-icon>
+          </button>
         </div>
       </div>
       
@@ -88,12 +97,23 @@
       
       <!-- Sin resultados -->
       <ng-template #noResults>
-        <div class="no-results">
+        <div class="no-results" *ngIf="!error">
           <mat-icon>person_off</mat-icon>
           <p>No se encontraron clientes</p>
           <small *ngIf="filtroBusqueda">Intenta con otros términos de búsqueda</small>
         </div>
       </ng-template>
+
+      <!-- Error de carga -->
+      <div class="error-results" *ngIf="error">
+        <mat-icon>error_outline</mat-icon>
+        <p>Error al cargar clientes</p>
+        <small>{{ errorMessage }}</small>
+        <button mat-stroked-button color="primary" (click)="cargarClientes()" class="retry-button">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      </div>
       
       <!-- Estado de carga -->
       <div class="loading-results" *ngIf="loading">

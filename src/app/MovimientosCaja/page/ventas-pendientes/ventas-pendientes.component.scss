@@ -1,0 +1,225 @@
+.ventas-pendientes-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header-section {
+    margin-bottom: 24px;
+    text-align: center;
+
+    h1 {
+      margin: 0;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      margin: 8px 0 0 0;
+      color: #666;
+      font-size: 16px;
+    }
+  }
+
+  .table-card {
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px;
+      color: #666;
+
+      mat-spinner {
+        margin-bottom: 16px;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+
+      .ventas-table {
+        width: 100%;
+        min-width: 800px;
+
+        .mat-column-cliente {
+          width: 200px;
+        }
+
+        .mat-column-vendedor {
+          width: 200px;
+        }
+
+        .mat-column-total {
+          width: 120px;
+          text-align: right;
+        }
+
+        .mat-column-items {
+          min-width: 250px;
+        }
+
+        .mat-column-acciones {
+          width: 200px;
+        }
+
+        .cliente-info,
+        .vendedor-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          mat-icon {
+            font-size: 18px;
+            color: #666;
+          }
+
+          .nombre {
+            font-weight: 500;
+          }
+        }
+
+        .total-info {
+          .amount {
+            font-weight: 600;
+            font-size: 16px;
+            color: #4caf50;
+          }
+        }
+
+        .items-info {
+          .items-count {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #333;
+          }
+
+          .items-detail {
+            font-size: 12px;
+            color: #666;
+
+            .item-row {
+              margin-bottom: 2px;
+            }
+
+            .more-items {
+              font-style: italic;
+              color: #999;
+            }
+          }
+        }
+
+        .actions-container {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .accept-button,
+          .cancel-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            min-height: 36px;
+
+            mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+
+          .accept-button {
+            background-color: #4caf50;
+            color: white;
+          }
+
+          .cancel-button {
+            background-color: #f44336;
+            color: white;
+          }
+        }
+
+        .no-data {
+          color: #999;
+          font-style: italic;
+        }
+      }
+
+      .no-data-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px;
+        color: #666;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          margin-bottom: 16px;
+          color: #ccc;
+        }
+
+        p {
+          margin: 0;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .ventas-pendientes-container {
+    padding: 16px;
+
+    .table-card {
+      .table-container {
+        .ventas-table {
+          .mat-column-cliente,
+          .mat-column-vendedor {
+            display: none;
+          }
+
+          .actions-container {
+            flex-direction: row;
+            gap: 4px;
+
+            .accept-button,
+            .cancel-button {
+              flex: 1;
+              font-size: 12px;
+              min-height: 32px;
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Material theme overrides
+::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}

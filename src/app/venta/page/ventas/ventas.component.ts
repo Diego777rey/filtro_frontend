@@ -1,9 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { FormControl } from '@angular/forms';
+
 import { VentaService, Venta, PaginatedResponse } from '../../components/venta.service';
-import { AccionTabla } from 'src/app/reutilizacion/tabla-paginada/accion.tabla';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-ventas',
@@ -11,41 +16,42 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
   styleUrls: ['./ventas.component.scss']
 })
 export class VentasComponent implements OnInit, OnDestroy {
-
-  ventas: Venta[] = [];
-  totalRegistros = 0;
-  tamanioPagina = 5;
-  paginaActual = 0;
-  textoBusqueda = '';
-  cargando = false;
-
-  // Subject para búsqueda en tiempo real
-  private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
-
-  columnas: string[] = [
-    'id', 'codigoVenta', 'fechaVenta', 'cliente', 'vendedor', 'total', 'estadoVenta', 'acciones'
+  
+  // Configuración de la tabla
+  displayedColumns: string[] = [
+    'codigoVenta',
+    'fechaVenta', 
+    'cliente',
+    'vendedor',
+    'total',
+    'estadoVenta',
+    'acciones'
   ];
-
-  nombresColumnas: { [key: string]: string } = {
-    id: 'ID',
-    codigoVenta: 'Código',
-    fechaVenta: 'Fecha',
-    cliente: 'Cliente',
-    vendedor: 'Vendedor',
-    total: 'Total',
-    estadoVenta: 'Estado',
-    acciones: 'Acciones'
-  };
+  
+  dataSource = new MatTableDataSource<Venta>([]);
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 0;
+  pageSizeOptions = [5, 10, 25, 50];
+  
+  // Estados
+  loading = false;
+  searchControl = new FormControl('');
+  
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private servicioVenta: VentaService,
-    private router: Router
-  ) { }
+    private ventaService: VentaService,
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
-    this.cargarVentas();
-    this.setupSearchSubscription();
+    this.setupSearch();
+    this.loadData();
   }
 
   ngOnDestroy(): void {
@@ -53,113 +59,162 @@ export class VentasComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  //Configurar suscripción de búsqueda en tiempo real
-  private setupSearchSubscription(): void {
-    this.searchSubject
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  private setupSearch(): void {
+    this.searchControl.valueChanges
       .pipe(
-        debounceTime(300), //Esperar 300ms después de que el usuario deje de escribir
-        distinctUntilChanged(), //Solo emitir si el valor cambió
+        debounceTime(300),
+        distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
-      .subscribe(searchText => {
-        this.textoBusqueda = searchText;
-        this.paginaActual = 0;
-        this.cargarVentas();
+      .subscribe(() => {
+        this.currentPage = 0;
+        this.loadData();
       });
   }
 
-  //Método para manejar cambios en el input de búsqueda
-  onSearchChange(searchText: string): void {
-    this.textoBusqueda = searchText;
-    this.searchSubject.next(searchText);
+  loadData(): void {
+    this.loading = true;
+    const searchTerm = this.searchControl.value || '';
+    
+    this.ventaService.getPaginated(
+      this.currentPage + 1, // GraphQL espera página basada en 1
+      this.pageSize, 
+      searchTerm
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response: PaginatedResponse<Venta>) => {
+        this.dataSource.data = response.items || [];
+        this.totalItems = response.totalItems || 0;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar ventas:', error);
+        this.loading = false;
+        this.snackBar.open('Error al cargar los datos', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
-  //Cargar ventas con backend usando paginación
-  cargarVentas(): void {
-    this.cargando = true;
-    const paginaEnviar = this.paginaActual + 1;
-
-    this.servicioVenta.getPaginated(paginaEnviar, this.tamanioPagina, this.textoBusqueda)
-      .subscribe({
-        next: data => {
-          const items = data?.items || [];
-          this.totalRegistros = data?.totalItems || 0;
-
-          if(items.length === 0 && this.totalRegistros > 0 && this.paginaActual > 0){
-            this.paginaActual = 0;
-            setTimeout(()=> this.cargarVentas(), 0);
-            return;
-          }
-
-          this.ventas = items;
-          this.cargando = false;
-        },
-        error: err => {
-          console.error('Error al cargar ventas:', err);
-          this.cargando = false;
-        }
-      });
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadData();
   }
 
-  cambiarPagina(evento: PageEvent) {
-    this.paginaActual = evento.pageIndex;
-    this.tamanioPagina = evento.pageSize;
-    this.cargarVentas();
+  onSearchClear(): void {
+    this.searchControl.setValue('');
   }
 
-  //Limpiar búsqueda
-  limpiarBusqueda() {
-    this.textoBusqueda = '';
-    this.searchSubject.next(''); // Emitir cadena vacía para limpiar
-  }
-
-  agregarVenta() {
+  navigateToCreate(): void {
     this.router.navigate(['/dashboard/ventas/crear']);
   }
 
-  editarVenta(venta: Venta) {
-    if (!venta.id) return;
-    this.router.navigate(['dashboard/ventas/editar', venta.id]);
+  navigateToEdit(id: number): void {
+    this.router.navigate(['/dashboard/ventas/editar', id]);
   }
 
-  //Eliminar venta
-  eliminarVenta(venta: Venta) {
-    if (!venta.id) return;
-    if (confirm(`¿Desea eliminar la venta "${venta.codigoVenta}"?`)) {
-      this.servicioVenta.delete(venta.id).subscribe(() => this.cargarVentas());
+  deleteVenta(id: number): void {
+    if (confirm('¿Está seguro de que desea eliminar esta venta?')) {
+      this.loading = true;
+      
+      this.ventaService.delete(id.toString()).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.loading = false;
+          this.snackBar.open('Venta eliminada exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.loadData();
+        },
+        error: (error) => {
+          console.error('Error al eliminar venta:', error);
+          this.loading = false;
+          this.snackBar.open('Error al eliminar la venta', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     }
   }
 
-  //Manejar acción de fila
-  manejarAccion(evento: AccionTabla<Venta>) {
-    switch (evento.tipo) {
-      case 'editar': this.editarVenta(evento.fila); break;
-      case 'eliminar': this.eliminarVenta(evento.fila); break;
-      case 'ver': break;
-      case 'custom': break;
+  updateVentaStatus(id: number, estado: string): void {
+    if (confirm(`¿Está seguro de que desea cambiar el estado a "${estado}"?`)) {
+      this.loading = true;
+      
+      this.ventaService.updateStatus(id.toString(), estado).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.loading = false;
+          this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.loadData();
+        },
+        error: (error) => {
+          console.error('Error al actualizar estado:', error);
+          this.loading = false;
+          this.snackBar.open('Error al actualizar el estado', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     }
   }
 
-  // 🔹 Formatear precio en USD
-  formatearPrecio(precio: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(precio || 0);
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(amount || 0);
   }
 
-  // 🔹 Formatear fecha
-  formatearFecha(fecha: string): string {
-    if (!fecha) return '';
-    return new Date(fecha).toLocaleDateString('es-ES');
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('es-ES');
   }
 
-  // 🔹 Obtener nombre completo del cliente
-  obtenerNombreCliente(venta: Venta): string {
+  getClienteName(venta: Venta): string {
     if (!venta.cliente?.persona) return 'Sin cliente';
     const persona = venta.cliente.persona;
     return `${persona.nombre || ''} ${persona.apellido || ''}`.trim() || 'Sin nombre';
   }
 
-  // 🔹 Obtener nombre del vendedor
-  obtenerNombreVendedor(venta: Venta): string {
+  getVendedorName(venta: Venta): string {
     return venta.vendedor?.nombre || 'Sin vendedor';
+  }
+
+  getEstadoColor(estado: string): string {
+    switch (estado?.toLowerCase()) {
+      case 'pendiente': return 'warn';
+      case 'confirmada': return 'primary';
+      case 'cancelada': return 'accent';
+      case 'entregada': return 'accent';
+      default: return '';
+    }
+  }
+
+  getEstadoIcon(estado: string): string {
+    switch (estado?.toLowerCase()) {
+      case 'pendiente': return 'schedule';
+      case 'confirmada': return 'check_circle';
+      case 'cancelada': return 'cancel';
+      case 'entregada': return 'local_shipping';
+      default: return 'help';
+    }
   }
 }

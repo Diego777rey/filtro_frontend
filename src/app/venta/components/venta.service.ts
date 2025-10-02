@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Apollo } from 'apollo-angular';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
+import { BaseCrudService } from '../../core/services/base-crud.service';
 import {
   GET_VENTAS,
   GET_VENTA_BY_ID,
@@ -26,102 +26,111 @@ export interface Venta {
   total?: number;
   tipoVenta?: string;
   estadoVenta?: string;
-  cliente?: any;
-  vendedor?: any;
-  cajero?: any;
-  caja?: any;
-  factura?: any;
-  detalles?: any[];
+  cliente?: {
+    id: number;
+    codigoCliente?: string;
+    persona?: {
+      id: number;
+      nombre: string;
+      apellido: string;
+      documento?: string;
+      telefono?: string;
+      email?: string;
+    };
+  };
+  vendedor?: {
+    id: number;
+    nombre: string;
+  };
+  cajero?: {
+    id: number;
+    codigoCajero?: string;
+  };
+  caja?: {
+    id: number;
+    codigoCaja?: string;
+  };
+  factura?: {
+    id: number;
+    numero?: string;
+  };
+  detalles?: VentaDetalle[];
+}
+
+export interface VentaDetalle {
+  id?: number;
+  cantidad: number;
+  precioUnitario: number;
+  descuento?: number;
+  subtotal: number;
+  producto: {
+    id: number;
+    nombre: string;
+    precio: number;
+  };
+}
+
+export interface VentaInput {
+  fechaVenta: string;
+  tipoVenta: string;
+  clienteId: number;
+  vendedorId: number;
+  cajeroId?: number;
+  cajaId?: number;
+  total: number;
+  detalles: VentaDetalleInput[];
+}
+
+export interface VentaDetalleInput {
+  productoId: number;
+  cantidad: number;
+  precioUnitario: number;
+  descuento?: number;
+  subtotal: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class VentaService {
-
-  constructor(private apollo: Apollo) { }
+export class VentaService extends BaseCrudService {
 
   // Obtener todas las ventas
   getAll(): Observable<Venta[]> {
-    return this.apollo.watchQuery<{ findAllVentas: Venta[] }>({
-      query: GET_VENTAS,
-      fetchPolicy: 'cache-first'
-    }).valueChanges.pipe(
-      map(result => result.data.findAllVentas)
-    );
+    return this.executeQuery<Venta[]>(GET_VENTAS);
   }
 
   // Obtener venta por ID
-  getById(id: number): Observable<Venta> {
-    return this.apollo.watchQuery<{ findVentaById: Venta }>({
-      query: GET_VENTA_BY_ID,
-      variables: { id },
-      fetchPolicy: 'cache-first'
-    }).valueChanges.pipe(
-      map(result => result.data.findVentaById)
-    );
+  getById(id: string): Observable<Venta> {
+    return this.executeQuery<Venta>(GET_VENTA_BY_ID, { id });
   }
 
   // Obtener ventas paginadas
-  getPaginated(page: number, size: number, search: string = ''): Observable<PaginatedResponse<Venta>> {
-    return this.apollo.watchQuery<{ findVentasPaginated: PaginatedResponse<Venta> }>({
-      query: GET_VENTAS_PAGINADAS,
-      variables: { page, size, search },
-      fetchPolicy: 'cache-first'
-    }).valueChanges.pipe(
-      map(result => result.data.findVentasPaginated)
+  getPaginated(page: number, size: number, search?: string): Observable<PaginatedResponse<Venta>> {
+    return this.executePaginatedQuery<PaginatedResponse<Venta>>(
+      GET_VENTAS_PAGINADAS, 
+      page, 
+      size, 
+      search
     );
   }
 
   // Crear venta
-  create(venta: any): Observable<Venta> {
-    return this.apollo.mutate<{ createVenta: Venta }>({
-      mutation: CREATE_VENTA,
-      variables: { input: venta },
-      refetchQueries: [
-        { query: GET_VENTAS_PAGINADAS, variables: { page: 1, size: 5, search: '' } }
-      ]
-    }).pipe(
-      map(result => result.data!.createVenta)
-    );
+  create(venta: VentaInput): Observable<Venta> {
+    return this.executeMutation<Venta>(CREATE_VENTA, { input: venta });
   }
 
   // Actualizar venta
-  update(id: number, venta: any): Observable<Venta> {
-    return this.apollo.mutate<{ updateVenta: Venta }>({
-      mutation: UPDATE_VENTA,
-      variables: { id, input: venta },
-      refetchQueries: [
-        { query: GET_VENTAS_PAGINADAS, variables: { page: 1, size: 5, search: '' } }
-      ]
-    }).pipe(
-      map(result => result.data!.updateVenta)
-    );
+  update(id: string, venta: VentaInput): Observable<Venta> {
+    return this.executeMutation<Venta>(UPDATE_VENTA, { id, input: venta });
   }
 
   // Eliminar venta
-  delete(id: number): Observable<{ id: number }> {
-    return this.apollo.mutate<{ deleteVenta: { id: number } }>({
-      mutation: DELETE_VENTA,
-      variables: { id },
-      refetchQueries: [
-        { query: GET_VENTAS_PAGINADAS, variables: { page: 1, size: 5, search: '' } }
-      ]
-    }).pipe(
-      map(result => result.data!.deleteVenta)
-    );
+  delete(id: string): Observable<{ id: number }> {
+    return this.executeMutation<{ id: number }>(DELETE_VENTA, { id });
   }
 
   // Actualizar estado de venta
-  updateStatus(id: number, estado: string): Observable<any> {
-    return this.apollo.mutate({
-      mutation: UPDATE_VENTA_STATUS,
-      variables: { id, estado },
-      refetchQueries: [
-        { query: GET_VENTAS_PAGINADAS, variables: { page: 1, size: 5, search: '' } }
-      ]
-    }).pipe(
-      map(result => result.data)
-    );
+  updateStatus(id: string, estado: string): Observable<any> {
+    return this.executeMutation<any>(UPDATE_VENTA_STATUS, { id, estado });
   }
 }

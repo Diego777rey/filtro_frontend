@@ -1,21 +1,4 @@
 import { gql } from "apollo-angular";
-export const GET_CLIENTES = gql`
-  query GetAllClientes {
-    findAllClientes {
-      id
-      codigoCliente
-      fechaRegistro
-      persona {
-        id
-        nombre
-        apellido
-        documento
-        telefono
-        email
-      }
-    }
-  }
-`;
 
 export const GET_CLIENTE_BY_ID = gql`
   query GetClienteById($id: ID!) {

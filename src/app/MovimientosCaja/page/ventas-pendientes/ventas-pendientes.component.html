@@ -1,0 +1,116 @@
+<div class="ventas-pendientes-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1>Ventas Pendientes de Aprobación</h1>
+    <p class="subtitle">Ventas que requieren aprobación del cajero</p>
+  </div>
+
+  <!-- Tabla de ventas pendientes -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Cargando ventas pendientes...</p>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" class="ventas-table">
+          
+          <!-- Columna Cliente -->
+          <ng-container matColumnDef="cliente">
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
+            <td mat-cell *matCellDef="let venta">
+              <div *ngIf="venta.cliente" class="cliente-info">
+                <mat-icon>person</mat-icon>
+                <div>
+                  <div class="nombre">{{ venta.cliente.nombre }} {{ venta.cliente.apellido }}</div>
+                </div>
+              </div>
+              <span *ngIf="!venta.cliente" class="no-data">Sin cliente</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Vendedor -->
+          <ng-container matColumnDef="vendedor">
+            <th mat-header-cell *matHeaderCellDef>Vendedor</th>
+            <td mat-cell *matCellDef="let venta">
+              <div *ngIf="venta.vendedor" class="vendedor-info">
+                <mat-icon>store</mat-icon>
+                <div>
+                  <div class="nombre">{{ venta.vendedor.nombre }} {{ venta.vendedor.apellido }}</div>
+                </div>
+              </div>
+              <span *ngIf="!venta.vendedor" class="no-data">Sin vendedor</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Total -->
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let venta">
+              <div class="total-info">
+                <span class="amount">{{ formatCurrency(venta.total) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Items -->
+          <ng-container matColumnDef="items">
+            <th mat-header-cell *matHeaderCellDef>Items</th>
+            <td mat-cell *matCellDef="let venta">
+              <div class="items-info">
+                <div class="items-count">{{ getTotalItems(venta.items) }} productos</div>
+                <div class="items-detail" *ngIf="venta.items && venta.items.length > 0">
+                  <div *ngFor="let item of venta.items.slice(0, 2)" class="item-row">
+                    {{ item.cantidad }}x {{ item.producto.nombre }}
+                  </div>
+                  <div *ngIf="venta.items.length > 2" class="more-items">
+                    +{{ venta.items.length - 2 }} más...
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Acciones -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let venta">
+              <div class="actions-container">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="aceptarVenta(venta.id!)"
+                  [disabled]="loading"
+                  class="accept-button">
+                  <mat-icon>check_circle</mat-icon>
+                  Aceptar
+                </button>
+                <button 
+                  mat-raised-button 
+                  color="warn" 
+                  (click)="cancelarVenta(venta.id!)"
+                  [disabled]="loading"
+                  class="cancel-button">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Mensaje cuando no hay datos -->
+        <div class="no-data-message" *ngIf="dataSource.data.length === 0">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay ventas pendientes de aprobación</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

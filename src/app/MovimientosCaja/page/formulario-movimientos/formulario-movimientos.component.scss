@@ -1,0 +1,237 @@
+.formulario-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .header-section {
+    margin-bottom: 24px;
+
+    .title-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .back-button {
+        margin-right: 8px;
+        
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      .title-content {
+        h1 {
+          margin: 0;
+          color: #333;
+          font-weight: 500;
+        }
+
+        .subtitle {
+          margin: 4px 0 0 0;
+          color: #666;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .form-card {
+    margin-bottom: 24px;
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px;
+      color: #666;
+
+      mat-spinner {
+        margin-bottom: 16px;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+
+    .movimiento-form {
+      .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+
+        .form-field {
+          flex: 1;
+          min-width: 200px;
+
+          &.full-width {
+            flex: 100%;
+            min-width: 100%;
+          }
+        }
+
+        // En pantallas pequeñas, hacer que los campos ocupen todo el ancho
+        @media (max-width: 600px) {
+          flex-direction: column;
+          
+          .form-field {
+            min-width: 100%;
+          }
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e0e0e0;
+
+        button {
+          min-width: 120px;
+          
+          &[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            mat-spinner {
+              margin-right: 8px;
+            }
+            
+            mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+        }
+
+        @media (max-width: 600px) {
+          flex-direction: column-reverse;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .info-card {
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+
+      .info-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+
+        mat-icon {
+          color: #666;
+          margin-top: 4px;
+          flex-shrink: 0;
+        }
+
+        div {
+          strong {
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+          }
+
+          ul {
+            margin: 0;
+            padding-left: 16px;
+            
+            li {
+              margin-bottom: 4px;
+              color: #666;
+              font-size: 14px;
+              
+              strong {
+                color: #333;
+                display: inline;
+                margin: 0;
+              }
+            }
+          }
+        }
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+  }
+}
+
+// Material theme overrides
+::ng-deep {
+  .mat-form-field {
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        .mat-form-field-infix {
+          input, textarea {
+            &::placeholder {
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+
+    &.mat-form-field-invalid {
+      .mat-form-field-label {
+        color: #f44336;
+      }
+    }
+  }
+
+  .mat-button,
+  .mat-raised-button {
+    &.mat-primary {
+      background-color: #3f51b5;
+      color: white;
+    }
+  }
+
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .formulario-container {
+    padding: 16px;
+
+    .header-section {
+      .title-section {
+        .back-button {
+          margin-right: 0;
+        }
+        
+        .title-content {
+          h1 {
+            font-size: 24px;
+          }
+        }
+      }
+    }
+  }
+}

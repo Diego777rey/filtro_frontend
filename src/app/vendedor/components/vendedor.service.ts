@@ -12,9 +12,12 @@ export class VendedorService {
   constructor(private apollo: Apollo) {}
 
   getAll() {
-    return this.apollo.watchQuery<{ findAllVendedores: Vendedor[] }>({
-      query: GET_VENDEDORES
-    }).valueChanges.pipe(map(result => result.data.findAllVendedores));//este es lo que devuelve el servicio graphql
+    return this.apollo.watchQuery<{ findVendedoresPaginated: { items: Vendedor[] } }>({
+      query: GET_VENDEDORES_PAGINADOS,
+      variables: { page: 0, size: 1000 }
+    }).valueChanges.pipe(
+      map(result => result.data.findVendedoresPaginated.items)
+    );
   }
 
   getById(id: number) {

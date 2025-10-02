@@ -26,7 +26,12 @@ export const GET_VENTAS = gql`
       }
       vendedor {
         id
-        nombre
+        codigoVendedor
+        persona {
+          id
+          nombre
+          apellido
+        }
       }
       cajero {
         id
@@ -49,7 +54,7 @@ export const GET_VENTAS = gql`
         producto {
           id
           nombre
-          precio
+          precioVenta
         }
       }
     }
@@ -77,7 +82,12 @@ export const GET_VENTA_BY_ID = gql`
       }
       vendedor {
         id
-        nombre
+        codigoVendedor
+        persona {
+          id
+          nombre
+          apellido
+        }
       }
       cajero {
         id
@@ -100,7 +110,7 @@ export const GET_VENTA_BY_ID = gql`
         producto {
           id
           nombre
-          precio
+          precioVenta
         }
       }
     }
@@ -181,7 +191,12 @@ export const CREATE_VENTA = gql`
       }
       vendedor {
         id
-        nombre
+        codigoVendedor
+        persona {
+          id
+          nombre
+          apellido
+        }
       }
       cajero {
         id
@@ -199,7 +214,7 @@ export const CREATE_VENTA = gql`
         producto {
           id
           nombre
-          precio
+          precioVenta
         }
       }
     }

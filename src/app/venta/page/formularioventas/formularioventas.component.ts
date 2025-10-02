@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { VentaService } from '../../components/venta.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil, catchError, of } from 'rxjs';
+
+import { VentaService, Venta, VentaInput, VentaDetalleInput } from '../../components/venta.service';
 import { ClienteService } from 'src/app/cliente/components/cliente.service';
 import { ProductoService } from 'src/app/producto/components/producto.service';
 import { VendedorService } from 'src/app/vendedor/components/vendedor.service';
@@ -16,11 +19,15 @@ type ProductoVenta = { productoId?: number; descripcion: string; cantidad: numbe
   templateUrl: './formularioventas.component.html',
   styleUrls: ['./formularioventas.component.scss']
 })
-export class FormularioventasComponent implements OnInit {
+export class FormularioventasComponent implements OnInit, OnDestroy {
+  titulo = 'Venta';
+  private destroy$ = new Subject<void>();
 
   ventaForm: FormGroup;
   esEdicion = false;
-  ventaId: number | null = null;
+  ventaId: string | null = null;
+  loading = false;
+  formEnabled = false;
 
   clientes: Cliente[] = [];
   vendedores: Vendedor[] = [];
@@ -42,7 +49,8 @@ export class FormularioventasComponent implements OnInit {
     private ventaService: VentaService,
     private clienteService: ClienteService,
     private productoService: ProductoService,
-    private vendedorService: VendedorService
+    private vendedorService: VendedorService,
+    private snackBar: MatSnackBar
   ) {
     this.ventaForm = this.fb.group({
       fecha: [new Date(), Validators.required], // Fecha actual por defecto
@@ -55,17 +63,37 @@ export class FormularioventasComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkEditMode();
+    this.setupForm();
     this.cargarDatos();
-    this.verificarEdicion();
-    this.actualizarTotal(); // Inicializar el total
+    this.actualizarTotal();
   }
 
-  private verificarEdicion(): void {
-    this.route.params.subscribe(params => {
-      if (params['id']) {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupForm(): void {
+    setTimeout(() => {
+      this.formEnabled = true;
+    }, 100);
+  }
+
+  private checkEditMode(): void {
+    this.route.params.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      const id = params['id'];
+      if (id) {
         this.esEdicion = true;
-        this.ventaId = +params['id'];
-        this.cargarVentaParaEdicion();
+        this.ventaId = id;
+        this.titulo = 'Editar Venta';
+        this.loadVenta(id);
+      } else {
+        this.esEdicion = false;
+        this.ventaId = null;
+        this.titulo = 'Nueva Venta';
       }
     });
   }
@@ -75,40 +103,51 @@ export class FormularioventasComponent implements OnInit {
     // No necesitamos cargar todos los datos al inicio para mejor rendimiento
   }
 
-  private cargarVentaParaEdicion(): void {
-    if (this.ventaId) {
-      this.ventaService.getById(this.ventaId).subscribe({
-        next: venta => {
-          this.ventaForm.patchValue({
-            fecha: venta.fechaVenta ? new Date(venta.fechaVenta) : new Date(),
-            tipoPago: venta.tipoVenta || 'EFECTIVO',
-            clienteId: venta.cliente?.id,
-            vendedorId: venta.vendedor?.id
-          });
+  private loadVenta(id: string): void {
+    this.loading = true;
+    this.ventaService.getById(id).pipe(
+      takeUntil(this.destroy$),
+      catchError(error => {
+        console.error('Error al cargar venta:', error);
+        this.loading = false;
+        this.snackBar.open('Error al cargar la venta', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        this.router.navigate(['/dashboard/ventas']);
+        return of(null);
+      })
+    ).subscribe(venta => {
+      if (venta) {
+        this.ventaForm.patchValue({
+          fecha: venta.fechaVenta ? new Date(venta.fechaVenta) : new Date(),
+          tipoPago: venta.tipoVenta || 'EFECTIVO',
+          clienteId: venta.cliente?.id,
+          vendedorId: venta.vendedor?.id
+        });
 
-          // Cargar los objetos completos para los buscadores
-          if (venta.cliente) {
-            this.clienteSeleccionado = venta.cliente;
-          }
-          if (venta.vendedor) {
-            this.vendedorSeleccionado = venta.vendedor;
-          }
+        // Cargar los objetos completos para los buscadores
+        if (venta.cliente) {
+          this.clienteSeleccionado = venta.cliente as any;
+        }
+        if (venta.vendedor) {
+          this.vendedorSeleccionado = venta.vendedor as any;
+        }
 
-          // Convert detalles to productosAgregados format
-          this.productosAgregados = (venta.detalles || []).map((detalle: any) => ({
-            productoId: detalle.producto?.id,
-            descripcion: detalle.producto?.nombre || detalle.producto?.descripcion || '',
-            cantidad: detalle.cantidad,
-            precio: detalle.precioUnitario,
-            subtotal: detalle.subtotal || (detalle.cantidad * detalle.precioUnitario)
-          }));
-          
-          // Actualizar el total de la venta
-          this.actualizarTotal();
-        },
-        error: err => console.error('Error cargando venta', err)
-      });
-    }
+        // Convert detalles to productosAgregados format
+        this.productosAgregados = (venta.detalles || []).map((detalle: any) => ({
+          productoId: detalle.producto?.id,
+          descripcion: detalle.producto?.nombre || detalle.producto?.descripcion || '',
+          cantidad: detalle.cantidad,
+          precio: detalle.precioUnitario,
+          subtotal: detalle.subtotal || (detalle.cantidad * detalle.precioUnitario)
+        }));
+        
+        // Actualizar el total de la venta
+        this.actualizarTotal();
+      }
+      this.loading = false;
+    });
   }
 
   // Métodos para manejar las selecciones de los buscadores
@@ -194,21 +233,38 @@ export class FormularioventasComponent implements OnInit {
     // Total y productos actualizados
   }
 
-  onSubmit(): void {
-    if (this.ventaForm.valid && this.productosAgregados.length > 0) {
-      // Remove productoId and cantidad from form data as they're not part of VentaInput
-      const { productoId, cantidad, ...ventaFormData } = this.ventaForm.value;
-      
-      const ventaData = {
-        fechaVenta: ventaFormData.fecha,
+  guardar(): void {
+    if (this.ventaForm.invalid) {
+      this.markFormGroupTouched();
+      this.snackBar.open('Por favor, complete todos los campos requeridos', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    if (this.productosAgregados.length === 0) {
+      this.snackBar.open('Debe agregar al menos un producto', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    const formValue = this.ventaForm.value;
+    const { productoId, cantidad, ...ventaFormData } = formValue;
+    
+    try {
+      const ventaData: VentaInput = {
+        fechaVenta: ventaFormData.fecha.toISOString(),
         tipoVenta: ventaFormData.tipoPago,
-        clienteId: this.clienteSeleccionado?.id,
-        vendedorId: this.vendedorSeleccionado?.id,
+        clienteId: this.clienteSeleccionado?.id || 0,
+        vendedorId: this.vendedorSeleccionado?.id || 0,
         cajeroId: 1, // TODO: Obtener del contexto de sesión
         cajaId: 1, // TODO: Obtener del contexto de sesión
         total: this.totalVenta,
         detalles: this.productosAgregados.map(producto => ({
-          productoId: producto.productoId,
+          productoId: producto.productoId || 0,
           cantidad: Number(producto.cantidad),
           precioUnitario: Number(producto.precio),
           descuento: 0,
@@ -216,25 +272,87 @@ export class FormularioventasComponent implements OnInit {
         }))
       };
 
-      const request$ = this.esEdicion && this.ventaId
+      const obs$ = this.esEdicion && this.ventaId
         ? this.ventaService.update(this.ventaId, ventaData)
         : this.ventaService.create(ventaData);
 
-      request$.subscribe({
-        next: () => {
-          alert(`Venta ${this.esEdicion ? 'actualizada' : 'creada'} correctamente`);
-          this.router.navigate(['dashboard/ventas']);
-        },
-        error: err => {
-          console.error('Error guardando venta', err);
-          alert('Error al guardar la venta');
+      this.loading = true;
+      obs$.pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => {
+          console.error('Error al guardar venta:', error);
+          this.loading = false;
+          
+          let mensajeError = 'Error al guardar la venta';
+          
+          if (error.message && error.message.includes('llave duplicada')) {
+            mensajeError = 'Ya existe una venta con esos datos. Por favor, verifique los datos.';
+          } else if (error.message && error.message.includes('constraint')) {
+            mensajeError = 'Error de validación: Ya existe una venta con esos datos.';
+          } else if (error.message) {
+            mensajeError = 'Error al guardar la venta: ' + error.message;
+          }
+          
+          this.snackBar.open(mensajeError, 'Cerrar', {
+            duration: 7000,
+            panelClass: ['error-snackbar']
+          });
+          return of(null);
+        })
+      ).subscribe((result) => {
+        if (result) {
+          this.loading = false;
+          const accion = this.esEdicion ? 'actualizada' : 'creada';
+          this.snackBar.open(`Venta ${accion} exitosamente`, 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.router.navigate(['/dashboard/ventas']);
         }
+      });
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      this.loading = false;
+      this.snackBar.open('Error inesperado al procesar el formulario', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
       });
     }
   }
 
   cancelar(): void {
     this.router.navigate(['/dashboard/ventas']);
+  }
+
+  private markFormGroupTouched(): void {
+    Object.keys(this.ventaForm.controls).forEach(key => {
+      const control = this.ventaForm.get(key);
+      control?.markAsTouched();
+    });
+  }
+
+  // Getters para acceder a los controles del formulario
+  get fecha() { return this.ventaForm.get('fecha'); }
+  get tipoPago() { return this.ventaForm.get('tipoPago'); }
+  get clienteId() { return this.ventaForm.get('clienteId'); }
+  get vendedorId() { return this.ventaForm.get('vendedorId'); }
+  get cantidad() { return this.ventaForm.get('cantidad'); }
+
+  // Métodos de validación
+  hasError(controlName: string, errorType: string): boolean {
+    const control = this.ventaForm.get(controlName);
+    return !!(control && control.hasError(errorType) && control.touched);
+  }
+
+  getErrorMessage(controlName: string): string {
+    const control = this.ventaForm.get(controlName);
+    if (control?.hasError('required')) {
+      return 'Este campo es requerido';
+    }
+    if (control?.hasError('min')) {
+      return `El valor mínimo es ${control.errors?.['min'].min}`;
+    }
+    return '';
   }
 
   nuevo(): void {

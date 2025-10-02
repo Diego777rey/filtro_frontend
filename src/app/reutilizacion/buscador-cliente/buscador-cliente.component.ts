@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, takeUntil, catchError, of, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, catchError, of, debounceTime, distinctUntilChanged, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Cliente } from 'src/app/cliente/components/cliente';
@@ -29,6 +29,8 @@ export class BuscadorClienteComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
   clientesFiltrados: Cliente[] = [];
   loading = false;
+  error = false;
+  errorMessage = '';
   filtroBusqueda = '';
   filtroControl = new FormControl('');
 
@@ -49,23 +51,51 @@ export class BuscadorClienteComponent implements OnInit, OnDestroy {
     this.filtroControl.setValue('', { emitEvent: false });
   }
 
-  private cargarClientes(): void {
+  cargarClientes(): void {
     this.loading = true;
+    this.error = false;
+    this.errorMessage = '';
+    
     this.clienteService.getClientes()
       .pipe(
         takeUntil(this.destroy$),
         catchError((error) => {
           console.error('Error al cargar clientes:', error);
-          return of([]);
+          this.loading = false;
+          this.error = true;
+          this.errorMessage = this.getErrorMessage(error);
+          this.cdr.markForCheck();
+          return throwError(() => error);
         })
       )
-      .subscribe(data => {
-        this.clientes = data || [];
-        this.clientesFiltrados = [...this.clientes];
-        this.loading = false;
-        this.cdr.markForCheck();
+      .subscribe({
+        next: (data) => {
+          this.clientes = (data || []).map(c => ({
+            ...c,
+            persona: c.persona || {
+              id: c.id,
+              nombre: 'Cliente',
+              apellido: 'Sin Apellido',
+              documento: '',
+              telefono: '',
+              email: ''
+            }
+          }));
+          this.clientesFiltrados = [...this.clientes];
+          this.loading = false;
+          this.error = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Error en la suscripción:', error);
+          this.loading = false;
+          this.error = true;
+          this.errorMessage = this.getErrorMessage(error);
+          this.cdr.markForCheck();
+        }
       });
   }
+
 
   private setupFiltroDebounce(): void {
     this.filtroControl.valueChanges
@@ -82,6 +112,9 @@ export class BuscadorClienteComponent implements OnInit, OnDestroy {
 
   abrirModal(): void {
     if (this.disabled || this.loading) return;
+    
+    // Recargar clientes al abrir el modal
+    this.cargarClientes();
     
     const dialogRef = this.dialog.open(this.modalTemplate, {
       width: '90vw',
@@ -159,5 +192,18 @@ export class BuscadorClienteComponent implements OnInit, OnDestroy {
 
   trackByCliente(index: number, cliente: Cliente): any {
     return cliente.id || index;
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.message) {
+      return error.message;
+    }
+    if (error.networkError) {
+      return 'Error de conexión. Verifique su conexión a internet.';
+    }
+    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+      return error.graphQLErrors[0].message;
+    }
+    return 'Error desconocido al cargar los clientes.';
   }
 }

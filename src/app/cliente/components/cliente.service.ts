@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError, timer } from 'rxjs';
+import { map, retry, catchError, retryWhen, delay, take } from 'rxjs/operators';
 import { Cliente } from './cliente';
 import { Persona } from '../../Personas/components/persona';
-import { CREATE_CLIENTE, DELETE_CLIENTE, GET_CLIENTES, UPDATE_CLIENTE, GET_CLIENTES_PAGINADOS, GET_CLIENTE_BY_ID } from 'src/app/graphql/cliente.graphql';
+import { CREATE_CLIENTE, DELETE_CLIENTE, UPDATE_CLIENTE, GET_CLIENTES_PAGINADOS, GET_CLIENTE_BY_ID } from 'src/app/graphql/cliente.graphql';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
@@ -12,11 +12,30 @@ export class ClienteService {
   constructor(private apollo: Apollo) {}
 
   getClientes(): Observable<Cliente[]> {
-    return this.apollo.watchQuery<{ findAllClientes: Cliente[] }>({
-      query: GET_CLIENTES,
-      errorPolicy: 'all'
+    return this.apollo.watchQuery<{ findClientesPaginated: { items: Cliente[] } }>({
+      query: GET_CLIENTES_PAGINADOS,
+      variables: { page: 0, size: 1000, search: '' },
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true
     }).valueChanges.pipe(
-      map(result => result.data?.findAllClientes || [])
+      retryWhen(errors => 
+        errors.pipe(
+          delay(1000),
+          take(3)
+        )
+      ),
+      map(result => {
+        if (result.errors && result.errors.length > 0) {
+          console.error('Errores GraphQL:', result.errors);
+          throw new Error(result.errors[0].message);
+        }
+        return result.data?.findClientesPaginated?.items || [];
+      }),
+      catchError(error => {
+        console.error('Error en ClienteService:', error);
+        return throwError(() => error);
+      })
     );
   }
 
