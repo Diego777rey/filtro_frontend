@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { InputProducto } from './input.producto';
 import { 
   CREATE_PRODUCTO, DELETE_PRODUCTO, GET_PRODUCTOS, GET_PRODUCTOS_BY_ID, GET_PRODUCTOS_PAGINADOS, GET_PRODUCTOS_SIMPLES, UPDATE_PRODUCTO 
-} from 'src/app/graphql/graphql/producto.graphql';
+} from 'src/app/graphql/producto.graphql';
 
 @Injectable({
   providedIn: 'root'

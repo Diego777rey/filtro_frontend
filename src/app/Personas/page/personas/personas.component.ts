@@ -130,7 +130,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
   eliminarPersona(persona: Persona){
     if(!persona.id) return;
     if(confirm(`¿Desea eliminar "${persona.nombre} ${persona.apellido}"?`)){
-      this.servicioPersona.delete(persona.id).subscribe(()=> this.cargarPersonas());
+      this.servicioPersona.delete(persona.id.toString()).subscribe(()=> this.cargarPersonas());
     }
   }
 

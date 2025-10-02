@@ -1,9 +1,10 @@
 // src/app/services/vendedor.service.ts
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Vendedor, Persona } from './vendedor';
+import { Vendedor } from './vendedor';
+import { Persona } from '../../Personas/components/persona';
 import { map, Observable } from 'rxjs';
-import { CREATE_VENDEDOR, DELETE_VENDEDOR, GET_VENDEDORES, UPDATE_VENDEDOR, GET_VENDEDORES_PAGINADOS, GET_VENDEDOR_BY_ID } from 'src/app/graphql/graphql/vendedor.graphql';
+import { CREATE_VENDEDOR, DELETE_VENDEDOR, GET_VENDEDORES, UPDATE_VENDEDOR, GET_VENDEDORES_PAGINADOS, GET_VENDEDOR_BY_ID } from 'src/app/graphql/vendedor.graphql';
 @Injectable({
   providedIn: 'root'
 })

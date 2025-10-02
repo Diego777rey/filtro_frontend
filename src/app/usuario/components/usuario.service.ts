@@ -10,7 +10,7 @@ import {
   GET_USUARIOS,
   GET_USUARIOS_PAGINADOS,
   LOGIN_USUARIO
-} from "src/app/graphql/graphql/usuario.graphql";
+} from "src/app/graphql/usuario.graphql";
 
 @Injectable({
   providedIn: 'root'

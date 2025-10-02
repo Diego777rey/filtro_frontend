@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { InputProveedor } from './input.proveedor';
 import { 
   CREATE_PROVEEDOR, DELETE_PROVEEDOR, GET_PROVEEDORES, GET_PROVEEDOR_BY_ID, GET_PROVEEDORES_PAGINADOS, UPDATE_PROVEEDOR 
-} from 'src/app/graphql/graphql/proveedor.graphql';
+} from 'src/app/graphql/proveedor.graphql';
 
 @Injectable({
   providedIn: 'root'

@@ -1,15 +1,15 @@
 export interface Persona {
-  id?: string;
+  id?: number;
   nombre: string;
   apellido: string;
-  direccion: string;
-  telefono: string;
+  direccion?: string;
+  telefono?: string;
   email: string;
-  documento: string;
-  estadoPersona: string;
-  fechaNacimiento: string;
+  documento?: string;
+  estadoPersona?: string;
+  fechaNacimiento?: string;
   roles?: {
-    id: string;
+    id: number;
     tipoPersona: string;
   }[];
 }

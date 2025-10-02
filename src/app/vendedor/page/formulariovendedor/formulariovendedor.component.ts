@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { VendedorService } from '../../components/vendedor.service';
 import { Vendedor } from '../../components/vendedor';
-import { Persona } from '../../components/vendedor';
+import { Persona } from '../../../Personas/components/persona';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 
 @Component({

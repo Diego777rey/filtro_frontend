@@ -1,9 +1,4 @@
-export interface Persona {
-  id?: number;
-  nombre: string;
-  apellido: string;
-  email: string;
-}
+import { Persona } from '../../Personas/components/persona';
 
 export interface Rol {
   id?: number;

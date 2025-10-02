@@ -10,7 +10,7 @@ import {
   CREATE_DEPOSITERO, 
   UPDATE_DEPOSITERO, 
   DELETE_DEPOSITERO 
-} from 'src/app/graphql/graphql/depositero.graphql';
+} from 'src/app/graphql/depositero.graphql';
 
 @Injectable({
   providedIn: 'root'

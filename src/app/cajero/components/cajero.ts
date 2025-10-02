@@ -1,18 +1,4 @@
-export interface Persona {
-  id?: number;
-  nombre: string;
-  apellido: string;
-  documento: string;
-  telefono: string;
-  email: string;
-  direccion?: string;
-  estadoPersona?: string;
-  fechaNacimiento?: string;
-  roles?: Array<{
-    id?: number;
-    tipoPersona: string;
-  }>;
-}
+import { Persona } from '../../Personas/components/persona';
 
 export interface Caja {
   id: string;

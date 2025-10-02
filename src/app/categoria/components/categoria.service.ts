@@ -3,7 +3,7 @@ import { Categoria } from "./categoria";
 import { Injectable } from "@angular/core";
 import { map, catchError, tap } from "rxjs";
 import { Apollo } from "apollo-angular";
-import { SAVE_CATEGORIA, DELETE_CATEGORIA, GET_CATEGORIAS, UPDATE_CATEGORIA, GET_CATEGORIAS_PAGINADOS, GET_CATEGORIA_BY_ID } from "src/app/graphql/graphql/categoria.graphql";
+import { SAVE_CATEGORIA, DELETE_CATEGORIA, GET_CATEGORIAS, UPDATE_CATEGORIA, GET_CATEGORIAS_PAGINADOS, GET_CATEGORIA_BY_ID } from "src/app/graphql/categoria.graphql";
 import { of, throwError } from "rxjs";
 @Injectable({
   providedIn: 'root'

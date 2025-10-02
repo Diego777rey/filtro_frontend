@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HorarioService } from '../../components/horario.service';
-import { VendedorService } from '../../../vendedor/components/vendedor.service';
+import { PersonaService } from '../../../Personas/components/persona.service';
 import { Horario } from '../../components/horario';
-import { Vendedor } from '../../../vendedor/components/vendedor';
+import { Persona } from '../../../Personas/components/persona';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
@@ -35,8 +35,8 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
   formGroup!: FormGroup;
   isEdit = false;
   horarioId: number | null = null;
-  vendedores: Vendedor[] = [];
-  vendedorSeleccionado: Vendedor | null = null;
+  personas: Persona[] = [];
+  personaSeleccionada: Persona | null = null;
   loading = false;
   formEnabled = false; // controla habilitación de inputs
 
@@ -45,12 +45,12 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private horarioService: HorarioService,
-    private vendedorService: VendedorService,
+    private personaService: PersonaService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.loadVendedores();
+    this.loadPersonas();
     this.checkEditMode();
     this.initCampos();
   }
@@ -67,7 +67,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       fechaHora: [{ value: fechaActual, disabled: !this.formEnabled }, Validators.required],
       hora: [{ value: horaActual, disabled: !this.formEnabled }, Validators.required],
       horarios: [{ value: '', disabled: !this.formEnabled }, Validators.required],
-      vendedorId: [{ value: '', disabled: !this.formEnabled }, Validators.required]
+      personaId: [{ value: '', disabled: !this.formEnabled }, Validators.required]
     });
   }
 
@@ -107,17 +107,17 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadVendedores(): void {
+  loadPersonas(): void {
     this.loading = true;
-    this.vendedorService.getAll()
+    this.personaService.getAll()
       .pipe(takeUntil(this.destroy$), catchError((error) => {
-        console.error('Error al cargar vendedores:', error);
+        console.error('Error al cargar personas:', error);
         return of([]);
       }))
       .subscribe(data => {
-        this.vendedores = data || [];
+        this.personas = data || [];
         this.loading = false;
-        // Actualizar el estado del control vendedorId después de cargar los datos
+        // Actualizar el estado del control personaId después de cargar los datos
         this.updateFormControlsState();
       });
   }
@@ -134,10 +134,10 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
             fechaHora: fechaDate,
             hora: horaTime,
             horarios: data.horarios,
-            vendedorId: data.vendedor.id
+            personaId: data.persona.id
           });
-          // Buscar el vendedor completo en la lista cargada
-          this.vendedorSeleccionado = this.vendedores.find(v => v.id === data.vendedor.id) || null;
+          // Buscar la persona completa en la lista cargada
+          this.personaSeleccionada = this.personas.find(p => p.id && p.id === data.persona.id) || null;
         }
         this.loading = false;
       });
@@ -148,7 +148,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
   // -------------------
   nuevo(): void {
     this.formGroup.reset();
-    this.vendedorSeleccionado = null;
+    this.personaSeleccionada = null;
     this.formEnabled = true;
     // Establecer la fecha y hora actual al crear un nuevo horario
     const fechaActual = new Date();
@@ -162,7 +162,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
 
   cancelar(): void {
     this.formGroup.reset();
-    this.vendedorSeleccionado = null;
+    this.personaSeleccionada = null;
     // Mantener la fecha y hora actual al cancelar
     const fechaActual = new Date();
     const horaActual = this.getCurrentTime();
@@ -183,12 +183,12 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       this.formGroup.get('fechaHora')?.enable();
       this.formGroup.get('hora')?.enable();
       this.formGroup.get('horarios')?.enable();
-      this.formGroup.get('vendedorId')?.enable();
+      this.formGroup.get('personaId')?.enable();
     } else {
       this.formGroup.get('fechaHora')?.disable();
       this.formGroup.get('hora')?.disable();
       this.formGroup.get('horarios')?.disable();
-      this.formGroup.get('vendedorId')?.disable();
+      this.formGroup.get('personaId')?.disable();
     }
   }
 
@@ -219,14 +219,14 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
   }
 
   // -------------------
-  // Método para manejar selección de vendedor
+  // Método para manejar selección de persona
   // -------------------
-  onVendedorSeleccionado(vendedor: Vendedor | null): void {
-    this.vendedorSeleccionado = vendedor;
-    if (vendedor) {
-      this.formGroup.patchValue({ vendedorId: vendedor.id });
+  onPersonaSeleccionada(persona: Persona | null): void {
+    this.personaSeleccionada = persona;
+    if (persona) {
+      this.formGroup.patchValue({ personaId: persona.id || 0 });
     } else {
-      this.formGroup.patchValue({ vendedorId: '' });
+      this.formGroup.patchValue({ personaId: '' });
     }
   }
 
@@ -240,9 +240,9 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Verificar si los vendedores se han cargado
-    if (this.vendedores.length === 0) {
-      this.snackBar.open('Error: No hay vendedores disponibles. Por favor, recarga la página.', 'Cerrar', {
+    // Verificar si las personas se han cargado
+    if (this.personas.length === 0) {
+      this.snackBar.open('Error: No hay personas disponibles. Por favor, recarga la página.', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -259,20 +259,20 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Verificar que se haya seleccionado un vendedor
-    if (!formValue.vendedorId) {
-      this.snackBar.open('Error: Debe seleccionar un vendedor', 'Cerrar', {
+    // Verificar que se haya seleccionado una persona
+    if (!formValue.personaId) {
+      this.snackBar.open('Error: Debe seleccionar una persona', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
       return;
     }
     
-    // Buscar el vendedor seleccionado
-    const vendedorSeleccionado = this.vendedores.find(v => v.id == formValue.vendedorId);
+    // Buscar la persona seleccionada
+    const personaSeleccionada = this.personas.find(p => p.id && p.id == formValue.personaId);
     
-    if (!vendedorSeleccionado) {
-      this.snackBar.open('Error: No se encontró el vendedor seleccionado', 'Cerrar', {
+    if (!personaSeleccionada) {
+      this.snackBar.open('Error: No se encontró la persona seleccionada', 'Cerrar', {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -286,7 +286,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       const horario = new Horario({
         fechaHora: fechaHoraCompleta,
         horarios: formValue.horarios,
-        vendedor: vendedorSeleccionado
+        persona: personaSeleccionada
       });
 
       const horarioDto = horario.toDto();

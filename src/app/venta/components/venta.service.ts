@@ -9,7 +9,7 @@ import {
   UPDATE_VENTA,
   DELETE_VENTA,
   UPDATE_VENTA_STATUS
-} from 'src/app/graphql/graphql/venta.graphql';
+} from 'src/app/graphql/venta.graphql';
 
 export interface PaginatedResponse<T> {
   items: T[];

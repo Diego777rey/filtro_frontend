@@ -9,13 +9,13 @@ import {
   UPDATE_HORARIO, 
   DELETE_HORARIO,
   GET_HORARIOS_PAGINADOS 
-} from '../../graphql/graphql/horario.graphql';
+} from '../../graphql/horario.graphql';
 import { Horario } from './horario';
 
 export interface InputHorario {
   fechaHora: string;
   horarios: string;
-  vendedorId: number;
+  personaId: number;
 }
 
 @Injectable({

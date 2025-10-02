@@ -1,9 +1,10 @@
 // src/app/services/cajero.service.ts
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Cajero, Persona } from './cajero';
+import { Cajero } from './cajero';
+import { Persona } from '../../Personas/components/persona';
 import { map, Observable } from 'rxjs';
-import { CREATE_CAJERO, DELETE_CAJERO, GET_CAJEROS, UPDATE_CAJERO, GET_CAJEROS_PAGINADOS, GET_CAJERO_BY_ID } from 'src/app/graphql/graphql/cajero.graphql';
+import { CREATE_CAJERO, DELETE_CAJERO, GET_CAJEROS, UPDATE_CAJERO, GET_CAJEROS_PAGINADOS, GET_CAJERO_BY_ID } from 'src/app/graphql/cajero.graphql';
 @Injectable({
   providedIn: 'root'
 })

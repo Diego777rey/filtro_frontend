@@ -3,7 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/guards/auth.service';
 import { Apollo } from 'apollo-angular';
-import { LOGIN_USUARIO } from 'src/app/graphql/graphql/usuario.graphql';
+import { LOGIN_USUARIO } from 'src/app/graphql/usuario.graphql';
 
 @Component({
   selector: 'app-login',

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CajeroService } from '../../components/cajero.service';
 import { Cajero } from '../../components/cajero';
-import { Persona } from '../../components/cajero';
+import { Persona } from '../../../Personas/components/persona';
 import { CajaService } from '../../../caja/components/caja.service';
 import { Caja as CajaModel } from '../../../caja/components/caja';
 import { Caja } from '../../components/cajero';

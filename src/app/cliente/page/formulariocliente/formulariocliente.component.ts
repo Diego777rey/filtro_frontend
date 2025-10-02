@@ -7,22 +7,7 @@ import { Cliente } from '../../components/cliente';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { CampoClienteFormulario } from './campo-cliente.formulario';
 
-// Definir la interfaz Persona local para evitar conflictos
-export interface Persona {
-  id?: number;
-  nombre: string;
-  apellido: string;
-  documento: string;
-  telefono: string;
-  email: string;
-  direccion?: string;
-  estadoPersona?: string;
-  fechaNacimiento?: string;
-  roles?: Array<{
-    id?: number;
-    tipoPersona: string;
-  }>;
-}
+import { Persona } from '../../../Personas/components/persona';
 
 @Component({
   selector: 'app-formulariocliente',

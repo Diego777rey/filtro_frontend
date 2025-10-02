@@ -10,7 +10,7 @@ import {
   CREATE_PERSONA, 
   UPDATE_PERSONA, 
   DELETE_PERSONA 
-} from 'src/app/graphql/graphql/persona.graphql';
+} from 'src/app/graphql/persona.graphql';
 
 @Injectable({
   providedIn: 'root'

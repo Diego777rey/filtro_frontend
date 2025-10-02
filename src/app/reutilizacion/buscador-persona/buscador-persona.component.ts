@@ -1,26 +1,9 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, takeUntil, catchError, of, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PersonaService } from '../../Personas/components/persona.service';
-import { Persona as PersonaFromService } from '../../Personas/components/persona';
+import { Persona } from '../../Personas/components/persona';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-
-// Definir la interfaz Persona local para evitar conflictos
-export interface Persona {
-  id?: number;
-  nombre: string;
-  apellido: string;
-  documento: string;
-  telefono: string;
-  email: string;
-  direccion?: string;
-  estadoPersona?: string;
-  fechaNacimiento?: string;
-  roles?: Array<{
-    id?: number;
-    tipoPersona: string;
-  }>;
-}
 
 @Component({
   selector: 'app-buscador-persona',
@@ -84,9 +67,9 @@ export class BuscadorPersonaComponent implements OnInit, OnDestroy {
       });
   }
 
-  private convertirPersona(personaFromService: PersonaFromService): Persona {
+  private convertirPersona(personaFromService: Persona): Persona {
     return {
-      id: personaFromService.id ? parseInt(personaFromService.id) : undefined,
+      id: personaFromService.id,
       nombre: personaFromService.nombre,
       apellido: personaFromService.apellido,
       documento: personaFromService.documento,
@@ -95,8 +78,8 @@ export class BuscadorPersonaComponent implements OnInit, OnDestroy {
       direccion: personaFromService.direccion,
       estadoPersona: personaFromService.estadoPersona,
       fechaNacimiento: personaFromService.fechaNacimiento,
-      roles: personaFromService.roles?.map(role => ({
-        id: role.id ? parseInt(role.id) : undefined,
+      roles: personaFromService.roles?.map((role: any) => ({
+        id: role.id,
         tipoPersona: role.tipoPersona
       }))
     };

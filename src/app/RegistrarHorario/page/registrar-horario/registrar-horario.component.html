@@ -62,15 +62,15 @@
           </mat-form-field>
 
           <div class="half-width">
-            <app-buscador-vendedor
-              [vendedorSeleccionado]="vendedorSeleccionado"
+            <app-buscador-persona
+              [personaSeleccionada]="personaSeleccionada"
               [disabled]="!formEnabled"
-              [placeholder]="'Seleccionar vendedor'"
+              [placeholder]="'Seleccionar persona'"
               [showEmail]="true"
-              (vendedorSeleccionadoChange)="onVendedorSeleccionado($event)">
-            </app-buscador-vendedor>
-            <mat-error *ngIf="formGroup.get('vendedorId')?.invalid && formGroup.get('vendedorId')?.touched">
-              Debe seleccionar un vendedor
+              (personaSeleccionadaChange)="onPersonaSeleccionada($event)">
+            </app-buscador-persona>
+            <mat-error *ngIf="formGroup.get('personaId')?.invalid && formGroup.get('personaId')?.touched">
+              Debe seleccionar una persona
             </mat-error>
           </div>
         </div>

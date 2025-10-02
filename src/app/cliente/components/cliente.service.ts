@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Cliente, Persona } from './cliente';
-import { CREATE_CLIENTE, DELETE_CLIENTE, GET_CLIENTES, UPDATE_CLIENTE, GET_CLIENTES_PAGINADOS, GET_CLIENTE_BY_ID } from 'src/app/graphql/graphql/cliente.graphql';
+import { Cliente } from './cliente';
+import { Persona } from '../../Personas/components/persona';
+import { CREATE_CLIENTE, DELETE_CLIENTE, GET_CLIENTES, UPDATE_CLIENTE, GET_CLIENTES_PAGINADOS, GET_CLIENTE_BY_ID } from 'src/app/graphql/cliente.graphql';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {

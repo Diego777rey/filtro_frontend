@@ -9,7 +9,7 @@ import {
   CREATE_CAJA, 
   UPDATE_CAJA, 
   DELETE_CAJA 
-} from 'src/app/graphql/graphql/caja.graphql';
+} from 'src/app/graphql/caja.graphql';
 import { Caja } from './caja';
 
 export interface PaginatedResponse<T> {
