@@ -66,6 +66,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
     this.formGroup = this.fb.group({
       fechaHora: [{ value: fechaActual, disabled: !this.formEnabled }, Validators.required],
       hora: [{ value: horaActual, disabled: !this.formEnabled }, Validators.required],
+      turno: [{ value: '', disabled: !this.formEnabled }, Validators.required],
       horarios: [{ value: '', disabled: !this.formEnabled }, Validators.required],
       personaId: [{ value: '', disabled: !this.formEnabled }, Validators.required]
     });
@@ -133,6 +134,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
           this.formGroup.patchValue({
             fechaHora: fechaDate,
             hora: horaTime,
+            turno: data.turno,
             horarios: data.horarios,
             personaId: data.persona.id
           });
@@ -182,11 +184,13 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
     if (this.formEnabled) {
       this.formGroup.get('fechaHora')?.enable();
       this.formGroup.get('hora')?.enable();
+      this.formGroup.get('turno')?.enable();
       this.formGroup.get('horarios')?.enable();
       this.formGroup.get('personaId')?.enable();
     } else {
       this.formGroup.get('fechaHora')?.disable();
       this.formGroup.get('hora')?.disable();
+      this.formGroup.get('turno')?.disable();
       this.formGroup.get('horarios')?.disable();
       this.formGroup.get('personaId')?.disable();
     }
@@ -234,7 +238,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
       this.snackBar.open('Por favor, complete todos los campos obligatorios correctamente', 'Cerrar', {
-        duration: 5000,
+        duration: 5000,//esto es para que el mensaje se muestre por 5 segundos
         panelClass: ['error-snackbar']
       });
       return;
@@ -285,6 +289,7 @@ export class RegistrarHorarioComponent implements OnInit, OnDestroy {
       
       const horario = new Horario({
         fechaHora: fechaHoraCompleta,
+        turno: formValue.turno,
         horarios: formValue.horarios,
         persona: personaSeleccionada
       });

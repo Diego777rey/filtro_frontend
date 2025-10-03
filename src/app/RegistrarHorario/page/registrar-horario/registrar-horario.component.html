@@ -37,6 +37,23 @@
               La hora es obligatoria
             </mat-error>
           </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Turno</mat-label>
+            <mat-select formControlName="turno">
+              <mat-option value="DIA">
+                <mat-icon>wb_sunny</mat-icon>
+                DIA
+              </mat-option>
+              <mat-option value="NOCHE">
+                <mat-icon>nightlight_round</mat-icon>
+                Noche
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="formGroup.get('turno')?.invalid && formGroup.get('turno')?.touched">
+              Debe seleccionar un turno
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <div class="form-row">

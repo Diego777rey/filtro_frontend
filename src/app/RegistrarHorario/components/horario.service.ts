@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { map, catchError } from 'rxjs';
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { 
   GET_HORARIOS, 
   GET_HORARIO_BY_ID, 
@@ -14,6 +14,7 @@ import { Horario } from './horario';
 
 export interface InputHorario {
   fechaHora: string;
+  turno: string;
   horarios: string;
   personaId: number;
 }

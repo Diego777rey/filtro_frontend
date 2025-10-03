@@ -101,12 +101,21 @@ export class BuscadorPersonaComponent implements OnInit, OnDestroy {
   abrirModal(): void {
     if (this.disabled || this.loading) return;
     
+    // Remover el foco del input antes de abrir el modal
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement && activeElement.classList.contains('search-input')) {
+      activeElement.blur();
+    }
+    
     const dialogRef = this.dialog.open(this.modalTemplate, {
       width: '90vw',
       maxWidth: '800px',
       maxHeight: '80vh',
       disableClose: false,
-      autoFocus: false
+      autoFocus: true,
+      restoreFocus: false, // Cambiado a false para evitar conflictos
+      hasBackdrop: true,
+      panelClass: 'buscador-persona-dialog'
     });
 
     this.modalAbiertoChange.emit(true);
@@ -118,6 +127,13 @@ export class BuscadorPersonaComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(() => {
       this.modalAbiertoChange.emit(false);
+      // Restaurar el foco al input después de cerrar el modal
+      setTimeout(() => {
+        const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+        if (searchInput && !searchInput.disabled) {
+          searchInput.focus();
+        }
+      }, 150);
     });
   }
 

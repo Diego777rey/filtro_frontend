@@ -9,7 +9,13 @@
         [placeholder]="placeholder"
         [disabled]="disabled || loading"
         (click)="abrirModal()"
-        readonly>
+        (keydown.enter)="abrirModal()"
+        (keydown.space)="abrirModal()"
+        readonly
+        tabindex="0"
+        role="button"
+        aria-label="Buscar y seleccionar persona"
+        aria-haspopup="dialog">
       <mat-spinner *ngIf="loading" diameter="16" class="loading-spinner"></mat-spinner>
     </div>
     
@@ -36,8 +42,8 @@
 
 <!-- Modal de búsqueda de personas -->
 <ng-template #modalTemplate>
-  <div class="modal-content">
-    <h2 mat-dialog-title>Seleccionar Persona</h2>
+  <div class="modal-content" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <h2 mat-dialog-title id="modal-title">Seleccionar Persona</h2>
     
     <mat-dialog-content class="modal-body">
       <!-- Formulario de filtros simplificado -->

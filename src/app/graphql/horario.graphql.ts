@@ -6,8 +6,9 @@ export const GET_HORARIOS = gql`
     findAllRegistrarHorarios {
       id
       fechaHora
+      turno
       horarios
-      vendedor {
+      persona {
         id
         nombre
       }
@@ -21,8 +22,9 @@ export const GET_HORARIO_BY_ID = gql`
     findRegistrarHorarioById(id: $id) {
       id
       fechaHora
+      turno
       horarios
-      vendedor {
+      persona {
         id
         nombre
       }
@@ -30,14 +32,15 @@ export const GET_HORARIO_BY_ID = gql`
   }
 `;
 
-// Obtener horarios por vendedor
-export const GET_HORARIOS_POR_VENDEDOR = gql`
-  query GetRegistrarHorariosPorVendedor($vendedorId: ID!) {
-    findRegistrarHorariosPorVendedor(vendedorId: $vendedorId) {
+// Obtener horarios por persona
+export const GET_HORARIOS_POR_PERSONA = gql`
+  query GetRegistrarHorariosPorPersona($personaId: ID!) {
+    findRegistrarHorariosPorPersona(personaId: $personaId) {
       id
       fechaHora
+      turno
       horarios
-      vendedor {
+      persona {
         id
         nombre
       }
@@ -53,7 +56,7 @@ export const GET_HORARIOS_PAGINADOS = gql`
         id
         fechaHora
         horarios
-        vendedor {
+        persona {
           id
           nombre
         }
@@ -70,8 +73,9 @@ export const CREATE_HORARIO = gql`
     createRegistrarHorario(inputRegistrarHorario: $inputRegistrarHorario) {
       id
       fechaHora
+      turno
       horarios
-      vendedor {
+      persona {
         id
         nombre
       }
@@ -86,8 +90,9 @@ export const UPDATE_HORARIO = gql`
     updateRegistrarHorario(id: $id, inputRegistrarHorario: $inputRegistrarHorario) {
       id
       fechaHora
+      turno
       horarios
-      vendedor {
+      persona {
         id
         nombre
       }

@@ -350,3 +350,32 @@
     }
   }
 }
+
+// Estilos específicos para el modal del buscador de persona
+::ng-deep .buscador-persona-dialog {
+  .mat-dialog-container {
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .cdk-dialog-container {
+    // Asegurar que el modal no interfiera con el foco
+    .cdk-focus-trap {
+      outline: none;
+    }
+  }
+}
+
+// Mejoras de accesibilidad para el input
+.search-input {
+  // Asegurar que el input sea accesible
+  &:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+  }
+  
+  // Evitar que el input mantenga el foco cuando el modal está abierto
+  &:not(:focus-visible) {
+    outline: none;
+  }
+}
