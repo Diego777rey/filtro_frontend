@@ -30,9 +30,15 @@
   top: 0;
   z-index: 2;
 }
-.top-toolbar{
-background-color: red
+
+.top-toolbar {
+  background-color: red;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
+
+
 
 .top-toolbar .toolbar-title {
   margin-left: 12px;

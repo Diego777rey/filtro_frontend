@@ -1,5 +1,5 @@
 .tab-container {
-  background-color: transparent;
+  background-color: #363636;
   padding: 8px 16px;
   overflow: hidden;
   position: relative;
@@ -10,10 +10,10 @@
     align-items: center;
     height: 48px;
     overflow: hidden;
-    background-color: #424242;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    margin: 0 8px;
+    background-color: #363636;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
   }
 
   .tabs-scroll {
@@ -23,7 +23,8 @@
     overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 4px 8px;
+    padding: 4px 16px;
+    gap: 8px;
 
     &::-webkit-scrollbar {
       display: none;
@@ -37,7 +38,7 @@
     display: flex;
     align-items: center;
     padding: 0 8px;
-    background-color: #424242;
+    background-color: #363636;
     border-left: 1px solid #555555;
 
     .close-all-button {
