@@ -1,0 +1,23 @@
+<div class="tab-container" *ngIf="tabs.length > 0">
+  <div class="tabs-wrapper">
+    <div class="tabs-scroll">
+      <app-tab
+        *ngFor="let tab of tabs; trackBy: trackByTabId"
+        [tab]="tab"
+        (tabClick)="onTabClick($event)"
+        (tabClose)="onTabClose($event)">
+      </app-tab>
+    </div>
+    
+    <div class="tab-actions" *ngIf="tabs.length > 1">
+      <button 
+        mat-icon-button
+        class="close-all-button"
+        (click)="onCloseAllTabs()"
+        matTooltip="Cerrar todas las pestañas"
+        aria-label="Cerrar todas las pestañas">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

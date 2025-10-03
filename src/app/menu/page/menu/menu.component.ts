@@ -6,6 +6,7 @@ import { UsuariodialogComponent } from 'src/app/reutilizacion/usuariodialog/usua
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TabService } from '../../../core/services/tab.service';
 
 interface MenuItem {
   id: string;
@@ -49,13 +50,17 @@ export class MenuComponent implements OnInit, OnDestroy {
     public readonly authService: AuthService, 
     private readonly router: Router, 
     private readonly dialog: MatDialog,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly tabService: TabService
   ) {}
 
   ngOnInit(): void {
     // Cache all user-related data to avoid repeated calls
     this.isAdminUser = this.authService.isAdmin();
     this.cacheUserData();
+    
+    // Inicializar el servicio de pestañas
+    this.tabService.getTabs();
   }
 
   private cacheUserData(): void {

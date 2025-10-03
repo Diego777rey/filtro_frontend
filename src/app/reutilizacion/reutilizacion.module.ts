@@ -33,6 +33,8 @@ import { BuscadorCategoriaComponent } from './buscador-categoria/buscador-catego
 import { BuscadorProductoComponent } from './buscador-producto/buscador-producto.component';
 import { BuscadorPersonaComponent } from './buscador-persona/buscador-persona.component';
 import { BuscadorProveedorComponent } from './buscador-proveedor/buscador-proveedor.component';
+import { TabComponent } from './tab/tab.component';
+import { TabContainerComponent } from './tab-container/tab-container.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +48,9 @@ import { BuscadorProveedorComponent } from './buscador-proveedor/buscador-provee
     BuscadorCategoriaComponent,
     BuscadorProductoComponent,
     BuscadorPersonaComponent,
-    BuscadorProveedorComponent
+    BuscadorProveedorComponent,
+    TabComponent,
+    TabContainerComponent
   ],
   imports: [
     CommonModule,
@@ -85,7 +89,9 @@ import { BuscadorProveedorComponent } from './buscador-proveedor/buscador-provee
     BuscadorCategoriaComponent,
     BuscadorProductoComponent,
     BuscadorPersonaComponent,
-    BuscadorProveedorComponent
+    BuscadorProveedorComponent,
+    TabComponent,
+    TabContainerComponent
   ]
 })
 export class ReutilizacionModule { }

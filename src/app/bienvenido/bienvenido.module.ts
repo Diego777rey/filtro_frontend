@@ -1,10 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { BienvenidoRoutingModule } from './bienvenido-routing.module';
 import { BienvenidoComponent } from './page/bienvenido/bienvenido.component';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -12,9 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   imports: [
     CommonModule,
-    BienvenidoRoutingModule,
-    MatCardModule,
-    MatIconModule
+    BienvenidoRoutingModule
   ]
 })
 export class BienvenidoModule { }

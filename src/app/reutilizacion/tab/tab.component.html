@@ -1,0 +1,26 @@
+<div 
+  class="tab" 
+  [class.active]="tab.isActive"
+  [class.closable]="tab.canClose"
+  (click)="onTabClick()"
+  role="tab"
+  [attr.aria-selected]="tab.isActive"
+  [attr.aria-label]="'Pestaña ' + tab.title"
+  tabindex="0"
+  (keydown.enter)="onTabClick()"
+  (keydown.space)="onTabClick()">
+  
+  <mat-icon *ngIf="tab.icon" class="tab-icon">{{ tab.icon }}</mat-icon>
+  
+  <span class="tab-title">{{ tab.title }}</span>
+  
+  <button 
+    *ngIf="tab.canClose"
+    class="close-button"
+    (click)="onCloseClick($event)"
+    [attr.aria-label]="'Cerrar pestaña ' + tab.title"
+    mat-icon-button
+    type="button">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

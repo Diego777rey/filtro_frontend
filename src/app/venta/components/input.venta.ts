@@ -1,4 +1,5 @@
 export class InputVenta {
+  
   fecha!: string;
   tipoPago!: string;
   clienteId!: number;

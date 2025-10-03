@@ -1,0 +1,98 @@
+.tab-container {
+  background-color: transparent;
+  padding: 8px 16px;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+
+  .tabs-wrapper {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    overflow: hidden;
+    background-color: #424242;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    margin: 0 8px;
+  }
+
+  .tabs-scroll {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 8px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // Smooth scrolling
+    scroll-behavior: smooth;
+  }
+
+  .tab-actions {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    background-color: #424242;
+    border-left: 1px solid #555555;
+
+    .close-all-button {
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .tab-container {
+    .tabs-wrapper {
+      height: 40px;
+    }
+
+    .tab-actions {
+      padding: 0 4px;
+
+      .close-all-button {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .tab-container {
+    background-color: #424242;
+    border-bottom-color: #555555;
+
+    .tab-actions {
+      background-color: #424242;
+      border-left-color: #555555;
+    }
+  }
+}

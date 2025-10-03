@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { map, catchError } from 'rxjs';
 import { throwError } from 'rxjs';
-import { 
-  GET_HORARIOS, 
-  GET_HORARIO_BY_ID, 
-  CREATE_HORARIO, 
-  UPDATE_HORARIO, 
+import {
+  GET_HORARIOS, GET_HORARIO_BY_ID,
+  CREATE_HORARIO,
+  UPDATE_HORARIO,
   DELETE_HORARIO,
-  GET_HORARIOS_PAGINADOS 
+  GET_HORARIOS_PAGINADOS
 } from '../../graphql/horario.graphql';
 import { Horario } from './horario';
 
@@ -23,7 +22,7 @@ export interface InputHorario {
   providedIn: 'root'
 })
 export class HorarioService {
-  constructor(private apollo: Apollo) {}
+  constructor(private apollo: Apollo) { }
 
   getAll() {
     return this.apollo.watchQuery<{ findAllRegistrarHorarios: Horario[] }>({

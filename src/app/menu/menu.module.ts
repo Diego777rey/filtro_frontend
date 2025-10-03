@@ -19,6 +19,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuRoutingModule } from './menu-routing.module';
 import { MatDialogModule } from '@angular/material/dialog';
+import { ReutilizacionModule } from '../reutilizacion/reutilizacion.module';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatPaginatorModule,
     MatTooltipModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    ReutilizacionModule
   ],
   exports: [
     MenuComponent // <--- importante exportarlo para que AppModule lo pueda usar
