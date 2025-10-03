@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BaseCrudService } from '../../core/services/base-crud.service';
+import { gql } from 'apollo-angular';
 import { MovimientoCaja, MovimientoCajaPaginatedResponse, Venta } from './movimiento-caja';
 import { 
   GET_MOVIMIENTOS_CAJA, 
@@ -66,7 +68,73 @@ export class MovimientoCajaService extends BaseCrudService {
 
   // Obtener ventas pendientes por caja
   getVentasPendientes(cajaId: string): Observable<Venta[]> {
-    return this.executeQuery<Venta[]>(GET_VENTAS_PENDIENTES, { cajaId });
+    return this.executeQuery<Venta[]>(GET_VENTAS_PENDIENTES).pipe(
+      map((ventas: Venta[]) => {
+        // Filtrar ventas de la caja específica (sin filtro de estado por ahora)
+        return ventas.filter(venta => 
+          venta.caja?.id?.toString() === cajaId
+        );
+      })
+    );
+  }
+
+  // Obtener resumen de caja (saldo actual, ventas del día, etc.)
+  getResumenCaja(cajaId: string): Observable<{
+    saldoActual: number;
+    ventasAprobadas: number;
+    ventasPendientes: number;
+    ventasCanceladas: number;
+    totalVentas: number;
+    fechaApertura: string;
+  }> {
+    const GET_RESUMEN_CAJA = gql`
+      query GetResumenCaja($cajaId: ID!) {
+        getResumenCaja(cajaId: $cajaId) {
+          saldoActual
+          ventasAprobadas
+          ventasPendientes
+          ventasCanceladas
+          totalVentas
+          fechaApertura
+        }
+      }
+    `;
+    
+    return this.executeQuery<{
+      saldoActual: number;
+      ventasAprobadas: number;
+      ventasPendientes: number;
+      ventasCanceladas: number;
+      totalVentas: number;
+      fechaApertura: string;
+    }>(GET_RESUMEN_CAJA, { cajaId });
+  }
+
+  // Obtener historial de movimientos de caja por fecha
+  getMovimientosPorFecha(cajaId: string, fecha: string): Observable<MovimientoCaja[]> {
+    const GET_MOVIMIENTOS_POR_FECHA = gql`
+      query GetMovimientosPorFecha($cajaId: ID!, $fecha: String!) {
+        getMovimientosPorFecha(cajaId: $cajaId, fecha: $fecha) {
+          id
+          monto
+          tipo
+          fecha
+          descripcion
+          venta {
+            id
+            total
+            estado
+            cliente {
+              id
+              nombre
+              apellido
+            }
+          }
+        }
+      }
+    `;
+    
+    return this.executeQuery<MovimientoCaja[]>(GET_MOVIMIENTOS_POR_FECHA, { cajaId, fecha });
   }
 
 }

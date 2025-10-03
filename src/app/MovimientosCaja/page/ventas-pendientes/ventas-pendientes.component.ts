@@ -79,8 +79,20 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error al aceptar venta:', error);
           this.loading = false;
-          this.snackBar.open('Error al aceptar la venta', 'Cerrar', {
-            duration: 3000,
+          
+          let errorMessage = 'Error al aceptar la venta';
+          
+          // Manejo específico de errores
+          if (error.message?.includes('ya fue procesada')) {
+            errorMessage = 'Esta venta ya fue procesada anteriormente';
+          } else if (error.message?.includes('no se puede procesar')) {
+            errorMessage = 'No se puede procesar esta venta en este momento';
+          } else if (error.message) {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          this.snackBar.open(errorMessage, 'Cerrar', {
+            duration: 5000,
             panelClass: ['error-snackbar']
           });
         }
@@ -106,8 +118,20 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error al cancelar venta:', error);
           this.loading = false;
-          this.snackBar.open('Error al cancelar la venta', 'Cerrar', {
-            duration: 3000,
+          
+          let errorMessage = 'Error al cancelar la venta';
+          
+          // Manejo específico de errores
+          if (error.message?.includes('ya fue procesada')) {
+            errorMessage = 'Esta venta ya fue procesada y no se puede cancelar';
+          } else if (error.message?.includes('no se puede cancelar')) {
+            errorMessage = 'No se puede cancelar esta venta en este momento';
+          } else if (error.message) {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          this.snackBar.open(errorMessage, 'Cerrar', {
+            duration: 5000,
             panelClass: ['error-snackbar']
           });
         }

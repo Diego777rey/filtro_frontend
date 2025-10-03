@@ -122,54 +122,104 @@ export class VentasComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/ventas/editar', id]);
   }
 
-  deleteVenta(id: number, venta?: Venta): void {
-    // Validar si la venta ya está anulada
-    if (venta?.estadoVenta === 'CANCELADA') {
-      this.snackBar.open('Esta venta ya ha sido anulada y no se puede eliminar', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['warning-snackbar']
-      });
-      return;
+  deleteVenta(id: number): void {
+    const venta = this.findVentaById(id);
+    
+    // Mostrar mensaje informativo si la venta está cancelada, pero permitir eliminación
+    if (this.isVentaCancelada(venta)) {
+      this.showInfoMessage('Esta venta está cancelada, pero puede ser eliminada del sistema');
+    }
+    
+    if (this.confirmDeletion()) {
+      this.executeDeletion(id);
+    }
+  }
+
+  private findVentaById(id: number): Venta | undefined {
+    return this.dataSource.data.find((v: Venta) => v.id === id);
+  }
+
+  private isVentaCancelada(venta: Venta | undefined): boolean {
+    return venta?.estadoVenta === 'CANCELADA';
+  }
+
+  private showWarningMessage(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 4000,
+      panelClass: ['warning-snackbar']
+    });
+  }
+
+  private showInfoMessage(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 4000,
+      panelClass: ['info-snackbar']
+    });
+  }
+
+  private confirmDeletion(): boolean {
+    return confirm('¿Está seguro de que desea eliminar esta venta?');
+  }
+
+  private executeDeletion(id: number): void {
+    this.loading = true;
+    
+    this.ventaService.delete(id.toString()).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => this.handleDeletionSuccess(),
+      error: (error) => this.handleDeletionError(error)
+    });
+  }
+
+  private handleDeletionSuccess(): void {
+    this.loading = false;
+    this.snackBar.open('Venta eliminada exitosamente', 'Cerrar', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+    this.loadData();
+  }
+
+  private handleDeletionError(error: any): void {
+    console.error('Error al eliminar venta:', error);
+    this.loading = false;
+    
+    const errorMessage = this.getErrorMessage(error);
+    this.snackBar.open(errorMessage, 'Cerrar', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  private getErrorMessage(error: any): string {
+    const errorMessages = {
+      'ya ha sido anulada': 'Esta venta ya ha sido eliminada anteriormente',
+      'no se puede eliminar': 'No se puede eliminar esta venta debido a restricciones de negocio',
+      'no encontrada': 'La venta no existe o ya ha sido eliminada'
+    };
+
+    // Manejo de errores GraphQL
+    if (error.graphQLErrors?.length > 0) {
+      const graphQLError = error.graphQLErrors[0];
+      return this.findMatchingErrorMessage(graphQLError.message, errorMessages) || 
+             `Error: ${graphQLError.message}`;
     }
 
-    if (confirm('¿Está seguro de que desea eliminar esta venta?')) {
-      this.loading = true;
-      
-      this.ventaService.delete(id.toString()).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: () => {
-          this.loading = false;
-          this.snackBar.open('Venta eliminada exitosamente', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.loadData();
-        },
-        error: (error) => {
-          console.error('Error al eliminar venta:', error);
-          this.loading = false;
-          
-          let errorMessage = 'Error al eliminar la venta';
-          
-          // Manejo específico de errores
-          if (error.message?.includes('ya ha sido anulada')) {
-            errorMessage = 'Esta venta ya ha sido eliminada anteriormente';
-          } else if (error.message?.includes('no se puede eliminar')) {
-            errorMessage = 'No se puede eliminar esta venta debido a restricciones de negocio';
-          } else if (error.message?.includes('no encontrada')) {
-            errorMessage = 'La venta no existe o ya ha sido eliminada';
-          } else if (error.message) {
-            errorMessage = `Error: ${error.message}`;
-          }
-          
-          this.snackBar.open(errorMessage, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
+    // Manejo de errores generales
+    return this.findMatchingErrorMessage(error.message, errorMessages) || 
+           `Error: ${error.message || 'Error desconocido'}`;
+  }
+
+  private findMatchingErrorMessage(message: string, errorMessages: Record<string, string>): string | null {
+    if (!message) return null;
+    
+    for (const [key, value] of Object.entries(errorMessages)) {
+      if (message.includes(key)) {
+        return value;
+      }
     }
+    return null;
   }
 
   updateVentaStatus(id: number, estado: string): void {

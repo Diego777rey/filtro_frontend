@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { gql } from 'apollo-angular';
 import { 
   GET_CAJAS, 
   GET_CAJA_BY_ID, 
@@ -83,6 +84,82 @@ export class CajaService {
       variables: { id }
     }).pipe(
       map(result => result.data!.deleteCaja)
+    );
+  }
+
+  // Abrir caja
+  abrirCaja(cajaId: number, cajeroId: number, saldoInicial: number): Observable<Caja> {
+    const ABRIR_CAJA = gql`
+      mutation AbrirCaja($cajaId: ID!, $cajeroId: ID!, $saldoInicial: Float!) {
+        abrirCaja(cajaId: $cajaId, cajeroId: $cajeroId, saldoInicial: $saldoInicial) {
+          id
+          codigoCaja
+          estadoCaja
+          saldoActual
+          fechaApertura
+          cajeroActual {
+            id
+            codigoCajero
+            persona {
+              nombre
+              apellido
+            }
+          }
+        }
+      }
+    `;
+    
+    return this.apollo.mutate<{ abrirCaja: Caja }>({
+      mutation: ABRIR_CAJA,
+      variables: { cajaId, cajeroId, saldoInicial }
+    }).pipe(
+      map(result => result.data!.abrirCaja)
+    );
+  }
+
+  // Cerrar caja
+  cerrarCaja(cajaId: number, saldoFinal: number): Observable<Caja> {
+    const CERRAR_CAJA = gql`
+      mutation CerrarCaja($cajaId: ID!, $saldoFinal: Float!) {
+        cerrarCaja(cajaId: $cajaId, saldoFinal: $saldoFinal) {
+          id
+          codigoCaja
+          estadoCaja
+          saldoActual
+          fechaCierre
+          saldoCierre
+        }
+      }
+    `;
+    
+    return this.apollo.mutate<{ cerrarCaja: Caja }>({
+      mutation: CERRAR_CAJA,
+      variables: { cajaId, saldoFinal }
+    }).pipe(
+      map(result => result.data!.cerrarCaja)
+    );
+  }
+
+  // Obtener cajas abiertas por cajero
+  getCajasAbiertasPorCajero(cajeroId: number): Observable<Caja[]> {
+    const GET_CAJAS_ABIERTAS_POR_CAJERO = gql`
+      query GetCajasAbiertasPorCajero($cajeroId: ID!) {
+        getCajasAbiertasPorCajero(cajeroId: $cajeroId) {
+          id
+          codigoCaja
+          descripcion
+          estadoCaja
+          saldoActual
+          fechaApertura
+        }
+      }
+    `;
+    
+    return this.apollo.watchQuery<{ getCajasAbiertasPorCajero: Caja[] }>({
+      query: GET_CAJAS_ABIERTAS_POR_CAJERO,
+      variables: { cajeroId }
+    }).valueChanges.pipe(
+      map(result => result.data.getCajasAbiertasPorCajero)
     );
   }
 }

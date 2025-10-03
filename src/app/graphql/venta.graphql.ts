@@ -11,7 +11,6 @@ export const GET_VENTAS = gql`
       fechaVenta
       total
       tipoVenta
-      estadoVenta
       cliente {
         id
         codigoCliente
@@ -41,10 +40,6 @@ export const GET_VENTAS = gql`
         id
         codigoCaja
       }
-      factura {
-        id
-        numero
-      }
       detalles {
         id
         cantidad
@@ -70,7 +65,6 @@ export const GET_VENTA_BY_ID = gql`
       fechaVenta
       total
       tipoVenta
-      estadoVenta
       cliente {
         id
         codigoCliente
@@ -96,10 +90,6 @@ export const GET_VENTA_BY_ID = gql`
       caja {
         id
         codigoCaja
-      }
-      factura {
-        id
-        numero
       }
       detalles {
         id
@@ -127,7 +117,6 @@ export const GET_VENTAS_PAGINADAS = gql`
         fechaVenta
         total
         tipoVenta
-        estadoVenta
         cliente {
           id
           codigoCliente
@@ -184,7 +173,6 @@ export const CREATE_VENTA = gql`
       fechaVenta
       total
       tipoVenta
-      estadoVenta
       cliente {
         id
         codigoCliente
@@ -235,7 +223,6 @@ export const UPDATE_VENTA = gql`
       fechaVenta
       total
       tipoVenta
-      estadoVenta
     }
   }
 `;
@@ -252,7 +239,6 @@ export const UPDATE_VENTA_STATUS = gql`
   mutation UpdateVentaStatus($id: ID!, $estado: EstadoVenta!) {
     updateVentaStatus(id: $id, estado: $estado) {
       id
-      estadoVenta
     }
   }
 `;

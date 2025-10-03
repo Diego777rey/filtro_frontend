@@ -1,0 +1,267 @@
+<div class="panel-caja-container">
+  <!-- Header con información de la caja -->
+  <div class="header-section">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Panel de Control de Caja</h2>
+        <div class="caja-info" *ngIf="cajaActual">
+          <p><strong>Caja:</strong> {{ cajaActual.codigoCaja }} - {{ cajaActual.descripcion }}</p>
+          <p><strong>Estado:</strong> 
+            <span class="badge" [ngClass]="cajaActual.estadoCaja === 'ABIERTA' ? 'badge-success' : 'badge-danger'">
+              {{ getEstadoCajaTexto() }}
+            </span>
+          </p>
+          <p *ngIf="cajaActual.fechaApertura"><strong>Fecha de Apertura:</strong> {{ cajaActual.fechaApertura | date:'short' }}</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="cajero-info" *ngIf="cajeroActual">
+          <p><strong>Cajero:</strong> {{ cajeroActual.persona.nombre }} {{ cajeroActual.persona.apellido }}</p>
+          <p><strong>Código:</strong> {{ cajeroActual.codigoCajero }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen de caja -->
+  <div class="resumen-section" *ngIf="resumenCaja">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <h5 class="card-title">Saldo Actual</h5>
+            <h3 class="card-text">${{ resumenCaja.saldoActual | number:'1.2-2' }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <h5 class="card-title">Ventas Aprobadas</h5>
+            <h3 class="card-text">{{ resumenCaja.ventasAprobadas }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <h5 class="card-title">Ventas Pendientes</h5>
+            <h3 class="card-text">{{ resumenCaja.ventasPendientes }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-danger text-white">
+          <div class="card-body">
+            <h5 class="card-title">Ventas Canceladas</h5>
+            <h3 class="card-text">{{ resumenCaja.ventasCanceladas }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles de caja -->
+  <div class="controles-section">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Abrir Caja</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="saldoInicial">Saldo Inicial</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="saldoInicial"
+                [(ngModel)]="saldoInicial"
+                placeholder="Ingrese el saldo inicial"
+                [disabled]="cajaActual?.estadoCaja === 'ABIERTA'"
+              >
+            </div>
+            <button 
+              class="btn btn-success" 
+              (click)="abrirCaja()"
+              [disabled]="cajaActual?.estadoCaja === 'ABIERTA' || cargando"
+            >
+              <i class="fas fa-lock-open"></i> Abrir Caja
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Cerrar Caja</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="saldoFinal">Saldo Final</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="saldoFinal"
+                [(ngModel)]="saldoFinal"
+                placeholder="Ingrese el saldo final"
+                [disabled]="cajaActual?.estadoCaja !== 'ABIERTA'"
+              >
+            </div>
+            <button 
+              class="btn btn-danger" 
+              (click)="cerrarCaja()"
+              [disabled]="cajaActual?.estadoCaja !== 'ABIERTA' || cargando"
+            >
+              <i class="fas fa-lock"></i> Cerrar Caja
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ventas pendientes -->
+  <div class="ventas-section">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5>Ventas Pendientes de Aprobación</h5>
+        <button class="btn btn-sm btn-outline-primary" (click)="cargarVentasPendientes()">
+          <i class="fas fa-sync-alt"></i> Actualizar
+        </button>
+      </div>
+      <div class="card-body">
+        <div *ngIf="cargandoVentas" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">Cargando...</span>
+          </div>
+        </div>
+        
+        <div *ngIf="!cargandoVentas && ventasPendientes.length === 0" class="text-center text-muted">
+          <i class="fas fa-inbox fa-3x mb-3"></i>
+          <p>No hay ventas pendientes</p>
+        </div>
+
+        <div *ngIf="!cargandoVentas && ventasPendientes.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Cliente</th>
+                <th>Vendedor</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let venta of ventasPendientes">
+                <td>{{ venta.codigoVenta }}</td>
+                <td>
+                  {{ venta.cliente?.persona?.nombre }} {{ venta.cliente?.persona?.apellido }}
+                </td>
+                <td>{{ venta.vendedor?.nombre }}</td>
+                <td>${{ venta.total | number:'1.2-2' }}</td>
+                <td>{{ venta.fechaVenta | date:'short' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getEstadoVentaClass(venta.estadoVenta || '')">
+                    {{ getEstadoVentaTexto(venta.estadoVenta || '') }}
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <button 
+                      class="btn btn-sm btn-success" 
+                      (click)="aprobarVenta(venta)"
+                      title="Aprobar venta"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-danger" 
+                      (click)="cancelarVenta(venta)"
+                      title="Cancelar venta"
+                      data-toggle="modal" 
+                      data-target="#modalCancelar"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-info" 
+                      title="Ver detalles"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros y reportes -->
+  <div class="filtros-section">
+    <div class="card">
+      <div class="card-header">
+        <h5>Filtros y Reportes</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="fechaFiltro">Fecha</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="fechaFiltro"
+                [(ngModel)]="fechaFiltro"
+                (change)="actualizarFecha()"
+              >
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-outline-primary" (click)="actualizarFecha()">
+              <i class="fas fa-filter"></i> Aplicar Filtro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para cancelar venta -->
+<div class="modal fade" id="modalCancelar" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cancelar Venta</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="motivoCancelacion">Motivo de Cancelación</label>
+          <textarea 
+            class="form-control" 
+            id="motivoCancelacion"
+            [(ngModel)]="motivoCancelacion"
+            rows="3"
+            placeholder="Ingrese el motivo de la cancelación"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="cancelarVenta(ventasPendientes[0])" data-dismiss="modal">
+          Confirmar Cancelación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

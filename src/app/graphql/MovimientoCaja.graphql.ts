@@ -9,12 +9,20 @@ export const GET_MOVIMIENTOS_CAJA = gql`
       descripcion
       caja {
         id
-        nombre
+        codigoCaja
+        descripcion
+        ubicacion
+        estadoCaja
+        saldoInicial
+        saldoActual
       }
       venta {
         id
+        codigoVenta
+        fechaVenta
         total
-        estado
+        tipoVenta
+        estadoVenta
       }
     }
   }
@@ -30,12 +38,20 @@ export const GET_MOVIMIENTO_CAJA_BY_ID = gql`
       descripcion
       caja {
         id
-        nombre
+        codigoCaja
+        descripcion
+        ubicacion
+        estadoCaja
+        saldoInicial
+        saldoActual
       }
       venta {
         id
+        codigoVenta
+        fechaVenta
         total
-        estado
+        tipoVenta
+        estadoVenta
       }
     }
   }
@@ -52,12 +68,19 @@ export const GET_MOVIMIENTOS_CAJA_PAGINADOS = gql`
         descripcion
         caja {
           id
-          nombre
+          codigoCaja
+          descripcion
+          ubicacion
+          estadoCaja
+          saldoInicial
+          saldoActual
         }
         venta {
           id
+          codigoVenta
+          fechaVenta
           total
-          estado
+          tipoVenta
         }
       }
       totalItems
@@ -78,12 +101,20 @@ export const CREATE_MOVIMIENTO_CAJA = gql`
       descripcion
       caja {
         id
-        nombre
+        codigoCaja
+        descripcion
+        ubicacion
+        estadoCaja
+        saldoInicial
+        saldoActual
       }
       venta {
         id
+        codigoVenta
+        fechaVenta
         total
-        estado
+        tipoVenta
+        estadoVenta
       }
     }
   }
@@ -99,12 +130,20 @@ export const UPDATE_MOVIMIENTO_CAJA = gql`
       descripcion
       caja {
         id
-        nombre
+        codigoCaja
+        descripcion
+        ubicacion
+        estadoCaja
+        saldoInicial
+        saldoActual
       }
       venta {
         id
+        codigoVenta
+        fechaVenta
         total
-        estado
+        tipoVenta
+        estadoVenta
       }
     }
   }
@@ -128,12 +167,20 @@ export const ACEPTAR_VENTA = gql`
       descripcion
       caja {
         id
-        nombre
+        codigoCaja
+        descripcion
+        ubicacion
+        estadoCaja
+        saldoInicial
+        saldoActual
       }
       venta {
         id
+        codigoVenta
+        fechaVenta
         total
-        estado
+        tipoVenta
+        estadoVenta
       }
     }
   }
@@ -143,36 +190,57 @@ export const CANCELAR_VENTA = gql`
   mutation CancelarVenta($ventaId: ID!) {
     cancelarVenta(ventaId: $ventaId) {
       id
+      codigoVenta
+      fechaVenta
       total
-      estado
+      tipoVenta
     }
   }
 `;
 
-// Nueva consulta para obtener ventas pendientes de aprobación
+// Consulta para obtener todas las ventas y filtrar las pendientes en el cliente
 export const GET_VENTAS_PENDIENTES = gql`
-  query GetVentasPendientes($cajaId: ID!) {
-    findVentasPendientesByCaja(cajaId: $cajaId) {
+  query GetVentasPendientes {
+    findAllVentas {
       id
+      codigoVenta
+      fechaVenta
       total
-      estado
+      tipoVenta
+      caja {
+        id
+        codigoCaja
+      }
       cliente {
         id
-        nombre
-        apellido
+        codigoCliente
+        persona {
+          id
+          nombre
+          apellido
+          documento
+          telefono
+          email
+        }
       }
       vendedor {
         id
-        nombre
-        apellido
+        persona {
+          id
+          nombre
+          apellido
+        }
       }
-      items {
+      detalles {
         id
         cantidad
-        precio
+        precioUnitario
+        descuento
+        subtotal
         producto {
           id
           nombre
+          precioVenta
         }
       }
     }

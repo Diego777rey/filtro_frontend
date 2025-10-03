@@ -92,7 +92,7 @@ export class FormularioCajaComponent implements OnInit, OnDestroy {
             estadoCaja: data.estadoCaja,
             saldoInicial: data.saldoInicial,
             saldoActual: data.saldoActual,
-            cajaEstado: data.estadoCaja === 'ACTIVO'
+            cajaEstado: data.estadoCaja === 'ABIERTA'
           });
         }
         this.loading = false;

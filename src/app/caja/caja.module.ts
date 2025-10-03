@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { CajaRoutingModule } from './caja-routing.module';
 import { CajaComponent } from './page/caja/caja.component';
 import { FormularioCajaComponent } from './page/formulario-caja/formulario-caja.component';
+import { PanelCajaComponent } from './page/panel-caja/panel-caja.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReutilizacionModule } from 'src/app/reutilizacion/reutilizacion.module';
 import { GraphQLModule } from 'src/app/graphql.module';
@@ -24,7 +25,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 @NgModule({
   declarations: [
     CajaComponent,
-    FormularioCajaComponent
+    FormularioCajaComponent,
+    PanelCajaComponent
   ],
   imports: [
     CommonModule,

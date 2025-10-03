@@ -17,27 +17,50 @@ export interface MovimientoCaja {
 
 export interface Venta {
   id?: number;
-  total: number;
-  estado: string;
+  codigoVenta?: string;
+  fechaVenta?: string;
+  total?: number;
+  tipoVenta?: string;
+  estadoVenta?: 'PENDIENTE' | 'COMPLETADA' | 'CANCELADA' | 'FACTURADA' | 'ENTREGADA';
   cliente?: {
     id: number;
-    nombre: string;
-    apellido: string;
+    codigoCliente?: string;
+    persona?: {
+      id: number;
+      nombre: string;
+      apellido: string;
+      documento?: string;
+      telefono?: string;
+      email?: string;
+    };
   };
   vendedor?: {
     id: number;
-    nombre: string;
-    apellido: string;
+    persona: {
+      id: number;
+      nombre: string;
+      apellido: string;
+    };
   };
-  items?: {
+  caja?: {
+    id: number;
+    codigoCaja?: string;
+  };
+  detalles?: {
     id: number;
     cantidad: number;
-    precio: number;
+    precioUnitario: number;
+    descuento?: number;
+    subtotal: number;
     producto: {
       id: number;
       nombre: string;
+      precioVenta: number;
     };
   }[];
+  fechaAprobacion?: string;
+  fechaCancelacion?: string;
+  motivoCancelacion?: string;
 }
 
 export interface MovimientoCajaPaginatedResponse {
