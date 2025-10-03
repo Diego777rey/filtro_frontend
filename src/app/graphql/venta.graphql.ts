@@ -139,7 +139,12 @@ export const GET_VENTAS_PAGINADAS = gql`
         }
         vendedor {
           id
-          nombre
+          codigoVendedor
+          persona {
+            id
+            nombre
+            apellido
+          }
         }
         cajero {
           id
@@ -157,7 +162,7 @@ export const GET_VENTAS_PAGINADAS = gql`
           producto {
             id
             nombre
-            precio
+            precioVenta
           }
         }
       }

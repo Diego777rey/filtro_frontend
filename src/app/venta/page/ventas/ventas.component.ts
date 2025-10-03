@@ -122,7 +122,16 @@ export class VentasComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/ventas/editar', id]);
   }
 
-  deleteVenta(id: number): void {
+  deleteVenta(id: number, venta?: Venta): void {
+    // Validar si la venta ya está anulada
+    if (venta?.estadoVenta === 'CANCELADA') {
+      this.snackBar.open('Esta venta ya ha sido anulada y no se puede eliminar', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['warning-snackbar']
+      });
+      return;
+    }
+
     if (confirm('¿Está seguro de que desea eliminar esta venta?')) {
       this.loading = true;
       
@@ -140,8 +149,22 @@ export class VentasComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error al eliminar venta:', error);
           this.loading = false;
-          this.snackBar.open('Error al eliminar la venta', 'Cerrar', {
-            duration: 3000,
+          
+          let errorMessage = 'Error al eliminar la venta';
+          
+          // Manejo específico de errores
+          if (error.message?.includes('ya ha sido anulada')) {
+            errorMessage = 'Esta venta ya ha sido eliminada anteriormente';
+          } else if (error.message?.includes('no se puede eliminar')) {
+            errorMessage = 'No se puede eliminar esta venta debido a restricciones de negocio';
+          } else if (error.message?.includes('no encontrada')) {
+            errorMessage = 'La venta no existe o ya ha sido eliminada';
+          } else if (error.message) {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          this.snackBar.open(errorMessage, 'Cerrar', {
+            duration: 5000,
             panelClass: ['error-snackbar']
           });
         }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil, catchError, of } from 'rxjs';
+import { Subject, takeUntil, catchError, of, Observable } from 'rxjs';
 
 import { VentaService, Venta, VentaInput, VentaDetalleInput } from '../../components/venta.service';
 import { ClienteService } from 'src/app/cliente/components/cliente.service';
@@ -12,7 +12,23 @@ import { Cliente } from 'src/app/cliente/components/cliente';
 import { Vendedor } from 'src/app/vendedor/components/vendedor';
 import { Producto } from 'src/app/reutilizacion/buscador-producto/producto.interface';
 
-type ProductoVenta = { productoId?: number; descripcion: string; cantidad: number; precio: number; subtotal: number };
+type ProductoVenta = { 
+  productoId?: number; 
+  descripcion: string; 
+  cantidad: number; 
+  precio: number; 
+  subtotal: number; 
+};
+
+// Constantes para evitar valores mágicos
+const CONSTANTS = {
+  CAJERO_DEFAULT: 1,
+  CAJA_DEFAULT: 1,
+  CANTIDAD_DEFAULT: 1,
+  SNACKBAR_DURATION: 3000,
+  ERROR_SNACKBAR_DURATION: 7000,
+  FORM_ENABLE_DELAY: 100
+} as const;
 
 @Component({
   selector: 'app-formularioventas',
@@ -21,7 +37,7 @@ type ProductoVenta = { productoId?: number; descripcion: string; cantidad: numbe
 })
 export class FormularioventasComponent implements OnInit, OnDestroy {
   titulo = 'Venta';
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   ventaForm: FormGroup;
   esEdicion = false;
@@ -29,36 +45,37 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
   loading = false;
   formEnabled = false;
 
-  clientes: Cliente[] = [];
-  vendedores: Vendedor[] = [];
-  productos: Producto[] = [];
-  productosAgregados: ProductoVenta[] = [];
-  totalVenta: number = 0;
-
   // Variables para los buscadores
   clienteSeleccionado: Cliente | null = null;
   vendedorSeleccionado: Vendedor | null = null;
   productoSeleccionado: Producto | null = null;
 
-  columnasProductos = ['producto', 'precio', 'cantidad', 'subtotal', 'acciones'];
+  productosAgregados: ProductoVenta[] = [];
+  totalVenta = 0;
+
+  readonly columnasProductos = ['producto', 'precio', 'cantidad', 'subtotal', 'acciones'];
 
   constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private ventaService: VentaService,
-    private clienteService: ClienteService,
-    private productoService: ProductoService,
-    private vendedorService: VendedorService,
-    private snackBar: MatSnackBar
+    private readonly fb: FormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly ventaService: VentaService,
+    private readonly clienteService: ClienteService,
+    private readonly productoService: ProductoService,
+    private readonly vendedorService: VendedorService,
+    private readonly snackBar: MatSnackBar
   ) {
-    this.ventaForm = this.fb.group({
-      fecha: [new Date(), Validators.required], // Fecha actual por defecto
-      tipoPago: ['', Validators.required],
+    this.ventaForm = this.createForm();
+  }
+
+  private createForm(): FormGroup {
+    return this.fb.group({
+      fecha: [new Date(), Validators.required],
+      tipoVenta: ['LOCAL', Validators.required],
       clienteId: [null, Validators.required],
       vendedorId: [null, Validators.required],
       productoId: [null],
-      cantidad: [1, [Validators.required, Validators.min(1)]]
+      cantidad: [CONSTANTS.CANTIDAD_DEFAULT, [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -77,7 +94,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
   private setupForm(): void {
     setTimeout(() => {
       this.formEnabled = true;
-    }, 100);
+    }, CONSTANTS.FORM_ENABLE_DELAY);
   }
 
   private checkEditMode(): void {
@@ -121,7 +138,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
       if (venta) {
         this.ventaForm.patchValue({
           fecha: venta.fechaVenta ? new Date(venta.fechaVenta) : new Date(),
-          tipoPago: venta.tipoVenta || 'EFECTIVO',
+          tipoVenta: venta.tipoVenta || 'LOCAL',
           clienteId: venta.cliente?.id,
           vendedorId: venta.vendedor?.id
         });
@@ -181,33 +198,44 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
   agregarProducto(): void {
     const cantidad = this.ventaForm.get('cantidad')?.value;
 
-    if (this.productoSeleccionado && cantidad > 0) {
-      const producto = this.productoSeleccionado;
-      const subtotal = producto.precio * cantidad;
-      
-      // Verificar si el producto ya está agregado
-      const productoExistente = this.productosAgregados.find(p => p.productoId === producto.id);
-      if (productoExistente) {
-        productoExistente.cantidad += cantidad;
-        productoExistente.subtotal = productoExistente.precio * productoExistente.cantidad;
-      } else {
-        const nuevoProducto = {
-          productoId: producto.id,
-          descripcion: producto.descripcion,
-          cantidad: cantidad,
-          precio: producto.precio,
-          subtotal: subtotal
-        };
-        this.productosAgregados.push(nuevoProducto);
-      }
-      
-      // Limpiar el formulario de producto
-      this.ventaForm.patchValue({ cantidad: 1 });
-      this.productoSeleccionado = null;
-      
-      // Actualizar el total de la venta
-      this.actualizarTotal();
+    if (!this.productoSeleccionado || cantidad <= 0) {
+      return;
     }
+
+    this.addOrUpdateProduct(this.productoSeleccionado, cantidad);
+    this.clearProductForm();
+    this.actualizarTotal();
+  }
+
+  private addOrUpdateProduct(producto: Producto, cantidad: number): void {
+    const productoExistente = this.productosAgregados.find(p => p.productoId === producto.id);
+    
+    if (productoExistente) {
+      this.updateExistingProduct(productoExistente, cantidad);
+    } else {
+      this.addNewProduct(producto, cantidad);
+    }
+  }
+
+  private updateExistingProduct(producto: ProductoVenta, cantidad: number): void {
+    producto.cantidad += cantidad;
+    producto.subtotal = producto.precio * producto.cantidad;
+  }
+
+  private addNewProduct(producto: Producto, cantidad: number): void {
+    const nuevoProducto: ProductoVenta = {
+      productoId: producto.id,
+      descripcion: producto.descripcion,
+      cantidad,
+      precio: producto.precio,
+      subtotal: producto.precio * cantidad
+    };
+    this.productosAgregados.push(nuevoProducto);
+  }
+
+  private clearProductForm(): void {
+    this.ventaForm.patchValue({ cantidad: CONSTANTS.CANTIDAD_DEFAULT });
+    this.productoSeleccionado = null;
   }
 
   removerProducto(index: number): void {
@@ -215,109 +243,116 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
     this.actualizarTotal();
   }
 
-  calcularTotal(): number {
+  private calcularTotal(): number {
     return this.productosAgregados.reduce((total, producto) => {
-      return total + (producto.precio * producto.cantidad);
+      const subtotal = producto.subtotal || (producto.precio * producto.cantidad);
+      return total + subtotal;
     }, 0);
   }
 
-  actualizarTotal(): void {
-    if (this.productosAgregados && this.productosAgregados.length > 0) {
-      this.totalVenta = this.productosAgregados.reduce((total, producto) => {
-        const subtotal = producto.subtotal || (producto.precio * producto.cantidad);
-        return total + subtotal;
-      }, 0);
-    } else {
-      this.totalVenta = 0;
-    }
-    // Total y productos actualizados
+  private actualizarTotal(): void {
+    this.totalVenta = this.productosAgregados.length > 0 ? this.calcularTotal() : 0;
   }
 
   guardar(): void {
+    if (!this.validateForm()) {
+      return;
+    }
+
+    const ventaData = this.buildVentaData();
+    const operation$ = this.esEdicion && this.ventaId
+      ? this.ventaService.update(this.ventaId, ventaData)
+      : this.ventaService.create(ventaData);
+
+    this.executeOperation(operation$);
+  }
+
+  private validateForm(): boolean {
     if (this.ventaForm.invalid) {
       this.markFormGroupTouched();
-      this.snackBar.open('Por favor, complete todos los campos requeridos', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
+      this.showError('Por favor, complete todos los campos requeridos');
+      return false;
     }
 
     if (this.productosAgregados.length === 0) {
-      this.snackBar.open('Debe agregar al menos un producto', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
+      this.showError('Debe agregar al menos un producto');
+      return false;
     }
 
+    return true;
+  }
+
+  private buildVentaData(): VentaInput {
     const formValue = this.ventaForm.value;
     const { productoId, cantidad, ...ventaFormData } = formValue;
     
-    try {
-      const ventaData: VentaInput = {
-        fechaVenta: ventaFormData.fecha.toISOString(),
-        tipoVenta: ventaFormData.tipoPago,
-        clienteId: this.clienteSeleccionado?.id || 0,
-        vendedorId: this.vendedorSeleccionado?.id || 0,
-        cajeroId: 1, // TODO: Obtener del contexto de sesión
-        cajaId: 1, // TODO: Obtener del contexto de sesión
-        total: this.totalVenta,
-        detalles: this.productosAgregados.map(producto => ({
-          productoId: producto.productoId || 0,
-          cantidad: Number(producto.cantidad),
-          precioUnitario: Number(producto.precio),
-          descuento: 0,
-          subtotal: Number(producto.subtotal)
-        }))
-      };
+    return {
+      clienteId: String(this.clienteSeleccionado?.id || 0),
+      vendedorId: String(this.vendedorSeleccionado?.id || 0),
+      cajeroId: String(CONSTANTS.CAJERO_DEFAULT),
+      cajaId: String(CONSTANTS.CAJA_DEFAULT),
+      tipoVenta: ventaFormData.tipoVenta,
+      detalles: this.productosAgregados.map(producto => ({
+        productoId: String(producto.productoId || 0),
+        cantidad: Number(producto.cantidad)
+      }))
+    };
+  }
 
-      const obs$ = this.esEdicion && this.ventaId
-        ? this.ventaService.update(this.ventaId, ventaData)
-        : this.ventaService.create(ventaData);
+  private executeOperation(operation$: Observable<Venta>): void {
+    this.loading = true;
+    operation$.pipe(
+      takeUntil(this.destroy$),
+      catchError(this.handleError.bind(this))
+    ).subscribe((result: Venta | null) => {
+      if (result) {
+        this.handleSuccess();
+      }
+    });
+  }
 
-      this.loading = true;
-      obs$.pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('Error al guardar venta:', error);
-          this.loading = false;
-          
-          let mensajeError = 'Error al guardar la venta';
-          
-          if (error.message && error.message.includes('llave duplicada')) {
-            mensajeError = 'Ya existe una venta con esos datos. Por favor, verifique los datos.';
-          } else if (error.message && error.message.includes('constraint')) {
-            mensajeError = 'Error de validación: Ya existe una venta con esos datos.';
-          } else if (error.message) {
-            mensajeError = 'Error al guardar la venta: ' + error.message;
-          }
-          
-          this.snackBar.open(mensajeError, 'Cerrar', {
-            duration: 7000,
-            panelClass: ['error-snackbar']
-          });
-          return of(null);
-        })
-      ).subscribe((result) => {
-        if (result) {
-          this.loading = false;
-          const accion = this.esEdicion ? 'actualizada' : 'creada';
-          this.snackBar.open(`Venta ${accion} exitosamente`, 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/dashboard/ventas']);
-        }
-      });
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.loading = false;
-      this.snackBar.open('Error inesperado al procesar el formulario', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+  private handleError = (error: any): Observable<null> => {
+    console.error('Error al guardar venta:', error);
+    this.loading = false;
+    
+    const errorMessage = this.getApiErrorMessage(error);
+    this.showError(errorMessage, CONSTANTS.ERROR_SNACKBAR_DURATION);
+    
+    return of(null);
+  };
+
+  private getApiErrorMessage(error: any): string {
+    if (error.message?.includes('llave duplicada')) {
+      return 'Ya existe una venta con esos datos. Por favor, verifique los datos.';
     }
+    if (error.message?.includes('constraint')) {
+      return 'Error de validación: Ya existe una venta con esos datos.';
+    }
+    if (error.message) {
+      return `Error al guardar la venta: ${error.message}`;
+    }
+    return 'Error al guardar la venta';
+  }
+
+  private handleSuccess(): void {
+    this.loading = false;
+    const accion = this.esEdicion ? 'actualizada' : 'creada';
+    this.showSuccess(`Venta ${accion} exitosamente`);
+    this.router.navigate(['/dashboard/ventas']);
+  }
+
+  private showError(message: string, duration: number = CONSTANTS.SNACKBAR_DURATION): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: CONSTANTS.SNACKBAR_DURATION,
+      panelClass: ['success-snackbar']
+    });
   }
 
   cancelar(): void {
@@ -333,7 +368,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
 
   // Getters para acceder a los controles del formulario
   get fecha() { return this.ventaForm.get('fecha'); }
-  get tipoPago() { return this.ventaForm.get('tipoPago'); }
+  get tipoVenta() { return this.ventaForm.get('tipoVenta'); }
   get clienteId() { return this.ventaForm.get('clienteId'); }
   get vendedorId() { return this.ventaForm.get('vendedorId'); }
   get cantidad() { return this.ventaForm.get('cantidad'); }
@@ -356,15 +391,26 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
   }
 
   nuevo(): void {
-    // Resetear formulario con fecha actual
+    this.resetForm();
+    this.clearSelections();
+    this.clearProducts();
+  }
+
+  private resetForm(): void {
     this.ventaForm.reset({
-      fecha: new Date(), // Fecha actual por defecto
-      cantidad: 1
+      fecha: new Date(),
+      cantidad: CONSTANTS.CANTIDAD_DEFAULT
     });
-    this.productosAgregados = [];
-    this.totalVenta = 0;
+  }
+
+  private clearSelections(): void {
     this.clienteSeleccionado = null;
     this.vendedorSeleccionado = null;
     this.productoSeleccionado = null;
+  }
+
+  private clearProducts(): void {
+    this.productosAgregados = [];
+    this.totalVenta = 0;
   }
 }

@@ -71,22 +71,17 @@ export interface VentaDetalle {
 }
 
 export interface VentaInput {
-  fechaVenta: string;
+  clienteId: string;
+  vendedorId: string;
+  cajeroId: string;
+  cajaId: string;
   tipoVenta: string;
-  clienteId: number;
-  vendedorId: number;
-  cajeroId?: number;
-  cajaId?: number;
-  total: number;
   detalles: VentaDetalleInput[];
 }
 
 export interface VentaDetalleInput {
-  productoId: number;
+  productoId: string;
   cantidad: number;
-  precioUnitario: number;
-  descuento?: number;
-  subtotal: number;
 }
 
 @Injectable({
@@ -125,8 +120,8 @@ export class VentaService extends BaseCrudService {
   }
 
   // Eliminar venta
-  delete(id: string): Observable<{ id: number }> {
-    return this.executeMutation<{ id: number }>(DELETE_VENTA, { id });
+  delete(id: string): Observable<boolean> {
+    return this.executeMutation<boolean>(DELETE_VENTA, { id });
   }
 
   // Actualizar estado de venta
