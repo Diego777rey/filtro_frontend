@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { AuthService } from '../../../core/guards/auth.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -39,6 +39,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   userAvatarColor = '';
   userAvatarIcon = '';
   userFullName = '';
+  isCollapsed = true; // Menú colapsado por defecto
+  private expandTimeout: any;
 
   readonly funcionariosSubMenu: SubMenuItem[] = [
     { id: 'personas', label: 'Personas', icon: 'person', route: '/dashboard/personas' },
@@ -52,7 +54,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private readonly router: Router, 
     private readonly dialog: MatDialog,
     private readonly cdr: ChangeDetectorRef,
-    private readonly tabService: TabService
+    private readonly tabService: TabService,
+    private readonly elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -62,6 +65,16 @@ export class MenuComponent implements OnInit, OnDestroy {
     
     // Inicializar el servicio de pestañas
     this.tabService.getTabs();
+    
+    // Comentado: Escuchar cambios de navegación para cerrar submenú cuando sea necesario
+    // this.router.events
+    //   .pipe(
+    //     filter(event => event instanceof NavigationEnd),
+    //     takeUntil(this.destroy$)
+    //   )
+    //   .subscribe((event) => {
+    //     this.handleNavigationChange((event as NavigationEnd).url);
+    //   });
   }
 
   private cacheUserData(): void {
@@ -83,6 +96,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.expandTimeout) {
+      clearTimeout(this.expandTimeout);
+    }
   }
 
   get isAdmin(): boolean {
@@ -101,8 +117,36 @@ export class MenuComponent implements OnInit, OnDestroy {
   toggleFuncionarios(event?: Event): void {
     event?.stopPropagation();
     this.isFuncionariosExpanded = !this.isFuncionariosExpanded;
+    
+    // Si el menú está colapsado, expandirlo al abrir funcionarios
+    if (this.isFuncionariosExpanded && this.isCollapsed) {
+      this.isCollapsed = false;
+    }
+    
     this.cdr.markForCheck();
   }
+
+  closeFuncionariosSubmenu(): void {
+    this.isFuncionariosExpanded = false;
+    this.cdr.markForCheck();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    // Solo cerrar si el submenú está abierto
+    if (!this.isFuncionariosExpanded) {
+      return;
+    }
+
+    // Verificar si el clic fue dentro del componente del menú
+    const clickedInside = this.elementRef.nativeElement.contains(event.target as Node);
+    
+    if (!clickedInside) {
+      this.isFuncionariosExpanded = false;
+      this.cdr.markForCheck();
+    }
+  }
+
 
   abrirDialog(): void {
     const usuario = this.authService.getUsuario();
@@ -116,5 +160,38 @@ export class MenuComponent implements OnInit, OnDestroy {
         nombre: nombreUsuario
       }
     });
+  }
+
+  expandMenu(): void {
+    if (this.expandTimeout) {
+      clearTimeout(this.expandTimeout);
+    }
+    
+    this.expandTimeout = setTimeout(() => {
+      this.isCollapsed = false;
+      this.cdr.markForCheck();
+    }, 300); // Delay de 300ms para evitar expansión accidental
+  }
+
+  collapseMenu(): void {
+    if (this.expandTimeout) {
+      clearTimeout(this.expandTimeout);
+    }
+    
+    this.expandTimeout = setTimeout(() => {
+      // Solo colapsar si no hay submenús abiertos
+      if (!this.isFuncionariosExpanded) {
+        this.isCollapsed = true;
+      }
+      this.cdr.markForCheck();
+    }, 500); // Delay de 500ms para permitir navegación
+  }
+
+  toggleMenu(): void {
+    this.isCollapsed = !this.isCollapsed;
+    if (this.isCollapsed) {
+      this.isFuncionariosExpanded = false;
+    }
+    this.cdr.markForCheck();
   }
 }
