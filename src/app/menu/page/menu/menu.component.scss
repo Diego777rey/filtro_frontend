@@ -5,23 +5,47 @@
 }
 
 .sidenav-container {
-  height: 100%;
+  height: calc(100vh - 64px); // Altura completa menos el toolbar
+  margin-top: 64px; // Compensar la altura del toolbar fijo
+}
+
+// Ajustar el contenido principal
+mat-sidenav-content {
+  margin-top: 0; // El contenido principal no necesita margen adicional
 }
 
 .sidenav {
-  width: 220px;
-  background: linear-gradient(#ef0303, #eb0808);
+  width: 280px;
+  background: #2c2c2c; // Fondo oscuro como en la imagen
   color: white;
   padding-top: 16px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  top: 64px; // Posicionar debajo del toolbar fijo
+  height: calc(100vh - 64px); // Altura completa menos el toolbar
 }
 
 .brand {
-  padding: 12px;
+  padding: 20px 16px;
   text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
 
   .logo {
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 16px;
+    line-height: 1.3;
+    
+    // Estilos para el nombre del usuario
+    .user-name {
+      display: block;
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.9;
+      line-height: 1.2;
+      word-wrap: break-word;
+    }
   }
 }
 
@@ -33,9 +57,12 @@
 
 .top-toolbar {
   background-color: red;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
+  height: 64px;
 }
 
 
@@ -64,29 +91,67 @@ color: aliceblue;}
 }
 
 mat-nav-list {
+  padding: 0 8px;
+  
   mat-list-item {
     cursor: pointer;
+    margin: 4px 0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 
     mat-icon {
-      margin-right: 12px;
+      margin-right: 16px;
       color: white;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .nav-text {
       font-weight: 500;
+      font-size: 14px;
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.12);
+      border-left: 3px solid #fff;
     }
   }
 }
-.icono-nav {
-  width: 28px;
-  height: 28px;
-  display: inline-block;   // importante
-  vertical-align: middle;  // alinea con el texto
-  margin-right: 8px;       // opcional, separa del texto
+// Estilos para iconos de navegación
+.nav-icon {
+  margin-right: 12px;
+  color: white;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+// Estilos para iconos del toolbar
+.toolbar-icon {
+  margin-right: 8px;
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+// Estilos para el icono del brand
+.brand-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: white;
+  margin-bottom: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 // Estilos para avatares dinámicos
@@ -148,24 +213,26 @@ mat-nav-list {
 }
 
 .sub-menu {
-  background: rgba(0, 0, 0, 0.15);
-  margin-left: 16px;
-  border-left: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0 4px 4px 0;
+  background: rgba(0, 0, 0, 0.2);
+  margin: 8px 16px;
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0 8px 8px 0;
   overflow: hidden;
   animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   .sub-item {
-    padding-left: 32px;
-    transition: background-color 0.2s ease, padding-left 0.2s ease;
+    padding-left: 24px;
+    margin: 2px 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
     
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      padding-left: 36px;
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(4px);
     }
     
     &:focus {
-      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline: 2px solid rgba(255, 255, 255, 0.3);
       outline-offset: -2px;
     }
   }

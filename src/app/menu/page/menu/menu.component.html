@@ -3,13 +3,15 @@
   <!-- Sidenav -->
   <mat-sidenav #drawer mode="side" class="sidenav">
     <div class="brand">
-      <div class="logo"><img src="assets/img/home.png" alt=""><br>
-      Menu</div>
+      <div class="logo">
+        <mat-icon class="brand-icon">person</mat-icon>
+        <div class="user-name">{{ userFullName }}</div>
+      </div>
     </div>
 
     <mat-nav-list>
       <mat-list-item *ngIf="isAdmin">
-        <img src="assets/img/usuarios.png" alt="Usuarios" class="icono-nav">
+        <mat-icon class="nav-icon">people</mat-icon>
         <span class="nav-text" routerLink="/dashboard/usuario" routerLinkActive="active">Usuarios</span>
       </mat-list-item>
 
@@ -25,7 +27,7 @@
         [attr.aria-label]="'Funcionarios - ' + (isFuncionariosExpanded ? 'Contraer menú' : 'Expandir menú')"
         (keydown.enter)="toggleFuncionarios($event)"
         (keydown.space)="toggleFuncionarios($event)">
-        <img src="assets/img/funcionarios.png" alt="Ícono de funcionarios" class="icono-nav">
+        <mat-icon class="nav-icon">business_center</mat-icon>
         <span class="nav-text">Funcionarios</span>
         <mat-icon 
           class="expand-icon" 
@@ -46,47 +48,47 @@
           [routerLink]="item.route"
           routerLinkActive="active"
           [attr.aria-label]="'Ir a ' + item.label">
-          <img [src]="item.icon" [alt]="'Ícono de ' + item.label" class="icono-nav">
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
           <span class="nav-text">
             {{ item.label }}
           </span>
         </mat-list-item>
       </nav>
       <mat-list-item>
-        <img src="assets/img/cliente.png" alt="clientes" class="icono-nav">
+        <mat-icon class="nav-icon">person</mat-icon>
         <span class="nav-text" routerLink="/dashboard/clientes" routerLinkActive="active">Clientes</span>
       </mat-list-item>
 
       <mat-list-item>
-        <img src="assets/img/proveedor.png" alt="clientes" class="icono-nav">
+        <mat-icon class="nav-icon">local_shipping</mat-icon>
         <span class="nav-text" routerLink="/dashboard/proveedor" routerLinkActive="active">Proveedores</span>
       </mat-list-item>
 
       <mat-list-item *ngIf="isAdmin">
-        <img src="assets/img/categoria.png" alt="categorias" class="icono-nav">
+        <mat-icon class="nav-icon">category</mat-icon>
         <span class="nav-text" routerLink="/dashboard/categoria" routerLinkActive="active">Categorías</span>
       </mat-list-item>
       <mat-list-item>
-        <img src="assets/img/producto.png" alt="productos" class="icono-nav">
+        <mat-icon class="nav-icon">inventory</mat-icon>
         <span class="nav-text" routerLink="/dashboard/producto" routerLinkActive="active">Productos</span>
       </mat-list-item>
       <mat-list-item>
-        <img src="assets/img/venta.png" alt="ventas" class="icono-nav">
+        <mat-icon class="nav-icon">point_of_sale</mat-icon>
         <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Ventas</span>
       </mat-list-item>
 
       <mat-list-item>
-        <img src="assets/img/factura.png" alt="factura" class="icono-nav">
+        <mat-icon class="nav-icon">receipt</mat-icon>
         <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Factura</span>
       </mat-list-item>
 
       <mat-list-item>
-        <img src="assets/img/inventario.png" alt="inventario" class="icono-nav">
+        <mat-icon class="nav-icon">warehouse</mat-icon>
         <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Inventario</span>
       </mat-list-item>
 
       <mat-list-item>
-        <img src="assets/img/horarios.png" alt="horarios" class="icono-nav">
+        <mat-icon class="nav-icon">schedule</mat-icon>
         <span class="nav-text" routerLink="/dashboard/ventas" routerLinkActive="active">Horarios</span>
       </mat-list-item>
 
@@ -99,20 +101,20 @@
       <button mat-icon-button (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
-      <img src="assets/img/home.png" alt="home" class="icono-nav">
+      <mat-icon class="toolbar-icon">home</mat-icon>
       <span class="nav-text" routerLink="/dashboard/bienvenido" routerLinkActive="active">Inicio</span>
 
       <span class="toolbar-separator"></span>
       
-      <img src="assets/img/horario.png" alt="horario" class="icono-nav">
+      <mat-icon class="toolbar-icon">access_time</mat-icon>
       <span class="nav-text" routerLink="/dashboard/horario" routerLinkActive="active">Marcar Horario</span>
       <span class="toolbar-separator"></span>
       
-      <img src="assets/img/caja.png" alt="caja" class="icono-nav">
+      <mat-icon class="toolbar-icon">account_balance</mat-icon>
       <span class="nav-text" routerLink="/dashboard/caja" routerLinkActive="active">Caja</span>
       <span class="toolbar-separator"></span>
 
-      <img src="assets/img/movimientocaja.png" alt="movimientocaja" class="icono-nav">
+      <mat-icon class="toolbar-icon">swap_horiz</mat-icon>
       <span class="nav-text" routerLink="/dashboard/movimientos-caja" routerLinkActive="active">Movimientos de Caja</span>
       <span class="toolbar-separator"></span>
       <span class="toolbar-spacer"></span>
@@ -124,7 +126,7 @@
         <mat-icon>logout</mat-icon>
       </button>
       <button mat-icon-button aria-label="user" (click)="abrirDialog()" 
-              [matTooltip]="userTooltip"
+              [matTooltip]="userTooltip"  
               [color]="userAvatarColor"
               class="user-avatar">
         <mat-icon [color]="userAvatarColor" class="user-avatar">{{ userAvatarIcon }}</mat-icon>

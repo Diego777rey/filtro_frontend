@@ -61,8 +61,11 @@ export class FormulariousuarioComponent implements OnInit {
       { control: 'email', label: 'Email', tipo: 'text', placeholder: 'Ingrese el email del usuario', requerido: true },
       { control: 'rol', label: 'Rol', tipo: 'select', placeholder: 'Seleccione el rol del usuario', requerido: true, opciones: [
         { label: 'Administrador', value: 'ADMINISTRADOR'},
-        { label: 'Usuario', value: 'USUARIO'},
-        { label: 'Editor', value: 'EDITOR' }
+        { label: 'Cajero', value: 'CAJERO'},
+        { label: 'Vendedor', value: 'VENDEDOR'},
+        { label: 'Proveedor', value: 'PROVEEDOR'},
+        { label: 'Cliente', value: 'CLIENTE'},
+        { label: 'Depositero', value: 'DEPOSITERO'}
       ] }
     ];
   }
@@ -70,9 +73,17 @@ export class FormulariousuarioComponent implements OnInit {
   private loadUsuario(id: string): void {
     this.loading = true;
     this.usuarioService.getById(+id).subscribe({
-      next: (data) => {
-        // Datos del usuario cargados
-        this.formGroup.patchValue(data);
+      next: (data: any) => {
+        // Convertir datos anidados a estructura plana para el formulario
+        const formData = {
+          nombre: data.persona?.nombre || '',
+          apellido: data.persona?.apellido || '',
+          email: data.persona?.email || '',
+          contrasenha: data.contrasenha || '',
+          rol: data.roles?.[0]?.tipoPersona || ''
+        };
+        
+        this.formGroup.patchValue(formData);
         this.enableForm();
         this.loading = false;
       },

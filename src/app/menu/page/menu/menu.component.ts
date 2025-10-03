@@ -38,12 +38,13 @@ export class MenuComponent implements OnInit, OnDestroy {
   userTooltip = '';
   userAvatarColor = '';
   userAvatarIcon = '';
+  userFullName = '';
 
   readonly funcionariosSubMenu: SubMenuItem[] = [
-    { id: 'personas', label: 'Personas', icon: 'assets/img/persona.png', route: '/dashboard/personas' },
-    { id: 'cajero', label: 'Cajero', icon: 'assets/img/cajero.png', route: '/dashboard/cajero' },
-    { id: 'vendedor', label: 'Vendedor', icon: 'assets/img/empleado.png', route: '/dashboard/vendedor' },
-    { id: 'deposito', label: 'Deposito', icon: 'assets/img/deposito.png', route: '/dashboard/deposito' }
+    { id: 'personas', label: 'Personas', icon: 'person', route: '/dashboard/personas' },
+    { id: 'cajero', label: 'Cajero', icon: 'account_balance_wallet', route: '/dashboard/cajero' },
+    { id: 'vendedor', label: 'Vendedor', icon: 'store', route: '/dashboard/vendedor' },
+    { id: 'deposito', label: 'Deposito', icon: 'warehouse', route: '/dashboard/deposito' }
   ];
 
   constructor(
@@ -68,6 +69,15 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.userTooltip = `Usuario: ${usuario?.nombre || 'Usuario'}`;
     this.userAvatarColor = this.authService.getAvatarColorByRole();
     this.userAvatarIcon = this.authService.getAvatarByRole();
+    
+    // Obtener nombre completo del usuario
+    if (usuario?.persona) {
+      this.userFullName = `${usuario.persona.nombre} ${usuario.persona.apellido}`.trim();
+    } else if (usuario?.nombre) {
+      this.userFullName = usuario.nombre;
+    } else {
+      this.userFullName = 'Usuario';
+    }
   }
 
   ngOnDestroy(): void {

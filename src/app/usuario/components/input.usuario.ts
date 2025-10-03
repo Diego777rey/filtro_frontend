@@ -1,4 +1,4 @@
-import { Persona } from '../../Personas/components/persona';
+// Removed Persona import as we're using flat structure now
 
 export interface Rol {
   id?: number;
@@ -8,20 +8,16 @@ export interface Rol {
 export class InputUsuario {
   id?: number;
   contrasenha: string = '';
-  persona: Persona = {
-    nombre: '',
-    apellido: '',
-    email: ''
-  };
+  // Campos planos para el UsuarioInput
+  nombre: string = '';
+  apellido: string = '';
+  email: string = '';
   roles: Rol[] = [];
 
   constructor(init?: Partial<InputUsuario>) {
     if (init) {
       Object.assign(this, init);
-      // Asegurar que persona y roles siempre existan
-      if (!this.persona) {
-        this.persona = { nombre: '', apellido: '', email: '' };
-      }
+      // Asegurar que roles siempre exista
       if (!this.roles) {
         this.roles = [];
       }
@@ -29,31 +25,14 @@ export class InputUsuario {
   }
 
   // Métodos de conveniencia para mantener compatibilidad con el formulario
-  get nombre(): string {
-    return this.persona?.nombre || '';
+  get nombreCompleto(): string {
+    return `${this.nombre} ${this.apellido}`.trim();
   }
 
-  set nombre(value: string) {
-    if (!this.persona) this.persona = { nombre: '', apellido: '', email: '' };
-    this.persona.nombre = value;
-  }
-
-  get apellido(): string {
-    return this.persona?.apellido || '';
-  }
-
-  set apellido(value: string) {
-    if (!this.persona) this.persona = { nombre: '', apellido: '', email: '' };
-    this.persona.apellido = value;
-  }
-
-  get email(): string {
-    return this.persona?.email || '';
-  }
-
-  set email(value: string) {
-    if (!this.persona) this.persona = { nombre: '', apellido: '', email: '' };
-    this.persona.email = value;
+  set nombreCompleto(value: string) {
+    const partes = value.split(' ');
+    this.nombre = partes[0] || '';
+    this.apellido = partes.slice(1).join(' ') || '';
   }
 
   get rol(): string {
