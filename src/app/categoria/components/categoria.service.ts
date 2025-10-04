@@ -18,11 +18,14 @@ export class CategoriaService {
       fetchPolicy: 'cache-first'
     }).valueChanges.pipe(
       map(result => {
+        if (result.errors && result.errors.length > 0) {
+          console.error('Errores GraphQL:', result.errors);
+        }
         return result.data?.findAllCategorias || [];
       }),
       catchError((error) => {
         console.error('Error al cargar categorías:', error);
-        return throwError(() => error);
+        return of([]); // Retornar array vacío en lugar de throwError
       })
     );
   }
@@ -79,10 +82,18 @@ export class CategoriaService {
     return this.apollo.watchQuery({
       query: GET_CATEGORIAS_PAGINADOS,
       variables: { page, size, search },
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all'
     }).valueChanges.pipe(
       map((result: any) => {
+        if (result.errors && result.errors.length > 0) {
+          console.error('Errores GraphQL en getPaginated:', result.errors);
+        }
         return result.data?.findCategoriasPaginated || { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
+      }),
+      catchError((error) => {
+        console.error('Error en getPaginated:', error);
+        return of({ items: [], totalItems: 0, totalPages: 0, currentPage: 0 });
       })
     );
   }

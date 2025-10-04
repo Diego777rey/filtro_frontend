@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MovimientosCajaComponent } from './page/movimientos-caja/movimientos-caja.component';
 import { FormularioMovimientosComponent } from './page/formulario-movimientos/formulario-movimientos.component';
 import { VentasPendientesComponent } from './page/ventas-pendientes/ventas-pendientes.component';
+import { EditarMovimientoComponent } from './page/editar-movimiento/editar-movimiento.component';
 
 const routes: Routes = [
   {
@@ -15,7 +16,7 @@ const routes: Routes = [
   },
   {
     path: 'editar/:id',
-    component: FormularioMovimientosComponent
+    component: EditarMovimientoComponent
   },
   {
     path: 'ventas-pendientes',

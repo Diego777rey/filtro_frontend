@@ -198,10 +198,10 @@ export const CANCELAR_VENTA = gql`
   }
 `;
 
-// Consulta para obtener todas las ventas y filtrar las pendientes en el cliente
+// Consulta específica para obtener solo ventas pendientes por caja
 export const GET_VENTAS_PENDIENTES = gql`
-  query GetVentasPendientes {
-    findAllVentas {
+  query GetVentasPendientesPorCaja($cajaId: ID!) {
+    findVentasPendientesPorCaja(cajaId: $cajaId) {
       id
       codigoVenta
       fechaVenta

@@ -230,7 +230,40 @@ export const UPDATE_VENTA = gql`
 // Eliminar venta
 export const DELETE_VENTA = gql`
   mutation DeleteVenta($id: ID!) {
-    deleteVenta(ventaId: $id)
+    deleteVenta(ventaId: $id) {
+      id
+      codigoVenta
+      fechaVenta
+      total
+      tipoVenta
+      estadoVenta
+      cliente {
+        id
+        codigoCliente
+        persona {
+          id
+          nombre
+          apellido
+        }
+      }
+      vendedor {
+        id
+        codigoVendedor
+        persona {
+          id
+          nombre
+          apellido
+        }
+      }
+      cajero {
+        id
+        codigoCajero
+      }
+      caja {
+        id
+        codigoCaja
+      }
+    }
   }
 `;
 

@@ -202,8 +202,19 @@ export class VentasComponent implements OnInit, OnDestroy {
     // Manejo de errores GraphQL
     if (error.graphQLErrors?.length > 0) {
       const graphQLError = error.graphQLErrors[0];
-      return this.findMatchingErrorMessage(graphQLError.message, errorMessages) || 
-             `Error: ${graphQLError.message}`;
+      
+      // Buscar mensaje de negocio primero
+      const businessMessage = this.findMatchingErrorMessage(graphQLError.message, errorMessages);
+      if (businessMessage) {
+        return businessMessage;
+      }
+      
+      // Si es un error técnico de GraphQL, mostrar mensaje más amigable
+      if (graphQLError.message.includes('non null type') && graphQLError.message.includes('deleteVenta')) {
+        return 'Esta venta ya ha sido eliminada anteriormente';
+      }
+      
+      return `Error: ${graphQLError.message}`;
     }
 
     // Manejo de errores generales

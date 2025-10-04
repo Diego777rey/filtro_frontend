@@ -58,14 +58,13 @@ export class ClienteComponent implements OnInit, OnDestroy {
 
   // 🔍 Probar diferentes queries para clientes
   probarQueryClientes(): void {
-    console.log('🔍 Probando query getAll para clientes...');
+    // Logs removidos para modo de producción
     this.servicioCliente.getClientes().subscribe({
       next: (clientes) => {
-        console.log('📊 Query getAll - Clientes encontrados:', clientes.length);
-        console.log('📋 Query getAll - Datos:', clientes);
+        // Solo log de errores en producción
       },
       error: (err) => {
-        console.error('❌ Error en query getAll:', err);
+        console.error('Error al cargar clientes:', err);
       }
     });
   }

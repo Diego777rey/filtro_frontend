@@ -71,8 +71,7 @@ export class AuthService {
   // Método para login con token del backend (recomendado)
   async loginWithBackendToken(token: string, userData: any) {
     try {
-      console.log('Login con token del backend:', token.substring(0, 50) + '...');
-      console.log('Datos del usuario:', userData);
+      // Logs removidos para modo de producción
       
       // Guardar token y datos del usuario
       this.setToken(token);

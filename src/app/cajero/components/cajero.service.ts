@@ -68,7 +68,7 @@ export class CajeroService {
       personaId: cajeroData.persona.id
     };
     
-    console.log('Datos que se envían a GraphQL:', input); // Para debugging
+    // Log removido para modo de producción
     
     return this.apollo.mutate({
       mutation: CREATE_CAJERO,

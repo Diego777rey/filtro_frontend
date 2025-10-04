@@ -22,6 +22,7 @@ export interface Venta {
   total?: number;
   tipoVenta?: string;
   estadoVenta?: 'PENDIENTE' | 'COMPLETADA' | 'CANCELADA' | 'FACTURADA' | 'ENTREGADA';
+  estado?: 'pendiente' | 'aceptada' | 'cancelada';
   cliente?: {
     id: number;
     codigoCliente?: string;
@@ -47,6 +48,18 @@ export interface Venta {
     codigoCaja?: string;
   };
   detalles?: {
+    id: number;
+    cantidad: number;
+    precioUnitario: number;
+    descuento?: number;
+    subtotal: number;
+    producto: {
+      id: number;
+      nombre: string;
+      precioVenta: number;
+    };
+  }[];
+  items?: {
     id: number;
     cantidad: number;
     precioUnitario: number;

@@ -121,8 +121,8 @@ export class VentaService extends BaseCrudService {
   }
 
   // Eliminar venta
-  delete(id: string): Observable<boolean> {
-    return this.executeMutation<boolean>(DELETE_VENTA, { id });
+  delete(id: string): Observable<Venta> {
+    return this.executeMutation<Venta>(DELETE_VENTA, { id });
   }
 
   // Actualizar estado de venta

@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
+  production: true,
   apiUrl: 'http://localhost:8080/graphql',
   jwtSecret: 'claveSuperSecretaMuyLargaQueTengaAlMenos32Caracteres!',
   tokenExpirationTime: '24h',

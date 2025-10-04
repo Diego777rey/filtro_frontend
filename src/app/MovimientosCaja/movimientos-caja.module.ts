@@ -22,6 +22,7 @@ import { MovimientosCajaRoutingModule } from './movimientos-caja-routing.module'
 import { MovimientosCajaComponent } from './page/movimientos-caja/movimientos-caja.component';
 import { FormularioMovimientosComponent } from './page/formulario-movimientos/formulario-movimientos.component';
 import { VentasPendientesComponent } from './page/ventas-pendientes/ventas-pendientes.component';
+import { EditarMovimientoComponent } from './page/editar-movimiento/editar-movimiento.component';
 
 // Importar módulos reutilizables
 import { ReutilizacionModule } from '../reutilizacion/reutilizacion.module';
@@ -31,7 +32,8 @@ import { GraphQLModule } from '../graphql.module';
   declarations: [
     MovimientosCajaComponent,
     FormularioMovimientosComponent,
-    VentasPendientesComponent
+    VentasPendientesComponent,
+    EditarMovimientoComponent
   ],
   imports: [
     CommonModule,

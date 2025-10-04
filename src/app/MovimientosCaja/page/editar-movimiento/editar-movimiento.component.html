@@ -1,0 +1,143 @@
+<div class="editar-movimiento-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-icon-button (click)="cancelar()" class="back-button" matTooltip="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h1>{{ titulo }}</h1>
+        <p class="subtitle">Modificar los datos del movimiento de caja</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <mat-card class="form-card">
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Cargando datos del movimiento...</p>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading && formEnabled" class="movimiento-form">
+        
+        <div class="form-row">
+          <!-- Monto -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Monto *</mat-label>
+            <input 
+              matInput 
+              type="number" 
+              step="0.01" 
+              min="0.01"
+              formControlName="monto"
+              placeholder="Ingrese el monto">
+            <mat-icon matSuffix>attach_money</mat-icon>
+            <mat-error *ngIf="hasError('monto', 'required')">
+              {{ getErrorMessage('monto') }}
+            </mat-error>
+            <mat-error *ngIf="hasError('monto', 'min')">
+              {{ getErrorMessage('monto') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Tipo -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Tipo de Movimiento *</mat-label>
+            <mat-select formControlName="tipo">
+              <mat-option *ngFor="let tipo of tiposMovimiento" [value]="tipo.value">
+                {{ tipo.label }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>swap_horiz</mat-icon>
+            <mat-error *ngIf="hasError('tipo', 'required')">
+              {{ getErrorMessage('tipo') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Fecha -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Fecha *</mat-label>
+            <input 
+              matInput 
+              type="date" 
+              formControlName="fecha">
+            <mat-icon matSuffix>calendar_today</mat-icon>
+            <mat-error *ngIf="hasError('fecha', 'required')">
+              {{ getErrorMessage('fecha') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Caja ID -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>ID de Caja *</mat-label>
+            <input 
+              matInput 
+              type="number" 
+              formControlName="cajaId"
+              placeholder="ID de la caja">
+            <mat-icon matSuffix>account_balance</mat-icon>
+            <mat-error *ngIf="hasError('cajaId', 'required')">
+              {{ getErrorMessage('cajaId') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Descripción -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Descripción</mat-label>
+            <textarea 
+              matInput 
+              formControlName="descripcion"
+              placeholder="Descripción del movimiento"
+              rows="3">
+            </textarea>
+            <mat-icon matSuffix>description</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Venta ID -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>ID de Venta</mat-label>
+            <input 
+              matInput 
+              type="number" 
+              formControlName="ventaId"
+              placeholder="ID de la venta (opcional)">
+            <mat-icon matSuffix>shopping_cart</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="cancelar()"
+            [disabled]="loading"
+            class="cancel-button">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+          
+          <button 
+            type="submit" 
+            mat-raised-button 
+            color="primary"
+            [disabled]="formGroup.invalid || loading"
+            class="save-button">
+            <mat-icon>save</mat-icon>
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

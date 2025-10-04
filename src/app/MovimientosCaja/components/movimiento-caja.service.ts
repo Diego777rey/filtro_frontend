@@ -31,6 +31,40 @@ export class MovimientoCajaService extends BaseCrudService {
     return this.executeQuery<MovimientoCaja>(GET_MOVIMIENTO_CAJA_BY_ID, { id });
   }
 
+  // Método específico para obtener movimiento para edición (sin campo estadoVenta problemático)
+  getMovimientoForEdit(id: string): Observable<MovimientoCaja> {
+    const GET_MOVIMIENTO_FOR_EDIT = gql`
+      query GetMovimientoForEdit($id: ID!) {
+        findMovinmientoCajaById(movimientoId: $id) {
+          id
+          monto
+          tipo
+          fecha
+          descripcion
+          caja {
+            id
+            codigoCaja
+            descripcion
+            ubicacion
+            estadoCaja
+            saldoInicial
+            saldoActual
+          }
+          venta {
+            id
+            codigoVenta
+            fechaVenta
+            total
+            tipoVenta
+            # Excluimos estadoVenta para evitar el error de serialización
+          }
+        }
+      }
+    `;
+    
+    return this.executeQuery<MovimientoCaja>(GET_MOVIMIENTO_FOR_EDIT, { id });
+  }
+
   // Obtener movimientos paginados
   getPaginated(page: number, size: number, search?: string): Observable<MovimientoCajaPaginatedResponse> {
     return this.executePaginatedQuery<MovimientoCajaPaginatedResponse>(
@@ -68,14 +102,7 @@ export class MovimientoCajaService extends BaseCrudService {
 
   // Obtener ventas pendientes por caja
   getVentasPendientes(cajaId: string): Observable<Venta[]> {
-    return this.executeQuery<Venta[]>(GET_VENTAS_PENDIENTES).pipe(
-      map((ventas: Venta[]) => {
-        // Filtrar ventas de la caja específica (sin filtro de estado por ahora)
-        return ventas.filter(venta => 
-          venta.caja?.id?.toString() === cajaId
-        );
-      })
-    );
+    return this.executeQuery<Venta[]>(GET_VENTAS_PENDIENTES, { cajaId });
   }
 
   // Obtener resumen de caja (saldo actual, ventas del día, etc.)

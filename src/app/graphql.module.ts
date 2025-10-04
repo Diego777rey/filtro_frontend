@@ -42,6 +42,12 @@ export function createApollo(httpLink: HttpLink, authService: AuthService): Apol
     if (networkError) {
       const status = (networkError as any).status;
       
+      // Manejar errores de conexión
+      if (status === 0 || !status) {
+        console.error('Error de conexión: No se puede conectar al servidor GraphQL en', uri);
+        return;
+      }
+      
       if (status === 401) {
         // Solo manejar error 401 si no es una operación pública
         const operationName = operation.operationName;
@@ -59,11 +65,12 @@ export function createApollo(httpLink: HttpLink, authService: AuthService): Apol
     }
     
     if (graphQLErrors) {
-      graphQLErrors.forEach(({ message }) => {
-        // Solo manejar errores críticos
-        if (message === 'Access Denied') {
-          console.error('Error de acceso denegado');
-        }
+      graphQLErrors.forEach(({ message, locations, path }) => {
+        console.error(`Error GraphQL: ${message}`, {
+          locations,
+          path,
+          operation: operation.operationName
+        });
       });
     }
   });
@@ -75,6 +82,8 @@ export function createApollo(httpLink: HttpLink, authService: AuthService): Apol
   return {
     link,
     cache: new InMemoryCache(),
+    // Deshabilitar DevTools en producción
+    connectToDevTools: !environment.production,
   };
 }
 

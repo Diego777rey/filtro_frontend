@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { MovimientoCajaService } from '../../components/movimiento-caja.service';
@@ -19,6 +20,7 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
     'vendedor', 
     'total',
     'items',
+    'estado',
     'acciones'
   ];
   
@@ -28,7 +30,8 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
 
   constructor(
     private movimientoCajaService: MovimientoCajaService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +50,11 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (ventas) => {
-        this.dataSource.data = ventas;
+        // Filtrar solo las ventas que están realmente pendientes
+        const ventasPendientes = ventas.filter(venta => 
+          !venta.estado || venta.estado === 'pendiente' || venta.estadoVenta === 'PENDIENTE'
+        );
+        this.dataSource.data = ventasPendientes;
         this.loading = false;
       },
       error: (error) => {
@@ -74,7 +81,8 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          this.loadVentasPendientes();
+          // Remover la venta de la tabla
+          this.dataSource.data = this.dataSource.data.filter(v => v.id !== ventaId);
         },
         error: (error) => {
           console.error('Error al aceptar venta:', error);
@@ -101,7 +109,7 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
   }
 
   cancelarVenta(ventaId: number): void {
-    if (confirm('¿Está seguro de que desea cancelar esta venta?')) {
+    if (confirm('¿Está seguro de que desea cancelar esta venta? Esta acción no se puede deshacer.')) {
       this.loading = true;
       
       this.movimientoCajaService.cancelarVenta(ventaId.toString()).pipe(
@@ -113,7 +121,8 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          this.loadVentasPendientes();
+          // Remover la venta de la tabla
+          this.dataSource.data = this.dataSource.data.filter(v => v.id !== ventaId);
         },
         error: (error) => {
           console.error('Error al cancelar venta:', error);
@@ -148,5 +157,101 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
 
   getTotalItems(items: any[]): number {
     return items?.reduce((total, item) => total + item.cantidad, 0) || 0;
+  }
+
+  volver(): void {
+    this.router.navigate(['/dashboard/movimientos-caja']);
+  }
+
+  // Método para refrescar la lista de ventas pendientes
+  refrescarVentasPendientes(): void {
+    this.loadVentasPendientes();
+  }
+
+  // Método para aplicar filtro adicional si es necesario
+  aplicarFiltro(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filterPredicate = (venta: Venta, filter: string) => {
+      const searchText = filter.toLowerCase();
+      
+      // Buscar en código de venta
+      if (venta.codigoVenta?.toLowerCase().includes(searchText)) {
+        return true;
+      }
+      
+      // Buscar en nombre del cliente
+      if (venta.cliente?.persona?.nombre?.toLowerCase().includes(searchText) ||
+          venta.cliente?.persona?.apellido?.toLowerCase().includes(searchText)) {
+        return true;
+      }
+      
+      // Buscar en nombre del vendedor
+      if (venta.vendedor?.persona?.nombre?.toLowerCase().includes(searchText) ||
+          venta.vendedor?.persona?.apellido?.toLowerCase().includes(searchText)) {
+        return true;
+      }
+      
+      // Buscar en total
+      if (venta.total?.toString().includes(searchText)) {
+        return true;
+      }
+      
+      // Buscar en productos
+      if (venta.items?.some(item => 
+        item.producto?.nombre?.toLowerCase().includes(searchText))) {
+        return true;
+      }
+      
+      return false;
+    };
+    
+    this.dataSource.filter = filterValue.trim();
+  }
+
+  // Método para limpiar filtros
+  limpiarFiltros(): void {
+    this.dataSource.filter = '';
+  }
+
+  getEstadoClass(venta: Venta): string {
+    if (!venta.estado || venta.estado === 'pendiente') {
+      return 'estado-pendiente';
+    } else if (venta.estado === 'aceptada') {
+      return 'estado-aceptada';
+    } else if (venta.estado === 'cancelada') {
+      return 'estado-cancelada';
+    }
+    return 'estado-pendiente';
+  }
+
+  getEstadoIcon(venta: Venta): string {
+    if (!venta.estado || venta.estado === 'pendiente') {
+      return 'schedule';
+    } else if (venta.estado === 'aceptada') {
+      return 'check_circle';
+    } else if (venta.estado === 'cancelada') {
+      return 'cancel';
+    }
+    return 'schedule';
+  }
+
+  getEstadoText(venta: Venta): string {
+    if (!venta.estado || venta.estado === 'pendiente') {
+      return 'Pendiente';
+    } else if (venta.estado === 'aceptada') {
+      return 'Aceptada';
+    } else if (venta.estado === 'cancelada') {
+      return 'Cancelada';
+    }
+    return 'Pendiente';
+  }
+
+  getRowClass(venta: Venta): string {
+    if (venta.estado === 'aceptada') {
+      return 'row-accepted';
+    } else if (venta.estado === 'cancelada') {
+      return 'row-cancelled';
+    }
+    return '';
   }
 }
