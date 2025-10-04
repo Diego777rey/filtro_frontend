@@ -46,9 +46,6 @@ export class TabContainerComponent implements OnInit, OnDestroy {
     this.tabService.closeTab(tabId);
   }
 
-  onCloseAllTabs(): void {
-    this.tabService.closeAllTabs();
-  }
 
   trackByTabId(index: number, tab: Tab): string {
     return tab.id;

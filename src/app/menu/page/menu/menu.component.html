@@ -1,7 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
 
   <!-- Sidenav -->
-  <mat-sidenav #drawer mode="side" class="sidenav" [class.collapsed]="isCollapsed">
+  <mat-sidenav #drawer mode="side" class="sidenav" [class.collapsed]="isCollapsed" [opened]="true">
     <div class="brand" [class.collapsed]="isCollapsed">
       <div class="logo">
         <mat-icon class="brand-icon">person</mat-icon>
@@ -15,7 +15,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Usuarios' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/usuario" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">people</mat-icon>
@@ -69,7 +68,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Clientes' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/clientes" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">person</mat-icon>
@@ -80,7 +78,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Proveedores' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/proveedor" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">local_shipping</mat-icon>
@@ -92,7 +89,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Categorías' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/categoria" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">category</mat-icon>
@@ -103,7 +99,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Productos' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/producto" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">inventory</mat-icon>
@@ -114,7 +109,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Ventas' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/ventas" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">point_of_sale</mat-icon>
@@ -125,7 +119,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Factura' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/ventas" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">receipt</mat-icon>
@@ -136,7 +129,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Inventario' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/ventas" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">warehouse</mat-icon>
@@ -147,7 +139,6 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Horarios' : null"
                      (mouseenter)="expandMenu()"
-                     (mouseleave)="collapseMenu()"
                      routerLink="/dashboard/ventas" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">schedule</mat-icon>
@@ -160,7 +151,7 @@
   <!-- Toolbar -->
   <mat-sidenav-content>
     <mat-toolbar class="top-toolbar">
-      <button mat-icon-button (click)="drawer.toggle()">
+      <button mat-icon-button (click)="toggleMenu()">
         <mat-icon>menu</mat-icon>
       </button>
       <mat-icon class="toolbar-icon">home</mat-icon>

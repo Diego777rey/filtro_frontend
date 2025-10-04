@@ -5,13 +5,13 @@
 }
 
 .sidenav-container {
-  height: calc(100vh - 64px); // Altura completa menos el toolbar
-  margin-top: 64px; // Compensar la altura del toolbar fijo
+  height: 100vh; // Altura completa de la pantalla
+  margin-top: 0; // Sin margen superior
 }
 
 // Ajustar el contenido principal
 mat-sidenav-content {
-  margin-top: 0; // El contenido principal no necesita margen adicional
+  margin-top: 64px; // Compensar la altura del toolbar rojo
 }
 
 .sidenav {
@@ -20,7 +20,7 @@ mat-sidenav-content {
   color: white;
   padding-top: 16px;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
-  top: 64px; // Posicionar debajo del toolbar fijo
+  top: 64px; // Posicionar justo debajo del toolbar rojo
   height: calc(100vh - 64px); // Altura completa menos el toolbar
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   

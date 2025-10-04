@@ -113,11 +113,17 @@ export class TabService {
 
     const updatedTabs = currentTabs.filter(tab => tab.id !== tabId);
     
-    // Si se cerró la pestaña activa, activar otra pestaña
-    if (tabToClose.isActive && updatedTabs.length > 0) {
-      const lastTab = updatedTabs[updatedTabs.length - 1];
-      updatedTabs[updatedTabs.length - 1] = { ...lastTab, isActive: true };
-      this.router.navigate([lastTab.route]);
+    // Si se cerró la pestaña activa, activar otra pestaña o redirigir a bienvenido
+    if (tabToClose.isActive) {
+      if (updatedTabs.length > 0) {
+        // Activar la última pestaña disponible
+        const lastTab = updatedTabs[updatedTabs.length - 1];
+        updatedTabs[updatedTabs.length - 1] = { ...lastTab, isActive: true };
+        this.router.navigate([lastTab.route]);
+      } else {
+        // Si no quedan pestañas, redirigir al módulo de bienvenido
+        this.router.navigate(['/dashboard/bienvenido']);
+      }
     }
     
     this.tabsSubject.next(updatedTabs);
@@ -125,7 +131,7 @@ export class TabService {
 
   public closeAllTabs(): void {
     this.tabsSubject.next([]);
-    this.router.navigate(['/dashboard/caja']);
+    this.router.navigate(['/dashboard/bienvenido']);
   }
 
   public getTabs(): Tab[] {

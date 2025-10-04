@@ -39,8 +39,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   userAvatarColor = '';
   userAvatarIcon = '';
   userFullName = '';
-  isCollapsed = true; // Menú colapsado por defecto
-  private expandTimeout: any;
+  isCollapsed = true; // Menú colapsado por defecto (solo iconos)
 
   readonly funcionariosSubMenu: SubMenuItem[] = [
     { id: 'personas', label: 'Personas', icon: 'person', route: '/dashboard/personas' },
@@ -96,9 +95,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    if (this.expandTimeout) {
-      clearTimeout(this.expandTimeout);
-    }
   }
 
   get isAdmin(): boolean {
@@ -163,28 +159,16 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   expandMenu(): void {
-    if (this.expandTimeout) {
-      clearTimeout(this.expandTimeout);
-    }
-    
-    this.expandTimeout = setTimeout(() => {
+    // Solo expandir si está colapsado y el mouse entra al menú
+    if (this.isCollapsed) {
       this.isCollapsed = false;
       this.cdr.markForCheck();
-    }, 300); // Delay de 300ms para evitar expansión accidental
+    }
   }
 
   collapseMenu(): void {
-    if (this.expandTimeout) {
-      clearTimeout(this.expandTimeout);
-    }
-    
-    this.expandTimeout = setTimeout(() => {
-      // Solo colapsar si no hay submenús abiertos
-      if (!this.isFuncionariosExpanded) {
-        this.isCollapsed = true;
-      }
-      this.cdr.markForCheck();
-    }, 500); // Delay de 500ms para permitir navegación
+    // Este método ya no se usa automáticamente, solo se mantiene para compatibilidad
+    // El menú solo se cierra con el botón de hamburguesa
   }
 
   toggleMenu(): void {
