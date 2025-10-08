@@ -11,6 +11,7 @@ import {
   DELETE_VENTA,
   UPDATE_VENTA_STATUS
 } from 'src/app/graphql/venta.graphql';
+import { VENTA_STATES } from '../../shared/constants/venta-states';
 
 export interface PaginatedResponse<T> {
   items: T[];
@@ -22,11 +23,11 @@ export interface PaginatedResponse<T> {
 
 export interface Venta {
   id?: number;
-  codigoVenta?: string;
+  codigoVenta?: string; 
   fechaVenta?: string;
   total?: number;
   tipoVenta?: string;
-  estadoVenta?: 'PENDIENTE' | 'COMPLETADA' | 'CANCELADA' | 'FACTURADA' | 'ENTREGADA';
+  estadoVenta?: typeof VENTA_STATES[keyof typeof VENTA_STATES];
   cliente?: {
     id: number;
     codigoCliente?: string;

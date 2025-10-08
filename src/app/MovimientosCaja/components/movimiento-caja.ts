@@ -1,3 +1,5 @@
+import { VENTA_STATES } from '../../shared/constants/venta-states';
+
 export interface MovimientoCaja {
   id?: number;
   monto: number;
@@ -21,7 +23,7 @@ export interface Venta {
   fechaVenta?: string;
   total?: number;
   tipoVenta?: string;
-  estadoVenta?: 'PENDIENTE' | 'COMPLETADA' | 'CANCELADA' | 'FACTURADA' | 'ENTREGADA';
+  estadoVenta?: typeof VENTA_STATES[keyof typeof VENTA_STATES];
   estado?: 'pendiente' | 'aceptada' | 'cancelada';
   cliente?: {
     id: number;

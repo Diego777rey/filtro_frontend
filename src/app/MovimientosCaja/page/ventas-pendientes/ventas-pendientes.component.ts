@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 import { MovimientoCajaService } from '../../components/movimiento-caja.service';
 import { Venta } from '../../components/movimiento-caja';
+import { VentaStateUtil } from '../../../shared/utils/venta-state.util';
 
 @Component({
   selector: 'app-ventas-pendientes',
@@ -50,10 +51,8 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (ventas) => {
-        // Filtrar solo las ventas que están realmente pendientes
-        const ventasPendientes = ventas.filter(venta => 
-          !venta.estado || venta.estado === 'pendiente' || venta.estadoVenta === 'PENDIENTE'
-        );
+        // Filtrar solo las ventas que están realmente pendientes usando la utilidad
+        const ventasPendientes = VentaStateUtil.filterPendingVentas(ventas);
         this.dataSource.data = ventasPendientes;
         this.loading = false;
       },
@@ -75,14 +74,15 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
       this.movimientoCajaService.aceptarVenta(ventaId.toString()).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
-        next: () => {
+        next: (resultado) => {
           this.loading = false;
           this.snackBar.open('Venta aceptada exitosamente', 'Cerrar', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          // Remover la venta de la tabla
-          this.dataSource.data = this.dataSource.data.filter(v => v.id !== ventaId);
+          
+          // Recargar la tabla completa después de aceptar
+          this.loadVentasPendientes();
         },
         error: (error) => {
           console.error('Error al aceptar venta:', error);
@@ -115,14 +115,15 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
       this.movimientoCajaService.cancelarVenta(ventaId.toString()).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
-        next: () => {
+        next: (resultado) => {
           this.loading = false;
           this.snackBar.open('Venta cancelada exitosamente', 'Cerrar', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          // Remover la venta de la tabla
-          this.dataSource.data = this.dataSource.data.filter(v => v.id !== ventaId);
+          
+          // Recargar la tabla completa después de cancelar
+          this.loadVentasPendientes();
         },
         error: (error) => {
           console.error('Error al cancelar venta:', error);
@@ -148,12 +149,7 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  }
+  // Método removido - ahora se usa el pipe CurrencyFormatPipe
 
   getTotalItems(items: any[]): number {
     return items?.reduce((total, item) => total + item.cantidad, 0) || 0;
@@ -163,49 +159,46 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/movimientos-caja']);
   }
 
-  // Método para refrescar la lista de ventas pendientes
-  refrescarVentasPendientes(): void {
-    this.loadVentasPendientes();
+
+  // Método optimizado para aplicar filtro
+  aplicarFiltro(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.trim();
+    
+    // Configurar el predicado de filtro una sola vez
+    if (!this.dataSource.filterPredicate) {
+      this.dataSource.filterPredicate = this.createFilterPredicate();
+    }
+    
+    this.dataSource.filter = filterValue;
   }
 
-  // Método para aplicar filtro adicional si es necesario
-  aplicarFiltro(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filterPredicate = (venta: Venta, filter: string) => {
-      const searchText = filter.toLowerCase();
+  // Crear predicado de filtro optimizado para prevenir stack overflow
+  private createFilterPredicate() {
+    return (venta: Venta, filter: string): boolean => {
+      if (!filter || !venta) return true;
       
-      // Buscar en código de venta
-      if (venta.codigoVenta?.toLowerCase().includes(searchText)) {
-        return true;
-      }
+      const searchText = filter.toLowerCase().trim();
+      if (!searchText) return true;
       
-      // Buscar en nombre del cliente
-      if (venta.cliente?.persona?.nombre?.toLowerCase().includes(searchText) ||
-          venta.cliente?.persona?.apellido?.toLowerCase().includes(searchText)) {
-        return true;
-      }
+      // Búsqueda optimizada con early returns
+      if (venta.codigoVenta?.toLowerCase().includes(searchText)) return true;
+      if (venta.cliente?.persona?.nombre?.toLowerCase().includes(searchText)) return true;
+      if (venta.cliente?.persona?.apellido?.toLowerCase().includes(searchText)) return true;
+      if (venta.vendedor?.persona?.nombre?.toLowerCase().includes(searchText)) return true;
+      if (venta.vendedor?.persona?.apellido?.toLowerCase().includes(searchText)) return true;
+      if (venta.total?.toString().includes(searchText)) return true;
       
-      // Buscar en nombre del vendedor
-      if (venta.vendedor?.persona?.nombre?.toLowerCase().includes(searchText) ||
-          venta.vendedor?.persona?.apellido?.toLowerCase().includes(searchText)) {
-        return true;
-      }
-      
-      // Buscar en total
-      if (venta.total?.toString().includes(searchText)) {
-        return true;
-      }
-      
-      // Buscar en productos
-      if (venta.items?.some(item => 
-        item.producto?.nombre?.toLowerCase().includes(searchText))) {
-        return true;
+      // Búsqueda en productos solo si es necesario
+      if (venta.items && venta.items.length > 0) {
+        for (const item of venta.items) {
+          if (item.producto?.nombre?.toLowerCase().includes(searchText)) {
+            return true;
+          }
+        }
       }
       
       return false;
     };
-    
-    this.dataSource.filter = filterValue.trim();
   }
 
   // Método para limpiar filtros
@@ -213,45 +206,20 @@ export class VentasPendientesComponent implements OnInit, OnDestroy {
     this.dataSource.filter = '';
   }
 
+  // Métodos optimizados que delegan a las utilidades
   getEstadoClass(venta: Venta): string {
-    if (!venta.estado || venta.estado === 'pendiente') {
-      return 'estado-pendiente';
-    } else if (venta.estado === 'aceptada') {
-      return 'estado-aceptada';
-    } else if (venta.estado === 'cancelada') {
-      return 'estado-cancelada';
-    }
-    return 'estado-pendiente';
+    return VentaStateUtil.getStateClass(venta);
   }
 
   getEstadoIcon(venta: Venta): string {
-    if (!venta.estado || venta.estado === 'pendiente') {
-      return 'schedule';
-    } else if (venta.estado === 'aceptada') {
-      return 'check_circle';
-    } else if (venta.estado === 'cancelada') {
-      return 'cancel';
-    }
-    return 'schedule';
+    return VentaStateUtil.getStateIcon(venta);
   }
 
   getEstadoText(venta: Venta): string {
-    if (!venta.estado || venta.estado === 'pendiente') {
-      return 'Pendiente';
-    } else if (venta.estado === 'aceptada') {
-      return 'Aceptada';
-    } else if (venta.estado === 'cancelada') {
-      return 'Cancelada';
-    }
-    return 'Pendiente';
+    return VentaStateUtil.getStateText(venta);
   }
 
   getRowClass(venta: Venta): string {
-    if (venta.estado === 'aceptada') {
-      return 'row-accepted';
-    } else if (venta.estado === 'cancelada') {
-      return 'row-cancelled';
-    }
-    return '';
+    return VentaStateUtil.getRowClass(venta);
   }
 }

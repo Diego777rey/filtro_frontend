@@ -55,7 +55,7 @@
 
         <!-- Productos -->
         <div class="productos-section">
-          <h3>Productos</h3>
+          <h3>Agregar Productos</h3>
           
           <div class="form-row">
             <div class="buscador-field">
@@ -71,15 +71,26 @@
 
             <mat-form-field appearance="outline">
               <mat-label>Cantidad</mat-label>
-              <input matInput type="number" formControlName="cantidad" min="1">
+              <input matInput type="number" formControlName="cantidad" min="1" 
+                     (keyup.enter)="agregarProducto()">
             </mat-form-field>
 
-            <button mat-raised-button color="primary" type="button" (click)="agregarProducto()">
+            <button mat-raised-button color="primary" type="button" (click)="agregarProducto()"
+                    [disabled]="!productoSeleccionado || cantidad?.value <= 0">
+              <mat-icon>add</mat-icon>
               Agregar Producto
             </button>
           </div>
 
-          <!-- Lista de productos agregados -->
+          <!-- Atajos de cantidad -->
+          <div class="quantity-shortcuts">
+            <button mat-stroked-button (click)="setCantidad(1)">1</button>
+            <button mat-stroked-button (click)="setCantidad(2)">2</button>
+            <button mat-stroked-button (click)="setCantidad(5)">5</button>
+            <button mat-stroked-button (click)="setCantidad(10)">10</button>
+          </div>
+
+          <!-- Tabla de productos agregados -->
           <div class="productos-lista" *ngIf="productosAgregados.length > 0">
             <table mat-table [dataSource]="productosAgregados" class="mat-elevation-z2">
               <ng-container matColumnDef="producto">
@@ -88,13 +99,24 @@
               </ng-container>
 
               <ng-container matColumnDef="precio">
-                <th mat-header-cell *matHeaderCellDef>Precio</th>
+                <th mat-header-cell *matHeaderCellDef>Precio Unit.</th>
                 <td mat-cell *matCellDef="let producto">{{ producto.precio | currency:'USD':'symbol':'1.2-2' }}</td>
               </ng-container>
 
               <ng-container matColumnDef="cantidad">
                 <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-                <td mat-cell *matCellDef="let producto">{{ producto.cantidad }}</td>
+                <td mat-cell *matCellDef="let producto; let i = index">
+                  <div class="quantity-controls">
+                    <button mat-icon-button (click)="decrementarCantidad(i)" 
+                            [disabled]="producto.cantidad <= 1">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="quantity-display">{{ producto.cantidad }}</span>
+                    <button mat-icon-button (click)="incrementarCantidad(i)">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="subtotal">
@@ -105,7 +127,12 @@
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
                 <td mat-cell *matCellDef="let producto; let i = index">
-                  <button mat-icon-button color="warn" (click)="removerProducto(i)">
+                  <button mat-icon-button color="primary" (click)="duplicarProducto(i)" 
+                          matTooltip="Duplicar">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="removerProducto(i)"
+                          matTooltip="Eliminar">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>
@@ -116,24 +143,42 @@
             </table>
 
             <div class="total-section">
-              <h3>Total: {{ totalVenta | currency:'USD':'symbol':'1.2-2' }}</h3>
-              <p>Debug - Total value: {{ totalVenta }}</p>
-              <p>Debug - Productos count: {{ productosAgregados.length }}</p>
+              <div class="total-info">
+                <h3>Total: {{ totalVenta | currency:'USD':'symbol':'1.2-2' }}</h3>
+                <p>Productos: {{ productosAgregados.length }} | Items: {{ getCarritoStats().totalItems }}</p>
+              </div>
             </div>
+          </div>
+
+          <!-- Mensaje cuando no hay productos -->
+          <div class="empty-products" *ngIf="productosAgregados.length === 0">
+            <mat-icon>shopping_cart</mat-icon>
+            <p>No hay productos agregados</p>
+            <p class="empty-subtitle">Selecciona un producto y agrégalo para comenzar</p>
           </div>
         </div>
 
         <!-- Botones de acción -->
         <div class="acciones">
           <button mat-stroked-button color="primary" type="button" (click)="nuevo()">
+            <mat-icon>refresh</mat-icon>
             Nuevo
           </button>
           
-          <button mat-raised-button color="primary" type="submit" [disabled]="ventaForm.invalid || productosAgregados.length === 0">
+          <button mat-stroked-button color="warn" type="button" (click)="limpiarCarrito()" 
+                  [disabled]="productosAgregados.length === 0">
+            <mat-icon>clear_all</mat-icon>
+            Limpiar Carrito
+          </button>
+          
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="ventaForm.invalid || productosAgregados.length === 0">
+            <mat-icon>{{ esEdicion ? 'save' : 'check' }}</mat-icon>
             {{ esEdicion ? 'Actualizar' : 'Guardar' }}
           </button>
           
           <button mat-stroked-button type="button" (click)="cancelar()">
+            <mat-icon>close</mat-icon>
             Cancelar
           </button>
         </div>

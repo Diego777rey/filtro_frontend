@@ -1,5 +1,5 @@
 .formulario-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 20px auto;
   padding: 16px;
   background-color: #ffffff;
@@ -33,12 +33,13 @@
 
   .form-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 16px;
     margin-bottom: 20px;
+    align-items: flex-start;
 
     mat-form-field {
-      width: 100%;
+      flex: 1;
       
       ::ng-deep {
         .mat-form-field-flex {
@@ -62,11 +63,12 @@
     button {
       min-width: 120px;
       margin: 0 4px;
+      align-self: flex-end;
     }
   }
 
   .buscador-field {
-    width: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -95,10 +97,25 @@
       margin-bottom: 16px;
     }
 
-    // Botón específico para agregar producto
-    button[type="button"] {
-      min-width: 120px;
-      margin-top: 8px;
+    .quantity-shortcuts {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+
+      button {
+        min-width: 40px;
+        height: 32px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        background: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+          background: #f8f9fa;
+          border-color: #3498db;
+        }
+      }
     }
 
     .productos-lista {
@@ -117,16 +134,44 @@
             color: #333;
             font-weight: 500;
             font-size: 0.9rem;
+            text-align: center;
           }
           
           .mat-cell {
             padding: 12px 8px;
             border-bottom: 1px solid #e0e0e0;
+            text-align: center;
           }
           
           .mat-row:hover {
             background-color: #f5f5f5;
           }
+        }
+      }
+
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        button {
+          width: 28px;
+          height: 28px;
+          min-width: 28px;
+          line-height: 28px;
+
+          mat-icon {
+            font-size: 16px;
+          }
+        }
+
+        .quantity-display {
+          min-width: 24px;
+          text-align: center;
+          font-weight: 600;
+          color: #2c3e50;
+          font-size: 0.9rem;
         }
       }
 
@@ -138,18 +183,53 @@
         border-radius: 4px;
         border: 1px solid #e0e0e0;
 
-        h3 {
-          margin: 0;
-          color: #333;
-          font-size: 1.4rem;
-          font-weight: 500;
+        .total-info {
+          h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.4rem;
+            font-weight: 500;
+          }
+          
+          p {
+            color: #666;
+            margin: 4px 0 0 0;
+            font-size: 0.9rem;
+          }
         }
-        
-        p {
-          color: #666;
-          margin: 4px 0 0 0;
-          font-size: 0.9rem;
-        }
+      }
+    }
+
+    .empty-products {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #7f8c8d;
+      padding: 40px 20px;
+      background: rgba(248, 249, 250, 0.8);
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .empty-subtitle {
+        font-size: 0.9rem;
+        margin-top: 8px;
+        opacity: 0.7;
       }
     }
   }
@@ -169,23 +249,49 @@
   }
 }
 
-// Responsive
-@media (max-width: 600px) {
+// Responsive Design
+@media (max-width: 768px) {
   .formulario-container {
-    padding: 16px;
-  }
+    padding: 12px;
+    margin: 10px;
 
-  .form-row {
-    gap: 12px;
-  }
+    .form-row {
+      flex-direction: column;
+      gap: 12px;
+    }
 
-  .acciones {
-    flex-direction: column;
-    align-items: stretch;
-    
-    button {
-      width: 100%;
-      min-width: auto;
+    .acciones {
+      flex-direction: column;
+      align-items: stretch;
+      
+      button {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .formulario-container {
+    .productos-section {
+      padding: 12px;
+
+      .quantity-shortcuts {
+        justify-content: center;
+      }
+
+      .productos-lista {
+        table {
+          font-size: 0.8rem;
+          
+          ::ng-deep {
+            .mat-cell, .mat-header-cell {
+              padding: 8px 4px;
+            }
+          }
+        }
+      }
     }
   }
 }

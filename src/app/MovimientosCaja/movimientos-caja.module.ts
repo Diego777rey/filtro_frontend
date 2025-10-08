@@ -27,6 +27,7 @@ import { EditarMovimientoComponent } from './page/editar-movimiento/editar-movim
 // Importar módulos reutilizables
 import { ReutilizacionModule } from '../reutilizacion/reutilizacion.module';
 import { GraphQLModule } from '../graphql.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { GraphQLModule } from '../graphql.module';
     MovimientosCajaRoutingModule,
     GraphQLModule,
     ReutilizacionModule,
+    SharedModule,
     
     // Material Modules
     MatTableModule,

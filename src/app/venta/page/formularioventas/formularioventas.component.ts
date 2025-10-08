@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -63,7 +63,8 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
     private readonly clienteService: ClienteService,
     private readonly productoService: ProductoService,
     private readonly vendedorService: VendedorService,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.ventaForm = this.createForm();
   }
@@ -84,6 +85,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
     this.setupForm();
     this.cargarDatos();
     this.actualizarTotal();
+    this.setupKeyboardShortcuts();
   }
 
   ngOnDestroy(): void {
@@ -199,10 +201,23 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
     const cantidad = this.ventaForm.get('cantidad')?.value;
 
     if (!this.productoSeleccionado || cantidad <= 0) {
+      this.showError('Seleccione un producto y una cantidad válida');
       return;
     }
 
-    this.addOrUpdateProduct(this.productoSeleccionado, cantidad);
+    // Verificar si el producto ya existe en el carrito
+    const productoExistente = this.productosAgregados.find(p => p.productoId === this.productoSeleccionado?.id);
+    
+    if (productoExistente) {
+      // Si el producto ya existe, mostrar confirmación para actualizar cantidad
+      this.addOrUpdateProduct(this.productoSeleccionado, cantidad);
+      this.showSuccess(`Producto actualizado: ${this.productoSeleccionado.descripcion}`);
+    } else {
+      // Si es un producto nuevo, agregarlo directamente
+      this.addOrUpdateProduct(this.productoSeleccionado, cantidad);
+      this.showSuccess(`Producto agregado: ${this.productoSeleccionado.descripcion}`);
+    }
+
     this.clearProductForm();
     this.actualizarTotal();
   }
@@ -220,6 +235,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
   private updateExistingProduct(producto: ProductoVenta, cantidad: number): void {
     producto.cantidad += cantidad;
     producto.subtotal = producto.precio * producto.cantidad;
+    this.cdr.detectChanges();
   }
 
   private addNewProduct(producto: Producto, cantidad: number): void {
@@ -231,6 +247,7 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
       subtotal: producto.precio * cantidad
     };
     this.productosAgregados.push(nuevoProducto);
+    this.cdr.detectChanges();
   }
 
   private clearProductForm(): void {
@@ -240,7 +257,91 @@ export class FormularioventasComponent implements OnInit, OnDestroy {
 
   removerProducto(index: number): void {
     this.productosAgregados.splice(index, 1);
+    this.cdr.detectChanges();
     this.actualizarTotal();
+  }
+
+  // Nuevos métodos para manejo de cantidades en el carrito
+  incrementarCantidad(index: number): void {
+    if (index >= 0 && index < this.productosAgregados.length) {
+      this.productosAgregados[index].cantidad += 1;
+      this.productosAgregados[index].subtotal = this.productosAgregados[index].precio * this.productosAgregados[index].cantidad;
+      this.cdr.detectChanges();
+      this.actualizarTotal();
+    }
+  }
+
+  decrementarCantidad(index: number): void {
+    if (index >= 0 && index < this.productosAgregados.length) {
+      if (this.productosAgregados[index].cantidad > 1) {
+        this.productosAgregados[index].cantidad -= 1;
+        this.productosAgregados[index].subtotal = this.productosAgregados[index].precio * this.productosAgregados[index].cantidad;
+        this.cdr.detectChanges();
+        this.actualizarTotal();
+      }
+    }
+  }
+
+  // Método para establecer cantidad rápidamente
+  setCantidad(cantidad: number): void {
+    this.ventaForm.patchValue({ cantidad });
+  }
+
+  // Configurar atajos de teclado
+  private setupKeyboardShortcuts(): void {
+    document.addEventListener('keydown', (event) => {
+      // Ctrl + Enter para agregar producto
+      if (event.ctrlKey && event.key === 'Enter') {
+        event.preventDefault();
+        this.agregarProducto();
+      }
+      
+      // Ctrl + S para guardar
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        this.guardar();
+      }
+      
+      // Escape para cancelar
+      if (event.key === 'Escape') {
+        this.cancelar();
+      }
+    });
+  }
+
+  // Método para limpiar todo el carrito
+  limpiarCarrito(): void {
+    this.productosAgregados = [];
+    this.cdr.detectChanges();
+    this.actualizarTotal();
+    this.showSuccess('Carrito limpiado');
+  }
+
+  // Método para duplicar un producto del carrito
+  duplicarProducto(index: number): void {
+    if (index >= 0 && index < this.productosAgregados.length) {
+      const producto = this.productosAgregados[index];
+      const productoDuplicado: ProductoVenta = {
+        productoId: producto.productoId,
+        descripcion: producto.descripcion,
+        cantidad: 1,
+        precio: producto.precio,
+        subtotal: producto.precio
+      };
+      this.productosAgregados.push(productoDuplicado);
+      this.cdr.detectChanges();
+      this.actualizarTotal();
+      this.showSuccess(`Producto duplicado: ${producto.descripcion}`);
+    }
+  }
+
+  // Método para obtener estadísticas del carrito
+  getCarritoStats(): { totalItems: number, totalValue: number, uniqueProducts: number } {
+    const totalItems = this.productosAgregados.reduce((sum, producto) => sum + producto.cantidad, 0);
+    const totalValue = this.totalVenta;
+    const uniqueProducts = this.productosAgregados.length;
+    
+    return { totalItems, totalValue, uniqueProducts };
   }
 
   private calcularTotal(): number {
