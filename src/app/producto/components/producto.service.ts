@@ -3,8 +3,10 @@ import { Apollo } from 'apollo-angular';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { InputProducto } from './input.producto';
+import { InputProveedor } from 'src/app/proveedor/components/input.proveedor';
+import { Sucursal } from 'src/app/sucursal/components/sucursal';
 import { 
-  CREATE_PRODUCTO, DELETE_PRODUCTO, GET_PRODUCTOS, GET_PRODUCTOS_BY_ID, GET_PRODUCTOS_PAGINADOS, GET_PRODUCTOS_SIMPLES, UPDATE_PRODUCTO 
+  CREATE_PRODUCTO, DELETE_PRODUCTO, GET_PRODUCTOS, GET_PRODUCTOS_BY_ID, GET_PRODUCTOS_PAGINADOS, UPDATE_PRODUCTO 
 } from 'src/app/graphql/producto.graphql';
 
 @Injectable({
@@ -139,7 +141,7 @@ export class ProductoService {
         nombre: graphqlProducto.categoria.nombre,
         categoriaEstado: graphqlProducto.categoria.categoriaEstado
       } : undefined,
-      proveedor: graphqlProducto.proveedor ? {
+      proveedor: graphqlProducto.proveedor ? new InputProveedor({
         id: graphqlProducto.proveedor.id,
         ruc: graphqlProducto.proveedor.ruc,
         razonSocial: graphqlProducto.proveedor.razonSocial,
@@ -147,7 +149,16 @@ export class ProductoService {
         telefono: graphqlProducto.proveedor.telefono,
         email: graphqlProducto.proveedor.email,
         observaciones: graphqlProducto.proveedor.observaciones
-      } : undefined
+      }) : undefined,
+      sucursal: graphqlProducto.sucursal ? new Sucursal({
+        id: graphqlProducto.sucursal.id,
+        nombre: graphqlProducto.sucursal.nombre,
+        pais: graphqlProducto.sucursal.pais,
+        departamento: graphqlProducto.sucursal.departamento,
+        ciudad: graphqlProducto.sucursal.ciudad,
+        direccion: graphqlProducto.sucursal.direccion,
+        telefono: graphqlProducto.sucursal.telefono
+      }) : undefined
     });
   }
 }

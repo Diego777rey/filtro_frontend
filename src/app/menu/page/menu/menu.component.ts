@@ -23,17 +23,25 @@ interface SubMenuItem {
   route: string;
 }
 
+interface DropdownMenu {
+  id: string;
+  label: string;
+  icon: string;
+  isExpanded: boolean;
+  subItems: SubMenuItem[];
+}
+
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss']
+  styleUrls: ['./menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   
   readonly showToggle = true;
   readonly selectedDate: Date | null = null;
-  isFuncionariosExpanded = false;
   isAdminUser = false;
   userTooltip = '';
   userAvatarColor = '';
@@ -41,11 +49,28 @@ export class MenuComponent implements OnInit, OnDestroy {
   userFullName = '';
   isCollapsed = true; // Menú colapsado por defecto (solo iconos)
 
-  readonly funcionariosSubMenu: SubMenuItem[] = [
-    { id: 'personas', label: 'Personas', icon: 'person', route: '/dashboard/personas' },
-    { id: 'cajero', label: 'Cajero', icon: 'account_balance_wallet', route: '/dashboard/cajero' },
-    { id: 'vendedor', label: 'Vendedor', icon: 'store', route: '/dashboard/vendedor' },
-    { id: 'deposito', label: 'Deposito', icon: 'warehouse', route: '/dashboard/deposito' }
+  readonly dropdownMenus: DropdownMenu[] = [
+    {
+      id: 'funcionarios',
+      label: 'Funcionarios',
+      icon: 'business_center',
+      isExpanded: false,
+      subItems: [
+        { id: 'personas', label: 'Personas', icon: 'person', route: '/dashboard/personas' },
+        { id: 'cajero', label: 'Cajero', icon: 'account_balance_wallet', route: '/dashboard/cajero' },
+        { id: 'vendedor', label: 'Vendedor', icon: 'store', route: '/dashboard/vendedor' },
+        { id: 'deposito', label: 'Deposito', icon: 'warehouse', route: '/dashboard/deposito' }
+      ]
+    },
+    {
+      id: 'empresarial',
+      label: 'Empresarial',
+      icon: 'business',
+      isExpanded: false,
+      subItems: [
+        { id: 'sucursales', label: 'Sucursales', icon: 'business', route: '/dashboard/sucursal' }
+      ]
+    }
   ];
 
   constructor(
@@ -101,6 +126,15 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.isAdminUser;
   }
 
+  getDropdownById(id: string): DropdownMenu | undefined {
+    return this.dropdownMenus.find(menu => menu.id === id);
+  }
+
+  isDropdownExpanded(id: string): boolean {
+    const menu = this.getDropdownById(id);
+    return menu?.isExpanded ?? false;
+  }
+
   onToggleChanged(event: MatCheckboxChange): void {
     // Handle toggle change if needed
   }
@@ -110,27 +144,42 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  toggleFuncionarios(event?: Event): void {
+  toggleDropdown(menuId: string, event?: Event): void {
     event?.stopPropagation();
-    this.isFuncionariosExpanded = !this.isFuncionariosExpanded;
     
-    // Si el menú está colapsado, expandirlo al abrir funcionarios
-    if (this.isFuncionariosExpanded && this.isCollapsed) {
+    const targetMenu = this.dropdownMenus.find(menu => menu.id === menuId);
+    if (!targetMenu) return;
+    
+    const wasExpanded = targetMenu.isExpanded;
+    
+    // Cerrar todos los demás menús
+    this.dropdownMenus.forEach(menu => {
+      menu.isExpanded = false;
+    });
+    
+    // Toggle el menú seleccionado solo si no estaba expandido
+    targetMenu.isExpanded = !wasExpanded;
+    
+    // Si el menú está colapsado, expandirlo al abrir cualquier dropdown
+    if (targetMenu.isExpanded && this.isCollapsed) {
       this.isCollapsed = false;
     }
     
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
-  closeFuncionariosSubmenu(): void {
-    this.isFuncionariosExpanded = false;
-    this.cdr.markForCheck();
+  closeAllDropdowns(): void {
+    this.dropdownMenus.forEach(menu => {
+      menu.isExpanded = false;
+    });
+    this.cdr.detectChanges();
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    // Solo cerrar si el submenú está abierto
-    if (!this.isFuncionariosExpanded) {
+    // Verificar si algún submenú está abierto
+    const hasOpenDropdown = this.dropdownMenus.some(menu => menu.isExpanded);
+    if (!hasOpenDropdown) {
       return;
     }
 
@@ -138,8 +187,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     const clickedInside = this.elementRef.nativeElement.contains(event.target as Node);
     
     if (!clickedInside) {
-      this.isFuncionariosExpanded = false;
-      this.cdr.markForCheck();
+      this.closeAllDropdowns();
     }
   }
 
@@ -159,10 +207,10 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   expandMenu(): void {
-    // Solo expandir si está colapsado y el mouse entra al menú
+    // Solo expandir si está colapsado
     if (this.isCollapsed) {
       this.isCollapsed = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -174,8 +222,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   toggleMenu(): void {
     this.isCollapsed = !this.isCollapsed;
     if (this.isCollapsed) {
-      this.isFuncionariosExpanded = false;
+      this.closeAllDropdowns();
     }
-    this.cdr.markForCheck();
   }
 }

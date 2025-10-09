@@ -3,9 +3,9 @@ import { gql } from "apollo-angular";
 // ----------------------------- QUERIES -----------------------------
 
 // Obtener todos los productos
-export const GET_PRODUCTOS = gql`
-  query GetAllProductos {
-    findAllProductos {
+export const GET_INVENTARIOS = gql`
+  query GetAllInventarios {
+    findAllInventarios {
       id
       codigoProducto
       nombre
@@ -42,9 +42,9 @@ export const GET_PRODUCTOS = gql`
 `;
 
 // Obtener producto por ID
-export const GET_PRODUCTOS_BY_ID = gql`
-  query GetProductoById($productoId: ID!) {
-    findProductoById(productoId: $productoId) {
+export const GET_INVENTARIOS_BY_ID = gql`
+  query GetInventarioById($inventarioId: ID!) {
+    findInventarioById(inventarioId: $inventarioId) {
       id
       codigoProducto
       nombre
@@ -81,9 +81,9 @@ export const GET_PRODUCTOS_BY_ID = gql`
 `;
 
 // Obtener productos paginados
-export const GET_PRODUCTOS_PAGINADOS = gql`
-  query GetProductosPaginated($page: Int!, $size: Int!, $search: String) {
-    findProductosPaginated(page: $page, size: $size, search: $search) {
+export const GET_INVENTARIOS_PAGINADOS = gql`
+  query GetInventariosPaginated($page: Int!, $size: Int!, $search: String) {
+    findInventariosPaginated(page: $page, size: $size, search: $search) {
       items {
         id
         codigoProducto
@@ -125,9 +125,9 @@ export const GET_PRODUCTOS_PAGINADOS = gql`
   }
 `;
 // Crear producto
-export const CREATE_PRODUCTO = gql`
-  mutation CreateProducto($input: InputProducto!) {
-    createProducto(inputProducto: $input) {
+export const CREATE_INVENTARIO = gql`
+  mutation CreateInventario($input: InputInventario!) {
+    createInventario(inputInventario: $input) {
       id
       codigoProducto
       nombre
@@ -164,9 +164,9 @@ export const CREATE_PRODUCTO = gql`
 `;
 
 // Actualizar producto
-export const UPDATE_PRODUCTO = gql`
-  mutation UpdateProducto($id: ID!, $input: InputProducto!) {
-    updateProducto(id: $id, inputProducto: $input) {
+export const UPDATE_INVENTARIO = gql`
+  mutation UpdateInventario($id: ID!, $input: InputInventario!) {
+    updateInventario(id: $id, inputInventario: $input) {
       id
       codigoProducto
       nombre
@@ -203,9 +203,9 @@ export const UPDATE_PRODUCTO = gql`
 `;
 
 // Eliminar producto
-export const DELETE_PRODUCTO = gql`
-  mutation DeleteProducto($id: ID!) {
-    deleteProducto(id: $id) {
+export const DELETE_INVENTARIO = gql`
+  mutation DeleteInventario($id: ID!) {
+    deleteInventario(id: $id) {
       id
     }
   }

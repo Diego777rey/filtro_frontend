@@ -33,6 +33,10 @@ const routes: Routes = [
         loadChildren: () => import('./MovimientosCaja/movimientos-caja.module').then(m => m.MovimientosCajaModule)
       },
       {
+        path: 'inventario',
+        loadChildren: () => import('./inventario/inventario.module').then(m => m.InventarioModule)
+      },
+      {
         path: 'proveedor',
         loadChildren: () => import('./proveedor/proveedor.module').then(m => m.ProveedorModule)
       },
@@ -76,6 +80,14 @@ const routes: Routes = [
       {
         path: 'ventas',
         loadChildren: () => import('./venta/ventas.module').then(m => m.VentasModule)
+      },
+      {
+        path: 'sucursal',
+        loadChildren: () => import('./sucursal/sucursal.module').then(m => m.SucursalModule)
+      },
+      {
+        path: 'roles',
+        loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule)
       },
       {
         path: 'horario',

@@ -1,0 +1,41 @@
+<div class="container">
+  <mat-card class="reporte-card">
+    <mat-card-header>
+      <mat-card-title>Reporte de Sucursales</mat-card-title>
+      <mat-card-subtitle>Genere reportes de sucursales con filtros personalizables</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="reporteForm" class="reporte-form">
+        <div class="filtros-container">
+          <mat-form-field appearance="outline" class="filtro-field">
+            <mat-label>Filtrar por nombre</mat-label>
+            <input matInput formControlName="nombre" placeholder="Ingrese nombre de sucursal">
+            <mat-hint>Dejar vacío para incluir todas las sucursales</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="botones-container">
+          <button mat-raised-button color="primary" 
+                  (click)="descargarReporte()" 
+                  [disabled]="isLoading"
+                  class="boton-descargar">
+            <mat-icon *ngIf="!isLoading">download</mat-icon>
+            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+            {{ isLoading ? 'Generando...' : 'Descargar Reporte' }}
+          </button>
+
+          <button mat-button color="accent" (click)="limpiarFiltros()" class="boton-limpiar">
+            <mat-icon>clear</mat-icon>
+            Limpiar Filtros
+          </button>
+
+          <button mat-button (click)="volver()" class="boton-volver">
+            <mat-icon>arrow_back</mat-icon>
+            Volver
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

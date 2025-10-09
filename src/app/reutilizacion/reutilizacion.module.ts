@@ -33,6 +33,7 @@ import { BuscadorCategoriaComponent } from './buscador-categoria/buscador-catego
 import { BuscadorProductoComponent } from './buscador-producto/buscador-producto.component';
 import { BuscadorPersonaComponent } from './buscador-persona/buscador-persona.component';
 import { BuscadorProveedorComponent } from './buscador-proveedor/buscador-proveedor.component';
+import { BuscadorSucursalComponent } from './buscador-sucursal/buscador-sucursal.component';
 import { TabComponent } from './tab/tab.component';
 import { TabContainerComponent } from './tab-container/tab-container.component';
 
@@ -49,6 +50,7 @@ import { TabContainerComponent } from './tab-container/tab-container.component';
     BuscadorProductoComponent,
     BuscadorPersonaComponent,
     BuscadorProveedorComponent,
+    BuscadorSucursalComponent,
     TabComponent,
     TabContainerComponent
   ],
@@ -90,6 +92,7 @@ import { TabContainerComponent } from './tab-container/tab-container.component';
     BuscadorProductoComponent,
     BuscadorPersonaComponent,
     BuscadorProveedorComponent,
+    BuscadorSucursalComponent,
     TabComponent,
     TabContainerComponent
   ]

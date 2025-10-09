@@ -27,7 +27,7 @@ function createWindow() {
     process.argv.includes('--dev');
 
   if (isDev) {
-    console.log('🔧 Modo desarrollo: cargando http://localhost:4200');
+    console.log('Modo desarrollo: cargando http://localhost:4200');
     mainWindow.loadURL('http://localhost:4200');
     mainWindow.webContents.openDevTools();
   } else {

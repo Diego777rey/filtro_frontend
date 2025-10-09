@@ -1,15 +1,6 @@
 import { Categoria } from "src/app/categoria/components/categoria";
-
-export interface Proveedor {
-  id: number;
-  ruc: string;
-  razonSocial: string;
-  rubro: string;
-  telefono: string;
-  email: string;
-  observaciones?: string;
-}
-
+import { InputProveedor } from "src/app/proveedor/components/input.proveedor";
+import { Sucursal } from "src/app/sucursal/components/sucursal";
 export class InputProducto {
   id?: number;
   codigoProducto?: string;
@@ -20,7 +11,8 @@ export class InputProducto {
   stock: number = 0;
   productoEstado: string | boolean = 'ACTIVO';
   categoria?: Categoria;
-  proveedor?: Proveedor;
+  proveedor?: InputProveedor;
+  sucursal?: Sucursal;
 
   constructor(init?: Partial<InputProducto>) {
     Object.assign(this, init);
@@ -44,6 +36,12 @@ export class InputProducto {
       throw new Error('Proveedor no válido');
     }
 
+    // Validar que la sucursal tenga un ID válido
+    const sucursalId = this.sucursal?.id;
+    if (!sucursalId || sucursalId === 0) {
+      throw new Error('Sucursal no válida');
+    }
+
     // Convertir productoEstado a string si es boolean
     let estadoString: string;
     if (typeof this.productoEstado === 'boolean') {
@@ -62,7 +60,8 @@ export class InputProducto {
       stock: this.stock,
       productoEstado: estadoString,
       categoriaId: Number(categoriaId),
-      proveedorId: Number(proveedorId)
+      proveedorId: Number(proveedorId),
+      sucursalId: Number(sucursalId)
     }
   }
 }

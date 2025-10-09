@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter,} from 'rxjs/operators';
 
 export interface Tab {
   id: string;
@@ -36,7 +36,10 @@ export class TabService {
     '/dashboard/vendedor': { title: 'Vendedores', icon: 'person_add' },
     '/dashboard/producto': { title: 'Productos', icon: 'inventory' },
     '/dashboard/ventas': { title: 'Ventas', icon: 'shopping_cart' },
-    '/dashboard/horario': { title: 'Horarios', icon: 'schedule' }
+    '/dashboard/horario': { title: 'Registro de Horarios', icon: 'schedule' },
+    '/dashboard/sucursal': { title: 'Sucursales', icon: 'business' },
+    '/dashboard/inventario': { title: 'Inventarios', icon: 'business' },
+    '/dashboard/roles': {title: 'Roles', icon: 'business'}
   };
 
   constructor(private router: Router) {

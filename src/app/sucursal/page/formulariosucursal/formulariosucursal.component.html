@@ -1,0 +1,55 @@
+<div class="container">
+  <h2>{{ isEdit ? 'Editar' : 'Nuevo' }} {{ titulo }}</h2>
+
+  <!-- Formulario -->
+  <form [formGroup]="formGroup" (ngSubmit)="guardar()" *ngIf="!loading">
+
+    <div class="row-fields" *ngFor="let campo of campos">
+      <!-- Campos text y number -->
+      <mat-form-field *ngIf="campo.tipo === 'text' || campo.tipo === 'number'" appearance="outline" class="full-width">
+        <mat-label>{{ campo.label }}</mat-label>
+        <input matInput
+               [type]="campo.tipo"
+               [formControlName]="campo.control"
+               [placeholder]="campo.placeholder ?? ''">
+        <mat-error *ngIf="formGroup.get(campo.control)?.hasError('required')">
+          {{ campo.label }} es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo checkbox -->
+      <div *ngIf="campo.tipo === 'checkbox'" class="checkbox-container">
+        <mat-checkbox [formControlName]="campo.control" class="checkbox-field">
+          {{ campo.label }}
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="button-row">
+      <button mat-stroked-button color="primary" (click)="nuevo()" [disabled]="formEnabled || loading">
+        Nuevo
+      </button>
+
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="!formEnabled || formGroup.invalid || loading">
+        {{ loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Guardar') }}
+      </button>
+
+      <button mat-stroked-button (click)="cancelar()" [disabled]="!formEnabled || loading">
+        Cancelar
+      </button>
+
+      <button mat-stroked-button color="accent" (click)="volver()">
+        Volver
+      </button>
+    </div>
+  </form>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando...</p>
+  </div>
+
+</div>

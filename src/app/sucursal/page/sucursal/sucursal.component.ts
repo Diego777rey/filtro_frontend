@@ -1,18 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Sucursal } from '../../components/sucursal';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
-import { PersonaService } from '../../components/persona.service';
-import { Persona } from '../../components/persona';
+import { SucursalService } from '../../components/sucursal.service';
 import { AccionTabla } from 'src/app/reutilizacion/tabla-paginada/accion.tabla';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-personas',
-  templateUrl: './personas.component.html',
-  styleUrls: ['./personas.component.scss']
+  selector: 'app-sucursal',
+  templateUrl: './sucursal.component.html',
+  styleUrls: ['./sucursal.component.scss']
 })
-export class PersonasComponent implements OnInit, OnDestroy {
-  personas: Persona[] = [];
+export class SucursalComponent implements OnInit, OnDestroy {
+  sucursales: Sucursal[] = [];
   totalRegistros = 0;
   tamanioPagina = 5;
   paginaActual = 0;
@@ -24,32 +24,29 @@ export class PersonasComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columnas: string[] = [
-    'id', 'nombre', 'apellido', 'documento', 'telefono', 'email', 'direccion', 'estadoPersona', 'fechaNacimiento', 'acciones'
+    'id', 'nombre', 'pais', 'departamento', 'ciudad', 'direccion', 'telefono', 'acciones'
   ];
 
   nombresColumnas: { [key: string]: string } = {
-    id: 'ID',
+    id: 'Código',
     nombre: 'Nombre',
-    apellido: 'Apellido',
-    documento: 'Documento',
-    telefono: 'Teléfono',
-    email: 'Email',
+    pais: 'Pais',
+    departamento: 'Departamneto',
+    ciudad: 'Ciudad',
     direccion: 'Dirección',
-    estadoPersona: 'Estado',
-    fechaNacimiento: 'Fecha Nacimiento',
+    telefono: 'Teléfono',
     acciones: 'Acciones'
   };
 
   constructor(
-    private servicioPersona: PersonaService,
+    private servicioSucursal: SucursalService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.cargarPersonas();
+    this.cargarSucursales();
     this.setupSearchSubscription();
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -67,7 +64,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
       .subscribe(searchText => {
         this.textoBusqueda = searchText;
         this.paginaActual = 0;
-        this.cargarPersonas();
+        this.cargarSucursales();
       });
   }
 
@@ -77,71 +74,71 @@ export class PersonasComponent implements OnInit, OnDestroy {
     this.searchSubject.next(searchText);
   }
 
-  // 🔹 Cargar personas con backend
-  cargarPersonas(): void {
+  // 🔹 Cargar sucursales con backend
+  cargarSucursales(): void {
     this.cargando = true;
     const paginaEnviar = this.paginaActual + 1;
 
-    this.servicioPersona.getPaginated(paginaEnviar, this.tamanioPagina, this.textoBusqueda)
+    this.servicioSucursal.getPaginated(paginaEnviar, this.tamanioPagina, this.textoBusqueda)
       .subscribe({
         next: data => {
           const items = data?.items || [];
           this.totalRegistros = data?.totalItems || 0;
 
-          if(items.length === 0 && this.totalRegistros > 0 && this.paginaActual > 0){
+          if (items.length === 0 && this.totalRegistros > 0 && this.paginaActual > 0) {
             this.paginaActual = 0;
-            setTimeout(()=> this.cargarPersonas(), 0);
+            setTimeout(() => this.cargarSucursales(), 0);
             return;
           }
 
-          this.personas = items;
+          this.sucursales = items;
           this.cargando = false;
         },
         error: err => {
-          console.error('Error al cargar personas:', err);
+          console.error('Error al cargar sucursales:', err);
           this.cargando = false;
         }
       });
   }
 
-  cambiarPagina(evento: PageEvent){
+  cambiarPagina(evento: PageEvent) {
     this.paginaActual = evento.pageIndex;
     this.tamanioPagina = evento.pageSize;
-    this.cargarPersonas();
+    this.cargarSucursales();
   }
 
   // 🔹 Limpiar búsqueda
-  limpiarBusqueda(){
+  limpiarBusqueda() {
     this.textoBusqueda = '';
     this.searchSubject.next(''); // Emitir cadena vacía para limpiar
   }
 
-  agregarPersona(){
-    this.router.navigate(['dashboard/personas/crear']);
+  agregarSucursal() {
+    this.router.navigate(['dashboard/sucursal/crear']);
   }
 
-  editarPersona(persona: Persona){
-    if(!persona.id) return;
-    this.router.navigate(['dashboard/personas/editar', persona.id]);
+  generarReporte() {
+    this.router.navigate(['dashboard/sucursal/generar']);
   }
 
-  // 🔹 Eliminar persona
-  eliminarPersona(persona: Persona){
-    if(!persona.id) return;
-    if(confirm(`¿Desea eliminar "${persona.nombre} ${persona.apellido}"?`)){
-      this.servicioPersona.delete(persona.id.toString()).subscribe(()=> this.cargarPersonas());
+  editarSucursal(sucursal: Sucursal) {
+    if (!sucursal.id) return;
+    this.router.navigate(['dashboard/sucursal/editar', sucursal.id]);
+  }
+
+  // 🔹 Eliminar sucursal
+  eliminarSucursal(sucursal: Sucursal) {
+    if (!sucursal.id) return;
+    if (confirm(`¿Desea eliminar "${sucursal.nombre}"?`)) {
+      this.servicioSucursal.delete(sucursal.id).subscribe(() => this.cargarSucursales());
     }
   }
 
-  generarReporte(){
-    this.router.navigate(['dashboard/personas/generar']);
-  }
-
   // 🔹 Manejar acción de fila
-  manejarAccion(evento: AccionTabla<Persona>){
-    switch(evento.tipo){
-      case 'editar': this.editarPersona(evento.fila); break;
-      case 'eliminar': this.eliminarPersona(evento.fila); break;
+  manejarAccion(evento: AccionTabla<Sucursal>) {
+    switch (evento.tipo) {
+      case 'editar': this.editarSucursal(evento.fila); break;
+      case 'eliminar': this.eliminarSucursal(evento.fila); break;
       case 'ver': break;
       case 'custom': break;
     }

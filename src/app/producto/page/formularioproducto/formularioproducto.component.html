@@ -63,6 +63,22 @@
       </mat-error>
     </div>
 
+    <!-- Buscador de Sucursal (después del proveedor) -->
+    <div class="row-fields sucursal-buscador-container">
+      <label class="sucursal-label">Sucursal</label>
+      <app-buscador-sucursal
+        [sucursalSeleccionada]="sucursalSeleccionada"
+        [placeholder]="'Seleccionar sucursal'"
+        [disabled]="!formEnabled"
+        [label]="'Sucursal'"
+        [showDireccion]="true"
+        (sucursalSeleccionadaChange)="onSucursalSeleccionada($event)">
+      </app-buscador-sucursal>
+      <mat-error *ngIf="formGroup.get('sucursalId')?.hasError('required') && formGroup.get('sucursalId')?.touched">
+        Sucursal es obligatoria
+      </mat-error>
+    </div>
+
     <!-- Campo Estado (después del buscador de proveedor) -->
     <div class="row-fields">
       <mat-checkbox formControlName="productoEstado">

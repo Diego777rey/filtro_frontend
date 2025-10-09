@@ -21,48 +21,51 @@
         <span class="nav-text" *ngIf="!isCollapsed">Usuarios</span>
       </mat-list-item>
 
-      <!-- Menú desplegable de Funcionarios -->
-      <mat-list-item 
-        *ngIf="isAdmin" 
-        (click)="toggleFuncionarios($event)" 
-        class="nav-item expandable-item"
-        [class.collapsed]="isCollapsed"
-        [attr.data-tooltip]="isCollapsed ? 'Funcionarios' : null"
-        role="button"
-        [attr.aria-expanded]="isFuncionariosExpanded"
-        [attr.aria-controls]="'funcionarios-submenu'"
-        tabindex="0"
-        [attr.aria-label]="'Funcionarios - ' + (isFuncionariosExpanded ? 'Contraer menú' : 'Expandir menú')"
-        (keydown.enter)="toggleFuncionarios($event)"
-        (keydown.space)="toggleFuncionarios($event)">
-        <mat-icon class="nav-icon">business_center</mat-icon>
-        <span class="nav-text" *ngIf="!isCollapsed">Funcionarios</span>
-        <mat-icon 
-          *ngIf="!isCollapsed"
-          class="expand-icon" 
-          [class.rotated]="isFuncionariosExpanded">expand_more</mat-icon>
-      </mat-list-item>
-
-      <!-- Sub-items del menú Funcionarios -->
-      <nav 
-        *ngIf="isFuncionariosExpanded && isAdmin && !isCollapsed" 
-        id="funcionarios-submenu"
-        class="sub-menu"
-        role="menu"
-        [attr.aria-label]="'Submenú de funcionarios'">
+      <!-- Menús desplegables dinámicos -->
+      <ng-container *ngFor="let menu of dropdownMenus">
+        <!-- Menú desplegable -->
         <mat-list-item 
-          *ngFor="let item of funcionariosSubMenu"
-          class="sub-item"
-          role="menuitem"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [attr.aria-label]="'Ir a ' + item.label">
-          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-          <span class="nav-text">
-            {{ item.label }}
-          </span>
+          *ngIf="isAdmin" 
+          (click)="toggleDropdown(menu.id, $event)" 
+          class="nav-item expandable-item"
+          [class.collapsed]="isCollapsed"
+          [attr.data-tooltip]="isCollapsed ? menu.label : null"
+          role="button"
+          [attr.aria-expanded]="menu.isExpanded"
+          [attr.aria-controls]="menu.id + '-submenu'"
+          tabindex="0"
+          [attr.aria-label]="menu.label + ' - ' + (menu.isExpanded ? 'Contraer menú' : 'Expandir menú')"
+          (keydown.enter)="toggleDropdown(menu.id, $event)"
+          (keydown.space)="toggleDropdown(menu.id, $event)">
+          <mat-icon class="nav-icon">{{ menu.icon }}</mat-icon>
+          <span class="nav-text" *ngIf="!isCollapsed">{{ menu.label }}</span>
+          <mat-icon 
+            *ngIf="!isCollapsed"
+            class="expand-icon" 
+            [class.rotated]="menu.isExpanded">expand_more</mat-icon>
         </mat-list-item>
-      </nav>
+
+        <!-- Sub-items del menú -->
+        <nav 
+          *ngIf="menu.isExpanded && isAdmin && !isCollapsed" 
+          [id]="menu.id + '-submenu'"
+          class="sub-menu"
+          role="menu"
+          [attr.aria-label]="'Submenú de ' + menu.label">
+          <mat-list-item 
+            *ngFor="let item of menu.subItems"
+            class="sub-item"
+            role="menuitem"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [attr.aria-label]="'Ir a ' + item.label">
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-text">
+              {{ item.label }}
+            </span>
+          </mat-list-item>
+        </nav>
+      </ng-container>
 
       <mat-list-item class="nav-item" 
                      [class.collapsed]="isCollapsed"
@@ -129,7 +132,7 @@
                      [class.collapsed]="isCollapsed"
                      [attr.data-tooltip]="isCollapsed ? 'Inventario' : null"
                      (mouseenter)="expandMenu()"
-                     routerLink="/dashboard/ventas" 
+                     routerLink="/dashboard/inventario" 
                      routerLinkActive="active">
         <mat-icon class="nav-icon">warehouse</mat-icon>
         <span class="nav-text" *ngIf="!isCollapsed">Inventario</span>

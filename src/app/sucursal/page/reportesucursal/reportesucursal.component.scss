@@ -1,0 +1,85 @@
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.reporte-card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.reporte-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filtro-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.botones-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.boton-descargar {
+  background-color: #1976d2;
+  color: white;
+  
+  &:disabled {
+    background-color: #ccc;
+    color: #666;
+  }
+}
+
+.boton-limpiar {
+  color: #ff9800;
+}
+
+.boton-volver {
+  color: #666;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .botones-container {
+    flex-direction: column;
+    align-items: stretch;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Loading spinner styles
+mat-spinner {
+  margin-right: 8px;
+}
+
+// Success and error snackbar styles
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}

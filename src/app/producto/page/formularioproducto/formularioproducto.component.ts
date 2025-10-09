@@ -5,9 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductoService } from '../../components/producto.service';
 import { CategoriaService } from '../../../categoria/components/categoria.service';
 import { ProveedorService } from '../../../proveedor/components/proveedor.service';
+import { SucursalService } from '../../../sucursal/components/sucursal.service';
 import { InputProducto } from '../../components/input.producto';
 import { Categoria } from '../../../categoria/components/categoria';
 import { InputProveedor } from '../../../proveedor/components/input.proveedor';
+import { Sucursal } from '../../../sucursal/components/sucursal';
 import { Subject, takeUntil, catchError, of } from 'rxjs';
 import { CampoFormulario } from 'src/app/reutilizacion/formulario-generico/campo.formulario';
 
@@ -27,6 +29,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
   categorias: Categoria[] = [];
   categoriaSeleccionada: Categoria | null = null;
   proveedorSeleccionado: InputProveedor | null = null;
+  sucursalSeleccionada: Sucursal | null = null;
   loading = false;
   formEnabled = false;
 
@@ -37,6 +40,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
     private proveedorService: ProveedorService,
+    private sucursalService: SucursalService,
     private snackBar: MatSnackBar
   ) {
     this.formGroup = this.fb.group({});
@@ -74,6 +78,9 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     
     // Agregar control de proveedorId manualmente (usado por el buscador)
     this.formGroup.addControl('proveedorId', this.fb.control({value: '', disabled: !this.isEdit}, [Validators.required]));
+    
+    // Agregar control de sucursalId manualmente (usado por el buscador)
+    this.formGroup.addControl('sucursalId', this.fb.control({value: '', disabled: !this.isEdit}, [Validators.required]));
   }
 
   private checkEditMode(): void {
@@ -127,7 +134,8 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
               ? data.productoEstado === 'ACTIVO' 
               : data.productoEstado,
             categoriaId: data.categoria?.id || '',
-            proveedorId: data.proveedor?.id || ''
+            proveedorId: data.proveedor?.id || '',
+            sucursalId: data.sucursal?.id || ''
           });
           
           // Establecer la categoría seleccionada para el buscador
@@ -146,6 +154,11 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
               email: data.proveedor.email,
               observaciones: data.proveedor.observaciones
             });
+          }
+          
+          // Establecer la sucursal seleccionada
+          if (data.sucursal) {
+            this.sucursalSeleccionada = data.sucursal;
           }
         }
         this.loading = false;
@@ -182,6 +195,21 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Método para manejar la selección de sucursal
+  onSucursalSeleccionada(sucursal: Sucursal | null): void {
+    this.sucursalSeleccionada = sucursal;
+    
+    if (sucursal) {
+      this.formGroup.patchValue({
+        sucursalId: sucursal.id
+      });
+    } else {
+      this.formGroup.patchValue({
+        sucursalId: null
+      });
+    }
+  }
+
   // -------------------
   // Eventos botones
   // -------------------
@@ -193,6 +221,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     this.formGroup.reset({ productoEstado: true });
     this.categoriaSeleccionada = null; // Limpiar categoría seleccionada
     this.proveedorSeleccionado = null; // Limpiar proveedor seleccionado
+    this.sucursalSeleccionada = null; // Limpiar sucursal seleccionada
     this.formEnabled = true;
     this.formGroup.enable();
   }
@@ -201,6 +230,7 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
     this.formGroup.reset();
     this.categoriaSeleccionada = null; // Limpiar categoría seleccionada
     this.proveedorSeleccionado = null; // Limpiar proveedor seleccionado
+    this.sucursalSeleccionada = null; // Limpiar sucursal seleccionada
     this.formEnabled = false;
     this.formGroup.disable();
   }
@@ -256,6 +286,15 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       return;
     }
     
+    // Verificar que se haya seleccionado una sucursal
+    if (!formValue.sucursalId) {
+      this.snackBar.open('Error: Debe seleccionar una sucursal', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+    
     // Usar la categoría seleccionada del buscador
     if (!this.categoriaSeleccionada) {
       this.snackBar.open('Error: Debe seleccionar una categoría', 'Cerrar', {
@@ -274,17 +313,18 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Usar la sucursal seleccionada
+    if (!this.sucursalSeleccionada) {
+      this.snackBar.open('Error: Debe seleccionar una sucursal', 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     try {
-      // Convertir InputProveedor al formato Proveedor esperado por InputProducto
-      const proveedorParaProducto = this.proveedorSeleccionado ? {
-        id: this.proveedorSeleccionado.id!,
-        ruc: this.proveedorSeleccionado.ruc,
-        razonSocial: this.proveedorSeleccionado.razonSocial,
-        rubro: this.proveedorSeleccionado.rubro,
-        telefono: this.proveedorSeleccionado.telefono,
-        email: this.proveedorSeleccionado.email,
-        observaciones: this.proveedorSeleccionado.observaciones
-      } : undefined;
+      // Usar directamente el InputProveedor seleccionado
+      const proveedorParaProducto = this.proveedorSeleccionado;
 
       const producto = new InputProducto({
         codigoProducto: formValue.codigoProducto,
@@ -295,7 +335,8 @@ export class ProductoFormComponent implements OnInit, OnDestroy {
         stock: Number(formValue.stock),
         productoEstado: formValue.productoEstado,
         categoria: this.categoriaSeleccionada,
-        proveedor: proveedorParaProducto
+        proveedor: proveedorParaProducto,
+        sucursal: this.sucursalSeleccionada
       });
 
       const productoDto = producto.toDto();
